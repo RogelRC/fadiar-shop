@@ -1,11 +1,12 @@
-import { Search, Menu, User, ShoppingCart } from "lucide-react";
+import { Menu, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
+import UserButton from "./UserButton";
 
 export default function Header() {
   return (
-    <header className="flex w-full h-22 overflow-hidden relative bg-black px-4 sm:px-8 space-x-4 lg:space-x-8 items-center">
+    <header className="flex w-full h-22 relative bg-black px-4 sm:px-8 space-x-4 lg:space-x-8 items-center">
       {/* Capa de fondo desenfocada */}
       <div
         className="absolute inset-0 backdrop-blur-md"
@@ -40,31 +41,29 @@ export default function Header() {
       <div className="flex z-10 h-full items-center justify-end text-white space-x-4 text-sm">
         <Link
           href="/"
-          className="hidden sm:block hover:text-blue-500 transition-colors"
+          className="hidden sm:block hover:text-blue-500 hover:underline transition-colors"
         >
           Inicio
         </Link>
         <Link
           href="/products"
-          className="hidden sm:block hover:text-blue-500 transition-colors"
+          className="hidden sm:block hover:text-blue-500 hover:underline transition-colors"
         >
           Productos
         </Link>
         <Link
           href="/cart"
-          className="hidden sm:block hover:text-blue-500 transition-colors"
+          className="hidden sm:block hover:text-blue-500 hover:underline transition-colors"
         >
           Carrito
         </Link>
         <Link
           href="/record"
-          className="hidden sm:block whitespace-nowrap hover:text-blue-500 transition-colors"
+          className="hidden sm:block whitespace-nowrap hover:text-blue-500 hover:underline transition-colors"
         >
           Mis Pedidos
         </Link>
-        <button className="hidden sm:block hover:scale-125 duration-300">
-          <User />
-        </button>
+        <UserButton />
         <button className="w-6 h-6 sm:hidden hover:scale-125 duration-300">
           <ShoppingCart />
         </button>
