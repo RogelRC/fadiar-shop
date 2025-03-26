@@ -8,15 +8,17 @@ export default function SearchBar() {
   const [query, setQuery] = useState("");
   const router = useRouter();
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter" && query.trim() !== "") {
-      router.push(`/products?name=${encodeURIComponent(query)}`);
-    }
+  const handleSearch = () => {
+    const trimmedQuery = query.trim();
+    const url = trimmedQuery
+      ? `/products?name=${encodeURIComponent(trimmedQuery)}`
+      : "/products";
+    router.push(url);
   };
 
-  const handleSearch = () => {
-    if (query.trim() !== "") {
-      router.push(`/products?name=${encodeURIComponent(query)}`);
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleSearch();
     }
   };
 
