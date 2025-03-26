@@ -11,6 +11,7 @@ import {
   Info,
   HandHelping,
   Phone,
+  House,
 } from "lucide-react";
 
 export default function BurgerMenu() {
@@ -37,6 +38,17 @@ export default function BurgerMenu() {
             </button>
           </div>
           <hr className="border-1 border-gray-200" />
+          <Link
+            href="/"
+            className="flex w-full space-x-2"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>
+              <House />
+            </span>
+            <span>Inicio</span>
+          </Link>
+          <hr className="border-1 border-gray-200" />
           <button
             className="flex w-full space-x-2"
             onClick={() => setIsOpen(false)}
@@ -46,39 +58,63 @@ export default function BurgerMenu() {
             </span>
             <span>Cerrar sesión</span>
           </button>
-          <Link href="/account" className="flex w-full space-x-2">
+          <Link
+            href="/account"
+            className="flex w-full space-x-2"
+            onClick={() => setIsOpen(false)}
+          >
             <span>
               <User />
             </span>
             <span>Mi cuenta</span>
           </Link>
           <hr className="border-1 border-gray-200" />
-          <Link href="/products" className="flex w-full space-x-2">
+          <Link
+            href="/products"
+            className="flex w-full space-x-2"
+            onClick={() => setIsOpen(false)}
+          >
             <span>
               <WashingMachine />
             </span>
             <span>Productos</span>
           </Link>
-          <Link href="/cart" className="flex w-full space-x-2">
+          <Link
+            href="/cart"
+            className="flex w-full space-x-2"
+            onClick={() => setIsOpen(false)}
+          >
             <span>
               <ShoppingCart />
             </span>
             <span>Carrito</span>
           </Link>
           <hr className="border-1 border-gray-200" />
-          <Link href="/about" className="flex w-full space-x-2">
+          <Link
+            href="/about"
+            className="flex w-full space-x-2"
+            onClick={() => setIsOpen(false)}
+          >
             <span>
               <Info />
             </span>
             <span>Sobre nosotros</span>
           </Link>
-          <Link href="/help" className="flex w-full space-x-2">
+          <Link
+            href="/help"
+            className="flex w-full space-x-2"
+            onClick={() => setIsOpen(false)}
+          >
             <span>
               <HandHelping />
             </span>
             <span>Ayuda</span>
           </Link>
-          <Link href="/contact" className="flex w-full space-x-2">
+          <Link
+            href="/contact"
+            className="flex w-full space-x-2"
+            onClick={() => setIsOpen(false)}
+          >
             <span>
               <Phone />
             </span>
