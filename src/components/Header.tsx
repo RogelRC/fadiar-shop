@@ -2,7 +2,8 @@ import { Menu, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
-import UserButton from "./UserButton";
+import UserButton from "@/components/UserButton";
+import BurgerMenu from "@/components/BurguerMenu";
 
 export default function Header() {
   return (
@@ -67,9 +68,7 @@ export default function Header() {
         <button className="w-6 h-6 sm:hidden hover:scale-125 duration-300">
           <ShoppingCart />
         </button>
-        <button className="w-6 h-6 sm:hidden hover:scale-125 duration-300">
-          <Menu />
-        </button>
+        <BurgerMenu />
       </div>
     </header>
   );

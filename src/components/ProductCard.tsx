@@ -31,7 +31,7 @@ export default function ProductCard({ product }: { product: Product }) {
           sizes="(max-width: 768px) 50vw, 33vw"
         />
       </div>
-      <div className="relative flex flex-col bg-[#022953] rounded-t-lg p-2 -mt-2 z-50 text-white">
+      <div className="relative flex flex-col bg-[#022953] rounded-t-lg p-2 -mt-2  text-white">
         <span className="font-bold whitespace-nowrap overflow-hidden text-ellipsis">
           {product.name}
         </span>
