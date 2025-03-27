@@ -4,6 +4,11 @@ import { User, ShieldUser, LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 
+const handleLogout = () => {
+  localStorage.removeItem("userData");
+  window.dispatchEvent(new Event("userDataChanged"));
+};
+
 export default function UserButton() {
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -50,10 +55,14 @@ export default function UserButton() {
             <ShieldUser />
             <Link href="/account">Mi cuenta</Link>
           </div>
-          <button className="flex items-center space-x-2 hover:scale-110 transition-all duration-300">
+          <Link
+            href="/"
+            className="flex items-center space-x-2 hover:scale-110 transition-all duration-300"
+            onClick={handleLogout}
+          >
             <LogOut />
             <span>Cerrar sesión</span>
-          </button>
+          </Link>
         </div>
       )}
     </div>

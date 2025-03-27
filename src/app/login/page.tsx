@@ -51,6 +51,8 @@ async function handleLogin(loginProps: LoginProps, router: any) {
     // 🔹 Redirigir a otra página tras el login (ejemplo: home)
 
     localStorage.setItem("userData", JSON.stringify(userData));
+    window.dispatchEvent(new Event("userDataChanged"));
+
     router.push("/products");
   } catch (error) {
     throw error;

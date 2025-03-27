@@ -38,8 +38,6 @@ export default async function ProductsPage({
       )
     : products.products;
 
-  console.log(filteredProducts);
-
   return (
     <div className="flex flex-col w-full py-6 px-4 sm:px-8 space-y-6">
       <h1 className="font-bold text-3xl text-[#022953]">

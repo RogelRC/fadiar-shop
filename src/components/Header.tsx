@@ -1,9 +1,9 @@
-import { Menu, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
-import UserButton from "@/components/UserButton";
 import BurgerMenu from "@/components/BurguerMenu";
+import Navbar from "@/components/Navbar";
 
 export default function Header() {
   return (
@@ -52,22 +52,9 @@ export default function Header() {
         >
           Productos
         </Link>
-        <Link
-          href="/cart"
-          className="hidden sm:block hover:text-blue-500 hover:underline transition-colors"
-        >
-          Carrito
-        </Link>
-        <Link
-          href="/record"
-          className="hidden sm:block whitespace-nowrap hover:text-blue-500 hover:underline transition-colors"
-        >
-          Mis Pedidos
-        </Link>
-        <UserButton />
-        <button className="w-6 h-6 sm:hidden hover:scale-125 duration-300">
-          <ShoppingCart />
-        </button>
+
+        <Navbar />
+
         <BurgerMenu />
       </div>
     </header>

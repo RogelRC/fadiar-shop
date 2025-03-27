@@ -8,7 +8,9 @@ interface Product {
 
 async function loadProducts() {
   try {
-    const response = await fetch("https://app.fadiar.com/api/inventory");
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/inventory`,
+    );
     const products = await response.json();
     return products.products;
   } catch (error) {
