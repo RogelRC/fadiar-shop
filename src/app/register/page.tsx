@@ -8,6 +8,35 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { form } from "framer-motion/client";
+
+const router = useRouter();
+
+async function handleSubmit(formData: FormData) {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/register`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al registrar");
+    }
+
+    router.push(`/verify?id=${formData.get("id")}`);
+
+    console.log("Registro exitoso");
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 export default function Login() {
   const [formData, setFormData] = useState({
