@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 async function getProduct(id: string) {
   try {
     const response = await fetch(
@@ -8,12 +10,13 @@ async function getProduct(id: string) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id_product: id,
-          id_user_action: "-1",
+          id_product: parseInt(id),
+          id_user_action: 0,
         }),
       },
     );
     const product = await response.json();
+
     return product;
   } catch (error) {
     console.error(error);
@@ -28,13 +31,31 @@ export default async function ProductPage({
 }) {
   const product = await getProduct(params.id);
 
-  console.log(product);
+  console.log(product.product);
 
   return (
-    <div>
-      <h1>{product.name}</h1>
-      <p>{product.description}</p>
-      <p>${product.price}</p>
-    </div>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 sm:p-8 p-4 sm:gap-8 gap-4">
+        <div>
+          <Image
+            src={`${process.env.NEXT_PUBLIC_API_URL}/${product.product.image}`}
+            alt={product.product.name}
+            width={800}
+            height={800}
+            className="rounded-lg shadow-lg"
+          />
+          <span className="flex relative w-1/2 bg-[#022953] py-2 p-2 sm:px-6 text-nowrap text-white font-semibold justify-end -mt-4 z-10">
+            Marca {product.product.brand}
+          </span>
+        </div>
+        <div className="flex flex-col w-full self-start bg-[#022953] rounded-xl p-4 sm:p-10 text-white space-y-2">
+          <h1 className="text-3xl font-bold">{product.product.name}</h1>
+          <h3 className="text-lg font-semibold">Propiedades:</h3>
+          <span style={{ whiteSpace: "pre-line" }}>
+            {product.product.description}
+          </span>
+        </div>
+      </div>
+    </>
   );
 }

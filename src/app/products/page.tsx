@@ -1,4 +1,6 @@
 import ProductCard from "@/components/ProductCard";
+import { data } from "framer-motion/client";
+import { Locate } from "lucide-react";
 
 interface Product {
   id: number;
@@ -9,6 +11,18 @@ interface Product {
   img: string;
   prices: [number, number, string][];
   specs: [number, string, string][];
+}
+
+async function getLocation() {
+  try {
+    const res = await fetch("http://ip-api.com/json/");
+    const data = await res.json();
+    //console.log(data.countryCode);
+    return data.countryCode || "CU";
+  } catch (error) {
+    console.error("Error obteniendo la ubicación:", error);
+    return "CU";
+  }
 }
 
 async function getProducts() {
@@ -29,6 +43,12 @@ export default async function ProductsPage({
   searchParams: { name: string };
 }) {
   const products = await getProducts();
+  const location = (await getLocation()) || "CU";
+
+  const currencies = await products.currencys.currencys;
+
+  console.log(currencies);
+  console.log(location);
 
   const searchName = searchParams.name?.toLowerCase() || "";
 
@@ -45,7 +65,12 @@ export default async function ProductsPage({
       </h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProducts.map((product: Product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard
+            key={product.id}
+            product={product}
+            location={location}
+            currencies={currencies}
+          />
         ))}
       </div>
     </div>

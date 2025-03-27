@@ -13,7 +13,21 @@ interface Product {
   specs: [number, string, string][];
 }
 
-export default function ProductCard({ product }: { product: Product }) {
+interface Currency {
+  currency: string;
+  id: number;
+  value: number;
+}
+
+export default function ProductCard({
+  product,
+  location,
+  currencies,
+}: {
+  product: Product;
+  location: string;
+  currencies: Currency[];
+}) {
   return (
     <Link
       href={`/products/${product.id}`}
@@ -39,7 +53,22 @@ export default function ProductCard({ product }: { product: Product }) {
           Marca {product.brand}
         </span>
         <span>
-          {product.prices[0][1]} {product.prices[0][2]}
+          {location === "CU" && product.prices[0][2] === "CUP" && (
+            <>{product.prices[0][1]} CUP</>
+          )}
+          {location !== "CU" && product.prices[0][2] === "USD" && (
+            <>{product.prices[0][1]} USD</>
+          )}
+          {location === "CU" && product.prices[0][2] === "USD" && (
+            <>{product.prices[0][1] * currencies[1].value} CUP</>
+          )}
+          {location !== "CU" && product.prices[0][2] === "CUP" && (
+            <>
+              {Math.ceil((product.prices[0][1] / currencies[1].value) * 100) /
+                100}{" "}
+              USD
+            </>
+          )}
         </span>
         <Image
           src="/Group81.svg"
