@@ -1,3 +1,5 @@
+"use client";
+
 {
   /* #022953 */
 }
@@ -5,6 +7,21 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useState } from "react";
+
+const [formData, setFormData] = useState({
+  ci: "",
+  name: "",
+  lastname1: "",
+  lastname2: "",
+  cellphone1: "",
+  cellphon2: "",
+  address: "",
+  email: "",
+  username: "",
+  password: "",
+  type: "Cliente",
+});
 
 export default function Login() {
   return (
