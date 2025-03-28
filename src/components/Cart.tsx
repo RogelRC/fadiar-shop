@@ -115,7 +115,7 @@ export default function Cart() {
         </button>
       )}
       {isOpen && amount > 0 && (
-        <div className="fixed flex flex-col bottom-2 right-2 ml-40 w-132 max-w-[calc(100vw-16px)] bg-white shadow-xl sm:p-8 p-4 text-[#022953] rounded-lg gap-4 z-50">
+        <div className="fixed flex flex-col bottom-2 right-2 ml-40 w-132  max-h-[calc(100vh-16px)] max-w-[calc(100vw-16px)] bg-white shadow-xl sm:p-8 p-4 text-[#022953] rounded-lg gap-4 z-50 overflow-y-scroll">
           <div className="flex w-full">
             <h3 className="text-xl font-bold">Tu carrito</h3>
             <button onClick={() => setIsOpen(!isOpen)} className="ml-auto">
