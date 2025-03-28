@@ -49,8 +49,13 @@ export default function AddToCart({
   const [quantity, setQuantity] = useState(1);
   const [count, setCount] = useState(amount);
 
-  console.log("Amount: " + amount);
-  console.log("Count: " + count);
+  useEffect(() => {
+    setCount(amount);
+  }, [amount]);
+
+  useEffect(() => {
+    setQuantity(Math.min(count, 1));
+  }, [count]);
 
   function handleSetQuantity(quantity: number) {
     if (quantity > count) setQuantity(count);
@@ -59,44 +64,54 @@ export default function AddToCart({
 
   return (
     <>
-      <div className="flex w-full gap-2 justify-center sm:justify-start">
-        <button
-          onClick={() => handleSetQuantity(quantity + 1)}
-          className="flex bg-[#022953] h-10 w-10 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300"
-        >
-          <Plus />
-        </button>
-        <input
-          type="number"
-          value={quantity}
-          onChange={(e) => handleSetQuantity(Number(e.target.value))}
-          min="1"
-          max={count.toString()}
-          className="flex bg-white text-[#022953] h-10 w-20 text-center items-center justify-center rounded-lg"
-        />
-        <button
-          onClick={() => handleSetQuantity(quantity - 1)}
-          className="flex bg-[#022953] h-10 w-10 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300"
-        >
-          <Minus />
-        </button>
-        <button
-          onClick={() => handleAddToCart(productId, quantity)}
-          className="hidden sm:block bg-[#022953] h-10 w-40 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300"
-        >
-          Añadir al carrito
-        </button>
-      </div>
-      <button
-        onClick={() => {
-          handleAddToCart(productId, quantity);
-          setCount(count - quantity);
-          console.log(count);
-        }}
-        className="sm:hidden bg-[#022953] h-10 w-40 text-white items-center rounded-lg hover:scale-110 transition-all duration-300"
-      >
-        Añadir al carrito
-      </button>
+      {count > 0 ? (
+        <>
+          <div className="flex w-full gap-2 justify-center sm:justify-start">
+            <button
+              onClick={() => handleSetQuantity(quantity + 1)}
+              className="flex bg-[#022953] h-10 w-10 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300"
+            >
+              <Plus />
+            </button>
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => handleSetQuantity(Number(e.target.value))}
+              min="1"
+              max={count.toString()}
+              className="flex bg-white text-[#022953] h-10 w-20 text-center items-center justify-center rounded-lg"
+            />
+            <button
+              onClick={() => handleSetQuantity(quantity - 1)}
+              className="flex bg-[#022953] h-10 w-10 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300"
+            >
+              <Minus />
+            </button>
+            <button
+              onClick={() => {
+                setCount(count - quantity);
+                handleAddToCart(productId, quantity);
+              }}
+              className="hidden sm:block bg-[#022953] h-10 w-40 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300"
+            >
+              Añadir al carrito
+            </button>
+          </div>
+          <button
+            onClick={() => {
+              setCount(count - quantity);
+              handleAddToCart(productId, quantity);
+            }}
+            className="sm:hidden bg-[#022953] h-10 w-40 text-white items-center rounded-lg hover:scale-110 transition-all duration-300"
+          >
+            Añadir al carrito
+          </button>
+        </>
+      ) : (
+        <div className="flex items-center sm:text-3xl text-lg">
+          Lo sentimos, este producto se encuentra agotado temporalmente
+        </div>
+      )}
     </>
   );
 }
