@@ -49,7 +49,7 @@ export default async function ProductPage({
   const location = await getLocation();
   const currencies = await product.currencys.currencys;
 
-  console.log(currencies);
+  console.log(product);
 
   return (
     <div className="flex flex-col gap-y-4 sm:gap-y-8 sm:p-8 p-4 w-full">
@@ -89,7 +89,7 @@ export default async function ProductPage({
                 </>
               )}
             </span>
-            <AddToCart />
+            <AddToCart productId={product.product.id} />
           </div>
         </div>
         <div className="flex flex-col w-full self-start bg-[#022953] rounded-xl p-4 sm:p-10 text-white gap-y-2">
@@ -122,7 +122,7 @@ export default async function ProductPage({
               </>
             )}
           </span>
-          <AddToCart />
+          <AddToCart productId={product.product.id} />
         </div>
       </div>
     </div>
