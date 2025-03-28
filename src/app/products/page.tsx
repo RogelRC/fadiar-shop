@@ -1,6 +1,4 @@
 import ProductCard from "@/components/ProductCard";
-import { data } from "framer-motion/client";
-import { Locate } from "lucide-react";
 
 interface Product {
   id: number;
@@ -47,11 +45,12 @@ export default async function ProductsPage({
   const location = (await getLocation()) || "CU";
 
   const currencies = await products.currencys.currencys;
+  const { name } = await searchParams;
 
   //console.log(currencies);
   //console.log(location);
 
-  const searchName = (await searchParams.name?.toLowerCase()) || "";
+  const searchName = name || "";
 
   const filteredProducts = searchName
     ? products.products.filter((product: Product) =>

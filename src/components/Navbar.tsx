@@ -50,7 +50,7 @@ export default function Navbar() {
             Carrito
           </Link>
           <Link
-            href="/record"
+            href={`/record?id=${JSON.parse(localStorage.getItem("userData") || "{}").userId || null}`}
             className="hidden sm:block whitespace-nowrap hover:text-blue-500 hover:underline transition-colors"
           >
             Mis Pedidos
