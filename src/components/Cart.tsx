@@ -1,7 +1,7 @@
 "use client";
 
 import { ShoppingCart, X } from "lucide-react";
-import { M_PLUS_1 } from "next/font/google";
+import CartItem from "@/components/CartItem";
 import { useState, useEffect } from "react";
 
 async function fetchCartItems() {
@@ -37,18 +37,21 @@ async function fetchCartItems() {
 export default function Cart() {
   const [isOpen, setIsOpen] = useState(false);
   const [amount, setAmount] = useState(0);
+  const [cartItems, setCartItems] = useState<any[]>([]); // Estado para almacenar los artículos del carrito
 
   useEffect(() => {
     const fetchCart = async () => {
       try {
         const cartItems = await fetchCartItems();
-        console.log(cartItems);
+        //console.log(cartItems);
         setAmount(
           cartItems.carrito.reduce(
             (acc: any, item: any) => acc + item.en_carrito,
             0,
           ),
         );
+        setCartItems(cartItems.carrito);
+        console.log(cartItems.carrito);
       } catch (error) {
         console.error(error);
       }
@@ -90,13 +93,18 @@ export default function Cart() {
           </div>
         </button>
       )}
-      {isOpen && (
-        <div className="fixed flex flex-col bottom-2 right-2 ml-40 w-100 max-w-[calc(100vw-16px)] bg-white shadow-lg sm:p-8 p-4 text-[#022953] rounded-lg">
+      {isOpen && amount > 0 && (
+        <div className="fixed flex flex-col bottom-2 right-2 ml-40 w-132 max-w-[calc(100vw-16px)] bg-white shadow-xl sm:p-8 p-4 text-[#022953] rounded-lg gap-4">
           <div className="flex w-full">
             <h3 className="text-xl font-bold">Tu carrito</h3>
             <button onClick={() => setIsOpen(!isOpen)} className="ml-auto">
               <X />
             </button>
+          </div>
+          <div className="flex flex-col gap-4">
+            {cartItems.map((item) => (
+              <CartItem key={item.id} item={item} />
+            ))}
           </div>
         </div>
       )}
