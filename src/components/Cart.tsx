@@ -106,7 +106,7 @@ export default function Cart() {
       {!isOpen && amount > 0 && (
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex fixed bottom-4 right-4 w-14 h-14 rounded-full shadow-lg bg-blue-600 items-center justify-center text-white hover:bg-blue-700 hover:cursor-pointer hover:scale-110 transition-all duration-300"
+          className="flex fixed bottom-4 right-4 w-14 h-14 rounded-full shadow-lg bg-blue-600 items-center justify-center text-white hover:bg-blue-700 hover:cursor-pointer hover:scale-110 transition-all duration-300 z-50"
         >
           <ShoppingCart className="w-6 h-6" />
           <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-2 py-1 text-xs">

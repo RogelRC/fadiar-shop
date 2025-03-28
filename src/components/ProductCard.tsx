@@ -41,8 +41,9 @@ export default function ProductCard({
         >
           {/* Etiqueta de "Agotado" */}
           {product.count === 0 && (
-            <span className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded z-50">
-              Agotado temporalmente
+            <span className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded z-10">
+              <span className="sm:hidden">Agotado</span>
+              <span className="hidden sm:block">Agotado temporalmente</span>
             </span>
           )}
           <Image
