@@ -11,6 +11,7 @@ interface Product {
   img: string;
   prices: [number, number, string][];
   specs: [number, string, string][];
+  count: number;
 }
 
 async function getLocation() {
@@ -50,7 +51,7 @@ export default async function ProductsPage({
   //console.log(currencies);
   //console.log(location);
 
-  const searchName = searchParams.name?.toLowerCase() || "";
+  const searchName = (await searchParams.name?.toLowerCase()) || "";
 
   const filteredProducts = searchName
     ? products.products.filter((product: Product) =>
@@ -64,14 +65,19 @@ export default async function ProductsPage({
         Catálogo de productos
       </h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filteredProducts.map((product: Product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            location={location}
-            currencies={currencies}
-          />
-        ))}
+        {filteredProducts
+          .sort(
+            (a: Product, b: Product) =>
+              (b.count > 0 ? 1 : -1) - (a.count > 0 ? 1 : -1),
+          )
+          .map((product: Product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              location={location}
+              currencies={currencies}
+            />
+          ))}
       </div>
     </div>
   );

@@ -83,9 +83,7 @@ export default async function ProductPage({
               {location !== "CU" && product.product.prices[0][2] === "CUP" && (
                 <>
                   {Math.ceil(
-                    (product.product.product.prices[0][1] /
-                      currencies[1].value) *
-                      100,
+                    (product.product.prices[0][1] / currencies[1].value) * 100,
                   ) / 100}{" "}
                   USD
                 </>
@@ -120,8 +118,7 @@ export default async function ProductPage({
             {location !== "CU" && product.product.prices[0][2] === "CUP" && (
               <>
                 {Math.ceil(
-                  (product.product.product.prices[0][1] / currencies[1].value) *
-                    100,
+                  (product.product.prices[0][1] / currencies[1].value) * 100,
                 ) / 100}{" "}
                 USD
               </>
