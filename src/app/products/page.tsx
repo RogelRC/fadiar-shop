@@ -47,8 +47,8 @@ export default async function ProductsPage({
 
   const currencies = await products.currencys.currencys;
 
-  console.log(currencies);
-  console.log(location);
+  //console.log(currencies);
+  //console.log(location);
 
   const searchName = searchParams.name?.toLowerCase() || "";
 

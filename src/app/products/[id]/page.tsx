@@ -6,7 +6,7 @@ async function getLocation() {
   try {
     const res = await fetch("http://ip-api.com/json/");
     const data = await res.json();
-    console.log(data);
+    //console.log(data);
 
     return data.countryCode || "CU";
   } catch (error) {
@@ -44,12 +44,14 @@ export default async function ProductPage({
 }: {
   params: { id: string };
 }) {
-  const product = await getProduct(params.id);
+  const { id } = await params;
+
+  const product = await getProduct(id);
 
   const location = await getLocation();
   const currencies = await product.currencys.currencys;
 
-  console.log(product);
+  //console.log(product);
 
   return (
     <div className="flex flex-col gap-y-4 sm:gap-y-8 sm:p-8 p-4 w-full">
@@ -89,7 +91,10 @@ export default async function ProductPage({
                 </>
               )}
             </span>
-            <AddToCart productId={product.product.id} />
+            <AddToCart
+              productId={product.product.id}
+              amount={parseInt(product.product.count)}
+            />
           </div>
         </div>
         <div className="flex flex-col w-full self-start bg-[#022953] rounded-xl p-4 sm:p-10 text-white gap-y-2">
@@ -122,7 +127,10 @@ export default async function ProductPage({
               </>
             )}
           </span>
-          <AddToCart productId={product.product.id} />
+          <AddToCart
+            productId={product.product.id}
+            amount={parseInt(product.product.count)}
+          />
         </div>
       </div>
     </div>

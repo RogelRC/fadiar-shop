@@ -1,8 +1,8 @@
 "use client";
 
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Cog } from "lucide-react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 async function handleAddToCart(productId: number, quantity: number) {
   if (!localStorage.getItem("userData")) {
@@ -19,7 +19,7 @@ async function handleAddToCart(productId: number, quantity: number) {
     count: quantity,
   });
 
-  console.log(body);
+  //console.log(body);
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/agregar_producto_carrito`,
@@ -32,16 +32,29 @@ async function handleAddToCart(productId: number, quantity: number) {
     },
   );
 
+  window.dispatchEvent(new Event("cartDataChanged"));
+
   if (!response.ok) {
     throw new Error("Failed to add item to cart");
   }
 }
 
-export default function AddToCart({ productId }: { productId: number }) {
+export default function AddToCart({
+  productId,
+  amount,
+}: {
+  productId: number;
+  amount: number;
+}) {
   const [quantity, setQuantity] = useState(1);
+  const [count, setCount] = useState(amount);
+
+  console.log("Amount: " + amount);
+  console.log("Count: " + count);
 
   function handleSetQuantity(quantity: number) {
-    if (quantity > 0) setQuantity(quantity);
+    if (quantity > count) setQuantity(count);
+    else if (quantity > 0) setQuantity(quantity);
   }
 
   return (
@@ -56,9 +69,10 @@ export default function AddToCart({ productId }: { productId: number }) {
         <input
           type="number"
           value={quantity}
-          min="1"
-          className="flex bg-white text-[#022953] h-10 w-20 text-center items-center justify-center rounded-lg"
           onChange={(e) => handleSetQuantity(Number(e.target.value))}
+          min="1"
+          max={count.toString()}
+          className="flex bg-white text-[#022953] h-10 w-20 text-center items-center justify-center rounded-lg"
         />
         <button
           onClick={() => handleSetQuantity(quantity - 1)}
@@ -74,7 +88,11 @@ export default function AddToCart({ productId }: { productId: number }) {
         </button>
       </div>
       <button
-        onClick={() => handleAddToCart(productId, quantity)}
+        onClick={() => {
+          handleAddToCart(productId, quantity);
+          setCount(count - quantity);
+          console.log(count);
+        }}
         className="sm:hidden bg-[#022953] h-10 w-40 text-white items-center rounded-lg hover:scale-110 transition-all duration-300"
       >
         Añadir al carrito
