@@ -13,6 +13,7 @@ import {
   Phone,
   House,
   LogIn,
+  Package,
 } from "lucide-react";
 
 const handleLogout = () => {
@@ -119,6 +120,16 @@ export default function BurgerMenu() {
                     <User />
                   </span>
                   <span>Mi cuenta</span>
+                </Link>
+                <Link
+                  href="/record"
+                  className="flex w-full space-x-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span>
+                    <Package />
+                  </span>
+                  <span>Mis pedidos</span>
                 </Link>
               </>
             )}

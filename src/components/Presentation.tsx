@@ -63,7 +63,7 @@ export default function Slideshow() {
       </AnimatePresence>
 
       {/* Controles */}
-      <div className="absolute bottom-8 left-8 text-white z-10">
+      <div className="absolute bottom-8 left-8 text-white">
         <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-4">
           CATÁLOGO
         </h1>

@@ -50,7 +50,7 @@ export default function ProductCard({
             src={`${process.env.NEXT_PUBLIC_API_URL}/${product.img}`}
             alt={product.name}
             fill
-            className="object-fill w-full h-full"
+            className="object-cover w-full h-full"
             sizes="(max-width: 768px) 50vw, 33vw"
           />
         </div>

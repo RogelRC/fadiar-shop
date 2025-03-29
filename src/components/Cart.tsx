@@ -5,7 +5,9 @@ import CartItem from "@/components/CartItem";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-async function fetchCartItems() {
+async function fetchCartItems(userData: any) {
+  if (!userData) return "{}";
+
   try {
     // Fetch cart items from the server
     const body = JSON.stringify({
@@ -53,57 +55,73 @@ export default function Cart() {
   const [cartItems, setCartItems] = useState<any[]>([]); // Estado para almacenar los artículos del carrito
   const [currencies, setCurrencies] = useState<string>(""); // Estado para almacenar la moneda actual
   const [location, setLocation] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        setLoading(true); // Indicar que estamos cargando
-        const cartItems = await fetchCartItems();
+        const cartItems = await fetchCartItems(userData);
         const location = await getLocation();
 
-        setAmount(
-          cartItems.carrito.reduce(
-            (acc: any, item: any) => acc + item.en_carrito,
-            0,
-          ),
-        );
+        if (userData) {
+          setAmount(
+            cartItems.carrito.reduce(
+              (acc: any, item: any) => acc + item.en_carrito,
+              0,
+            ),
+          );
+        } else setAmount(0);
+
         setCartItems(cartItems.carrito);
-        setCurrencies(cartItems.monedas[0].currencys);
+        setCurrencies(userData ? cartItems.monedas[0].currencys : {});
         setLocation(location);
       } catch (error) {
         console.error(error);
-      } finally {
-        setLoading(false); // Indicar que terminó de cargar
       }
     };
 
     fetchCart();
-  }, [amount, isOpen]);
+  }, [amount, isOpen, userData]);
 
   useEffect(() => {
+    const updateUserData = () => {
+      setUserData(localStorage.getItem("userData"));
+    };
     const updateCartData = () => {
       setAmount(-1);
     };
 
     // Ejecutar al montar el componente
+    updateUserData();
     updateCartData();
 
+    // Escuchar eventos de almacenamiento (cambios en otras pestañas)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "userData") {
+        updateUserData();
+      }
+    };
     const handleCustomEvent = () => {
       updateCartData();
+      updateUserData();
     };
 
+    // Agregar listeners
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("userDataChanged", handleCustomEvent);
     window.addEventListener("cartDataChanged", handleCustomEvent);
 
     // Limpiar listeners al desmontar
     return () => {
       window.removeEventListener("cartDataChanged", handleCustomEvent);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("userDataChanged", handleCustomEvent);
     };
   }, []);
 
   return (
     <>
-      {!isOpen && amount > 0 && (
+      {!isOpen && amount > 0 && userData && (
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex fixed bottom-4 right-4 w-14 h-14 rounded-full shadow-lg bg-blue-600 items-center justify-center text-white hover:bg-blue-700 hover:cursor-pointer hover:scale-110 transition-all duration-300 z-50"
@@ -114,7 +132,7 @@ export default function Cart() {
           </div>
         </button>
       )}
-      {isOpen && amount > 0 && (
+      {isOpen && amount > 0 && userData && (
         <div className="fixed flex flex-col bottom-2 right-2 ml-40 w-132  max-h-[calc(100vh-16px)] max-w-[calc(100vw-16px)] bg-white shadow-xl sm:p-8 p-4 text-[#022953] rounded-lg gap-4 z-50 overflow-y-scroll">
           <div className="flex w-full">
             <h3 className="text-xl font-bold">Tu carrito</h3>
