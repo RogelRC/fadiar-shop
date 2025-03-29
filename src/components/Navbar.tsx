@@ -44,7 +44,7 @@ export default function Navbar() {
       {userData ? (
         <>
           <Link
-            href="/cart"
+            href="/checkout"
             className="hidden sm:block hover:text-blue-500 hover:underline transition-colors"
           >
             Carrito

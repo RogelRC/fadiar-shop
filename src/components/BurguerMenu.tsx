@@ -62,7 +62,7 @@ export default function BurgerMenu() {
     <>
       {userData && (
         <Link
-          href="/cart"
+          href="/checkout"
           className="w-6 h-6 sm:hidden hover:scale-125 duration-300"
         >
           <ShoppingCart />
@@ -158,7 +158,7 @@ export default function BurgerMenu() {
             </Link>
             {userData && (
               <Link
-                href="/cart"
+                href="/checkout"
                 className="flex w-full space-x-2"
                 onClick={() => setIsOpen(false)}
               >
