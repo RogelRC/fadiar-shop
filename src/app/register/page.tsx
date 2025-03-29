@@ -11,9 +11,21 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { form } from "framer-motion/client";
 
-const router = useRouter();
+interface FormData {
+  ci: string;
+  name: string;
+  lastname1: string;
+  lastname2: string;
+  cellphone1: string;
+  cellphon2: string;
+  address: string;
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+}
 
-async function handleSubmit(formData: FormData) {
+async function handleSubmit(formData: FormData, router: any) {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/register`,
@@ -22,7 +34,12 @@ async function handleSubmit(formData: FormData) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          ci: parseInt(formData.ci),
+          cellphone1: parseInt(formData.cellphone1),
+          cellphon2: parseInt(formData.cellphon2),
+        }),
       },
     );
 
@@ -30,7 +47,7 @@ async function handleSubmit(formData: FormData) {
       throw new Error("Error al registrar");
     }
 
-    router.push(`/verify?id=${formData.get("id")}`);
+    router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
 
     console.log("Registro exitoso");
   } catch (error) {
@@ -39,6 +56,8 @@ async function handleSubmit(formData: FormData) {
 }
 
 export default function Login() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     ci: "",
     name: "",
@@ -111,6 +130,7 @@ export default function Login() {
         <Input
           placeholder="Correo electrónico"
           value={formData.email}
+          type="email"
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
         />
         <Input
@@ -123,6 +143,7 @@ export default function Login() {
         <Input
           placeholder="Contraseña"
           value={formData.password}
+          type="password"
           onChange={(e) =>
             setFormData({ ...formData, password: e.target.value })
           }
@@ -130,11 +151,15 @@ export default function Login() {
         <Input
           placeholder="Confirmar contraseña"
           value={formData.confirmPassword}
+          type="password"
           onChange={(e) =>
             setFormData({ ...formData, confirmPassword: e.target.value })
           }
         />
-        <Button className="w-full bg-[#022953] hover:bg-[#034078] hover:shadow-lg">
+        <Button
+          onClick={() => handleSubmit(formData, router)}
+          className="w-full bg-[#022953] hover:bg-[#034078] hover:shadow-lg"
+        >
           Registrarse
         </Button>
         <span className="text-xs sm:text-sm text-gray-600 text-center">
