@@ -4,9 +4,10 @@ import { ShoppingCart, X } from "lucide-react";
 import CartItem from "@/components/CartItem";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 async function fetchCartItems(userData: any) {
-  if (!userData) return "{}";
+  if (!userData) return {};
 
   try {
     // Fetch cart items from the server
@@ -56,6 +57,7 @@ export default function Cart() {
   const [currencies, setCurrencies] = useState<string>(""); // Estado para almacenar la moneda actual
   const [location, setLocation] = useState<string>("");
   const [userData, setUserData] = useState<string | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -118,6 +120,8 @@ export default function Cart() {
       window.removeEventListener("userDataChanged", handleCustomEvent);
     };
   }, []);
+
+  if (pathname === "/checkout") return null;
 
   return (
     <>

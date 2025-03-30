@@ -14,28 +14,14 @@ export default function CartActions({
   currencies: any;
 }) {
   const [quantity, setQuantity] = useState(item.en_carrito);
+  const [buttonDisable, setButtonDisabled] = useState(false);
 
-  function handleMinusClick(
-    quantity: number,
-    setQuantity: React.Dispatch<React.SetStateAction<number>>,
-  ) {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  }
-
-  function handlePlusClick(
-    quantity: number,
-    setQuantity: React.Dispatch<React.SetStateAction<number>>,
-  ) {
-    setQuantity(quantity + 1);
-  }
-
-  function handleDeleteClick(
-    item: any,
-    setQuantity: React.Dispatch<React.SetStateAction<number>>,
-  ) {
-    setQuantity(0);
+  function handleSetQuantity(quantity: number) {
+    setQuantity(quantity);
+    setButtonDisabled(true);
+    setTimeout(() => {
+      setButtonDisabled(false);
+    }, 3000); // Habilitar nuevamente después de 3 segundos
   }
 
   useEffect(() => {
@@ -120,24 +106,29 @@ export default function CartActions({
         </span>
       </div>
       <div className="flex flex-1/2">
-        <button
-          onClick={() => handleMinusClick(quantity, setQuantity)}
-          className="ml-2 flex h-8 items-center justify-center bg-gray-200 rounded-lg hover:scale-110 transition-all duration-300"
-        >
-          <Minus size={32} />
-        </button>
-        <button
-          onClick={() => handlePlusClick(quantity, setQuantity)}
-          className="ml-2 flex h-8 items-center justify-center bg-gray-200 rounded-lg hover:scale-110 transition-all duration-300"
-        >
-          <Plus size={32} />
-        </button>
-        <button
-          onClick={() => handleDeleteClick(quantity, setQuantity)}
-          className="ml-4 sm:ml-auto flex h-8 items-center justify-center bg-red-200  rounded-lg hover:scale-110 transition-all duration-300"
-        >
-          <X size={32} />
-        </button>
+        <div className="flex ml-auto items-end">
+          <button
+            onClick={() => handleSetQuantity(quantity - 1)}
+            className={`text-[#022953] rounded-sm transition-all duration-300 ${buttonDisable === false ? "hover:text-white hover:bg-[#022953]" : "cursor-wait"}`}
+            disabled={buttonDisable}
+          >
+            <Minus />
+          </button>
+          <input
+            type="number"
+            className="flex w-16 border-gray-300 border-2 rounded-sm text-[#022953] text-center"
+            value={quantity}
+            onChange={() => handleSetQuantity(quantity)}
+            disabled={true}
+          />
+          <button
+            onClick={() => handleSetQuantity(quantity + 1)}
+            className={`text-[#022953] rounded-sm transition-all duration-300 ${buttonDisable === false ? "hover:text-white hover:bg-[#022953]" : "cursor-wait"}`}
+            disabled={buttonDisable}
+          >
+            <Plus />
+          </button>
+        </div>
       </div>
     </div>
   );

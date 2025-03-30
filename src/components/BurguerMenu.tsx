@@ -168,37 +168,38 @@ export default function BurgerMenu() {
                 <span>Carrito</span>
               </Link>
             )}
-            <hr className="border-1 border-gray-200" />
-            <Link
-              href="/about"
-              className="flex w-full space-x-2"
-              onClick={() => setIsOpen(false)}
-            >
-              <span>
-                <Info />
-              </span>
-              <span>Sobre nosotros</span>
-            </Link>
-            <Link
-              href="/help"
-              className="flex w-full space-x-2"
-              onClick={() => setIsOpen(false)}
-            >
-              <span>
-                <HandHelping />
-              </span>
-              <span>Ayuda</span>
-            </Link>
-            <Link
-              href="/contact"
-              className="flex w-full space-x-2"
-              onClick={() => setIsOpen(false)}
-            >
-              <span>
-                <Phone />
-              </span>
-              <span>Contáctenos</span>
-            </Link>
+            {/*
+              <hr className="border-1 border-gray-200" />
+              <Link
+                href="/about"
+                className="flex w-full space-x-2"
+                onClick={() => setIsOpen(false)}
+              >
+                <span>
+                  <Info />
+                </span>
+                <span>Sobre nosotros</span>
+              </Link>
+              <Link
+                href="/help"
+                className="flex w-full space-x-2"
+                onClick={() => setIsOpen(false)}
+              >
+                <span>
+                  <HandHelping />
+                </span>
+                <span>Ayuda</span>
+              </Link>
+              <Link
+                href="/contact"
+                className="flex w-full space-x-2"
+                onClick={() => setIsOpen(false)}
+              >
+                <span>
+                  <Phone />
+                </span>
+                <span>Contáctenos</span>
+              </Link> */}
           </div>
         )}
       </div>
