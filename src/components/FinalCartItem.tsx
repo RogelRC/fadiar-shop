@@ -1,22 +1,47 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 
 export default function FinalCartItem({
   item,
   location,
   currencies,
+  onTotalChange, // Nuevo prop
 }: {
   item: any;
   location: string;
   currencies: any[];
+  onTotalChange?: (total: number) => void; // Tipo del callback
 }) {
   const [quantity, setQuantity] = useState(item.en_carrito);
   const [visible, setVisible] = useState(true);
   const [prevQuantity, setPrevQuantity] = useState(item.en_carrito);
   const [buttonDisable, setButtonDisabled] = useState(false);
+
+  const price = useMemo(() => {
+    let calculatedPrice = 0;
+    if (location === "CU" && item.prices[0][2] === "CUP") {
+      calculatedPrice = item.prices[0][1];
+    } else if (location !== "CU" && item.prices[0][2] === "USD") {
+      calculatedPrice = item.prices[0][1];
+    } else if (location === "CU" && item.prices[0][2] === "USD") {
+      calculatedPrice = item.prices[0][1] * currencies[1]?.value || 0;
+    } else if (location !== "CU" && item.prices[0][2] === "CUP") {
+      calculatedPrice =
+        Math.ceil((item.prices[0][1] / currencies[1]?.value) * 100) / 100 || 0;
+    }
+    return calculatedPrice;
+  }, [location, currencies, item.prices]);
+
+  // Efecto para notificar cambios en el total
+  useEffect(() => {
+    if (onTotalChange) {
+      const total = price * quantity;
+      onTotalChange(total);
+    }
+  }, [quantity]);
 
   useEffect(() => {
     const updateCart = async () => {

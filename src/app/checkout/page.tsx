@@ -258,8 +258,20 @@ export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState<any[]>([]); // Estado para almacenar los artículos del carrito
   const [currencies, setCurrencies] = useState<any[]>([]); // Estado para almacenar la moneda actual
   const [location, setLocation] = useState<string>("");
+  const [itemTotals, setItemTotals] = useState<{ [key: string]: number }>({});
 
-  console.log(currencies);
+  const handleTotalChange = (itemId: string, total: number) => {
+    setItemTotals((prev) => ({
+      ...prev,
+      [itemId]: total,
+    }));
+  };
+  const grandTotal = Object.values(itemTotals).reduce(
+    (acc, curr) => acc + curr,
+    0,
+  );
+
+  //console.log(currencies);
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -292,9 +304,17 @@ export default function CheckoutPage() {
               location={location}
               item={item}
               currencies={currencies}
+              onTotalChange={(total) => handleTotalChange(item.id, total)}
             />
           ))}
         </div>
+        <div className="flex w-full items-center mt-6">
+          <span className="flex text-[#9a9a9a]">Total a pagar</span>
+          <span className="flex ml-auto text-[#022953] text-2xl font-bold">
+            {grandTotal.toFixed(2)} {location === "CU" ? "CUP" : "USD"}
+          </span>
+        </div>
+        <hr className="flex border-[1px] border-[#9a9a9a] w-full" />
       </div>
     </div>
   );
