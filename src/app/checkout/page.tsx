@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import FinalCartItem from "@/components/FinalCartItem";
+import { UserRound } from "lucide-react";
 
 const provinciasCuba = {
   "Pinar del Río": [
@@ -259,6 +260,7 @@ export default function CheckoutPage() {
   const [currencies, setCurrencies] = useState<any[]>([]); // Estado para almacenar la moneda actual
   const [location, setLocation] = useState<string>("");
   const [itemTotals, setItemTotals] = useState<{ [key: string]: number }>({});
+  const [delivery, setDelivery] = useState(0);
 
   const handleTotalChange = (itemId: string, total: number) => {
     setItemTotals((prev) => ({
@@ -315,6 +317,88 @@ export default function CheckoutPage() {
           </span>
         </div>
         <hr className="flex border-[1px] border-[#9a9a9a] w-full" />
+        <div className="flex flex-col gap-2">
+          <span className="flex text-[#9a9a9a]">Tu</span>
+          <div className="flex items-center gap-4">
+            <div className="flex rounded-full bg-[#9a9a9a] w-12 h-12 items-center justify-center text-white p-1">
+              <UserRound className="flex w-full h-full" />
+            </div>
+            <span className="flex text-[#9a9a9a]">
+              {JSON.parse(localStorage.getItem("userData") || "{}").name || ""}{" "}
+              {JSON.parse(localStorage.getItem("userData") || "{}").last1 || ""}{" "}
+              {JSON.parse(localStorage.getItem("userData") || "{}").last2 || ""}
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2 text-[#9a9a9a]">
+            <label className="text-[#9a9a9a]">Provincia</label>
+            <select
+              value={formData.provincia}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  provincia: e.target.value,
+                  municipio: "",
+                })
+              }
+              className="w-full p-2 rounded-md border border-gray-300"
+            >
+              <option value="">Seleccione una provincia</option>
+              {Object.keys(provinciasCuba).map((provincia) => (
+                <option key={provincia} value={provincia}>
+                  {provincia}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2 text-[#9a9a9a]">
+            <label className="text-[#9a9a9a]">Municipio</label>
+            <select
+              value={formData.municipio}
+              onChange={(e) =>
+                setFormData({ ...formData, municipio: e.target.value })
+              }
+              className="w-full p-2 rounded-md border border-gray-300"
+              disabled={!formData.provincia}
+            >
+              <option value="">Seleccione un municipio</option>
+              {formData.provincia &&
+                provinciasCuba[
+                  formData.provincia as keyof typeof provinciasCuba
+                ].map((municipio: string) => (
+                  <option key={municipio} value={municipio}>
+                    {municipio}
+                  </option>
+                ))}
+            </select>
+          </div>
+        </div>
+        <div className="flex w-full items-center">
+          <span className="flex text-[#9a9a9a] font-bold">
+            Necesitas entrega a domicilio?
+          </span>
+          <input
+            type="checkbox"
+            checked={delivery === 1}
+            onChange={(e) => setDelivery(e.target.checked ? 1 : 0)}
+            className="flex ml-auto"
+          />
+        </div>
+
+        {delivery === 1 && (
+          <>
+            <span className="flex text-[#9a9a9a]">Direccion</span>
+            <textarea
+              placeholder="Escriba su direccion aqui"
+              className="flex w-full min-h-20 bg-white p-2 placeholder:text-left text-left align-top rounded-md"
+            />
+          </>
+        )}
+        <button className="flex w-full h-16 bg-[#022953] font-bold text-white items-center justify-center hover:text-xl transition-all duration-300">
+          Confirmar orden
+        </button>
       </div>
     </div>
   );
