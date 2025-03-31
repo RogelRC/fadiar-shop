@@ -155,7 +155,7 @@ export default function Cart() {
               />
             ))}
           </div>
-          <hr className="border-1 border-gray-200" />
+          <hr className="flex h-px border-[#9a9a9a] w-full" />
           <Link
             href="/checkout"
             className="flex w-full p-2 bg-[#022953] text-white font-bold justify-center hover:scale-105 transition-all duration-300"

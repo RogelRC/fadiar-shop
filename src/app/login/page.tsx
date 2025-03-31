@@ -43,7 +43,7 @@ export default function Login() {
       const userData = await response.json();
 
       if (!response.ok) {
-        setError(response.Error);
+        setError("Error al autenticarse");
         console.log(response);
         throw new Error(userData?.message);
       }

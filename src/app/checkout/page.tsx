@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import FinalCartItem from "@/components/FinalCartItem";
 import { UserRound } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const provinciasCuba = {
   "Pinar del Río": [
@@ -263,8 +264,9 @@ export default function CheckoutPage() {
   const [delivery, setDelivery] = useState(0);
   const [tried, setTried] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setTried(true);
 
     if (
@@ -277,6 +279,51 @@ export default function CheckoutPage() {
     }
 
     setError("");
+
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/add_order`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_user_action: userData.userId,
+            gestor_id: userData.userId,
+            ci_cliente: userData.ci,
+            name_cliente: userData.name,
+            last_names: `${userData.last1} ${userData.last2}`,
+            cellphone_cliente: userData.cell1,
+            order_code: userData.nextOrderCode,
+            provincia: formData.provincia,
+            municipio: formData.municipio,
+            direccionExacta: formData.address,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      console.log(data);
+
+      if (!response.ok) {
+        setError(data.message || "Error al comprar");
+      }
+
+      const orderParams = new URLSearchParams({
+        date: data.order.date,
+        ...(formData.address && {
+          address: `${formData.address}, ${formData.municipio}, ${formData.provincia}`,
+        }),
+        price: grandTotal.toFixed(2),
+        currency: location === "CU" ? "CUP" : "USD",
+      }).toString();
+
+      router.push(`/checkout/ticket?${orderParams}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error desconocido");
+    }
   };
 
   const handleTotalChange = (itemId: string, total: number) => {
@@ -333,7 +380,7 @@ export default function CheckoutPage() {
             {grandTotal.toFixed(2)} {location === "CU" ? "CUP" : "USD"}
           </span>
         </div>
-        <hr className="flex border-[1px] border-[#9a9a9a] w-full" />
+        <hr className="flex h-px border-[#9a9a9a] w-full" />
         <div className="flex flex-col gap-2">
           <span className="flex text-[#9a9a9a]">Tú</span>
           <div className="flex items-center gap-4">
@@ -420,7 +467,7 @@ export default function CheckoutPage() {
         <div className="flex w-full justify-center">
           <button
             onClick={handleSubmit}
-            className="flex w-full md:w-1/2 h-12 bg-[#022953] font-bold text-white items-center justify-center hover:text-xl transition-all duration-300"
+            className="flex w-full md:w-1/2 h-12 bg-[#022953] font-bold text-white items-center justify-center hover:text-lg transition-all duration-300"
           >
             Confirmar orden
           </button>

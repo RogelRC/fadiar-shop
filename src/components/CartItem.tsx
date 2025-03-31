@@ -17,7 +17,7 @@ export default function CartItem({
     <>
       {item.aliveUntil > 0 && (
         <div className="flex flex-col gap-4">
-          <hr className="border-1 border-gray-200" />
+          <hr className="flex h-px border-[#9a9a9a] w-full" />
 
           <div className="flex w-full gap-4 overflow-hidden text-[#022953]">
             <Image
