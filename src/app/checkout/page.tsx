@@ -261,6 +261,23 @@ export default function CheckoutPage() {
   const [location, setLocation] = useState<string>("");
   const [itemTotals, setItemTotals] = useState<{ [key: string]: number }>({});
   const [delivery, setDelivery] = useState(0);
+  const [tried, setTried] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = () => {
+    setTried(true);
+
+    if (
+      !formData.provincia ||
+      !formData.municipio ||
+      (delivery && !formData.address)
+    ) {
+      setError("Por favor llene todos los campos");
+      return;
+    }
+
+    setError("");
+  };
 
   const handleTotalChange = (itemId: string, total: number) => {
     setItemTotals((prev) => ({
@@ -318,7 +335,7 @@ export default function CheckoutPage() {
         </div>
         <hr className="flex border-[1px] border-[#9a9a9a] w-full" />
         <div className="flex flex-col gap-2">
-          <span className="flex text-[#9a9a9a]">Tu</span>
+          <span className="flex text-[#9a9a9a]">Tú</span>
           <div className="flex items-center gap-4">
             <div className="flex rounded-full bg-[#9a9a9a] w-12 h-12 items-center justify-center text-white p-1">
               <UserRound className="flex w-full h-full" />
@@ -377,7 +394,7 @@ export default function CheckoutPage() {
         </div>
         <div className="flex w-full items-center">
           <span className="flex text-[#9a9a9a] font-bold">
-            Necesitas entrega a domicilio?
+            ¿Necesitas entrega a domicilio?
           </span>
           <input
             type="checkbox"
@@ -389,16 +406,30 @@ export default function CheckoutPage() {
 
         {delivery === 1 && (
           <>
-            <span className="flex text-[#9a9a9a]">Direccion</span>
+            <span className="flex text-[#9a9a9a]">Dirección</span>
             <textarea
+              value={formData.address}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })
+              }
               placeholder="Escriba su direccion aqui"
               className="flex w-full min-h-20 bg-white p-2 placeholder:text-left text-left align-top rounded-md"
             />
           </>
         )}
-        <button className="flex w-full h-16 bg-[#022953] font-bold text-white items-center justify-center hover:text-xl transition-all duration-300">
-          Confirmar orden
-        </button>
+        <div className="flex w-full justify-center">
+          <button
+            onClick={handleSubmit}
+            className="flex w-full md:w-1/2 h-12 bg-[#022953] font-bold text-white items-center justify-center hover:text-xl transition-all duration-300"
+          >
+            Confirmar orden
+          </button>
+        </div>
+        {tried && error && (
+          <span className="w-full bg-red-300 font-xs p-2 items-center text-center text-red-700 rounded-md">
+            {error}
+          </span>
+        )}
       </div>
     </div>
   );
