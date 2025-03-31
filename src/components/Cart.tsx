@@ -121,7 +121,7 @@ export default function Cart() {
     };
   }, []);
 
-  if (pathname === "/checkout") return null;
+  if (pathname === "/checkout" || pathname === "/ticket") return null;
 
   return (
     <>

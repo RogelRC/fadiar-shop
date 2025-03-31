@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Check } from "lucide-react";
+import ReadyButton from "@/components/ReadyButton";
 
 const formatDate = (dateString: string) => {
   const months = [
@@ -84,12 +84,7 @@ export default function TicketPage({
             </span>
           </div>
         </div>
-        <Link
-          className="flex h-10 sm:w-1/2 w-full bg-[#022953] text-white items-center justify-center font-bold mt-auto"
-          href="/products"
-        >
-          Listo
-        </Link>
+        <ReadyButton />
       </div>
     </div>
   );
