@@ -11,9 +11,7 @@ export default function SearchBar() {
   const setName = useFilters((state) => state.setName);
 
   const handleSearch = () => {
-    if (query) {
-      setName(query);
-    }
+    setName(query);
     router.push("/products");
   };
 
