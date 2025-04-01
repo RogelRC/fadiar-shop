@@ -1,4 +1,9 @@
+"use client";
+
 import ProductCard from "@/components/ProductCard";
+import { useState, useEffect } from "react";
+import { useFilters } from "@/store/Filters";
+import { shallow } from "zustand/shallow";
 
 interface Product {
   id: number;
@@ -12,51 +17,55 @@ interface Product {
   count: number;
 }
 
-async function getLocation() {
-  try {
-    const res = await fetch("http://ip-api.com/json/");
-    const data = await res.json();
-    //console.log(data.countryCode);
-    return data.countryCode || "CU";
-  } catch (error) {
-    console.error("Error obteniendo la ubicación:", error);
-    return "CU";
-  }
-}
+export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [location, setLocation] = useState<string>("");
+  const [currencies, setCurrencies] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-async function getProducts() {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/inventory`,
-    );
-    const products = await response.json();
-    return products;
-  } catch (error) {
-    throw new Error("Failed to fetch products");
-  }
-}
+  useEffect(() => {
+    const fetchAll = async function () {
+      try {
+        const res = await fetch("http://ip-api.com/json/");
+        const data = await res.json();
+        //console.log(data.countryCode);
+        setLocation(data.countryCode || "CU");
+      } catch (error) {
+        console.error("Error obteniendo la ubicación:", error);
+        setLocation("CU");
+      }
 
-export default async function ProductsPage({
-  searchParams,
-}: {
-  searchParams: { name: string };
-}) {
-  const products = await getProducts();
-  const location = (await getLocation()) || "CU";
-
-  const currencies = await products.currencys.currencys;
-  const { name } = await searchParams;
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/inventory`,
+        );
+        const products = await response.json();
+        setProducts(products.products);
+        setFilteredProducts(products.products);
+        setCurrencies(products.currencys.currencys);
+      } catch (error) {
+        setProducts([]);
+        throw new Error("Failed to fetch products");
+      }
+    };
+    fetchAll();
+  }, []);
 
   //console.log(currencies);
   //console.log(location);
 
-  const searchName = name || "";
+  const { name, brand, available, minPrice, maxPrice, sortBy } = useFilters();
 
-  const filteredProducts = searchName
-    ? products.products.filter((product: Product) =>
-        product.name.toLowerCase().includes(searchName),
-      )
-    : products.products;
+  useEffect(() => {
+    setFilteredProducts(products);
+
+    if (name)
+      setFilteredProducts(
+        products.filter((product: Product) =>
+          product.name.toLowerCase().includes(name),
+        ),
+      );
+  }, [name, brand, available, minPrice, maxPrice, sortBy]);
 
   return (
     <div className="flex flex-col w-full py-6 px-4 sm:px-8 space-y-6">

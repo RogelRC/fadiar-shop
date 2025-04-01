@@ -3,17 +3,18 @@
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useFilters } from "@/store/Filters";
 
 export default function SearchBar() {
   const [query, setQuery] = useState("");
   const router = useRouter();
+  const setName = useFilters((state) => state.setName);
 
   const handleSearch = () => {
-    const trimmedQuery = query.trim();
-    const url = trimmedQuery
-      ? `/products?name=${encodeURIComponent(trimmedQuery)}`
-      : "/products";
-    router.push(url);
+    if (query) {
+      setName(query);
+    }
+    router.push("/products");
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

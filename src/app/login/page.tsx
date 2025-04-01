@@ -45,6 +45,7 @@ export default function Login() {
       if (!response.ok) {
         setError("Error al autenticarse");
         console.log(response);
+        console.log(response.body);
         throw new Error(userData?.message);
       }
 
