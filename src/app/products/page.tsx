@@ -26,6 +26,7 @@ export default function ProductsPage() {
   const setAvailable = useFilters((state) => state.setAvailable);
   const setMinPrice = useFilters((state) => state.setMinPrice);
   const setMaxPrice = useFilters((state) => state.setMaxPrice);
+  const setName = useFilters((state) => state.setName);
 
   useEffect(() => {
     const fetchAll = async function () {
@@ -81,6 +82,14 @@ export default function ProductsPage() {
     });
   }, [products, name, brand, available, minPrice, maxPrice]);
 
+  const resetFilters = () => {
+    setName("");
+    setBrand("");
+    setAvailable("");
+    setMinPrice(0);
+    setMaxPrice(1000000);
+  };
+
   return (
     <div className="flex flex-col relative w-full py-6 px-4 sm:px-8 space-y-6">
       {/* Menu de filtros*/}
@@ -99,6 +108,7 @@ export default function ProductsPage() {
             <select
               className="w-full p-2 border-2 border-gray-300 rounded-md"
               onChange={(e) => setAvailable(e.target.value)}
+              value={available} // Añade esta línea
             >
               <option value="">Disponibles y agotados</option>
               <option value="available">Disponibles</option>
@@ -107,6 +117,7 @@ export default function ProductsPage() {
             <select
               className="w-full p-2 border-2 border-gray-300 rounded-md"
               onChange={(e) => setBrand(e.target.value)}
+              value={brand} // Añade esta línea
             >
               <option value="">Todas las marcas</option>
               {products
@@ -134,6 +145,12 @@ export default function ProductsPage() {
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
               ></input>
             </div>
+            <button
+              onClick={resetFilters}
+              className="flex w-full items-center justify-center font-bold text-white hover:bg-blue-900 p-2 bg-[#022953]"
+            >
+              Reiniciar filtros
+            </button>
           </div>
         </div>
       )}

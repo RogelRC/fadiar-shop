@@ -1,43 +1,8 @@
 "use client";
 
 import { Plus, Minus, Cog } from "lucide-react";
-
 import { useEffect, useState } from "react";
-
-async function handleAddToCart(productId: number, quantity: number) {
-  if (!localStorage.getItem("userData")) {
-    throw new Error("User data not found");
-  }
-
-  // Implement logic to add item to cart
-  const body = JSON.stringify({
-    id_user_action: parseInt(
-      JSON.parse(localStorage.getItem("userData")!).userId,
-    ),
-    id_user: parseInt(JSON.parse(localStorage.getItem("userData")!).userId),
-    id_product: productId,
-    count: quantity,
-  });
-
-  //console.log(body);
-
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/agregar_producto_carrito`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body,
-    },
-  );
-
-  window.dispatchEvent(new Event("cartDataChanged"));
-
-  if (!response.ok) {
-    throw new Error("Failed to add item to cart");
-  }
-}
+import { useCart } from "@/store/Cart";
 
 export default function AddToCart({
   productId,
@@ -48,6 +13,46 @@ export default function AddToCart({
 }) {
   const [quantity, setQuantity] = useState(1);
   const [count, setCount] = useState(amount);
+  const setAmount = useCart((state) => state.setAmount);
+  const { amount: cartAmount } = useCart();
+  const [wait, setWait] = useState(false);
+
+  const handleAddToCart = async (productId: number, quantity: number) => {
+    setWait(true);
+
+    if (!localStorage.getItem("userData")) {
+      throw new Error("User data not found");
+    }
+
+    // Implement logic to add item to cart
+    const body = JSON.stringify({
+      id_user_action: parseInt(
+        JSON.parse(localStorage.getItem("userData")!).userId,
+      ),
+      id_user: parseInt(JSON.parse(localStorage.getItem("userData")!).userId),
+      id_product: productId,
+      count: quantity,
+    });
+
+    //console.log(body);
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/agregar_producto_carrito`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to add item to cart");
+    }
+
+    setAmount(cartAmount + quantity);
+  };
 
   useEffect(() => {
     setCount(amount);
@@ -56,6 +61,14 @@ export default function AddToCart({
   useEffect(() => {
     setQuantity(Math.min(count, 1));
   }, [count]);
+
+  useEffect(() => {
+    if (wait === true) {
+      setTimeout(() => {
+        setWait(false);
+      }, 3000);
+    }
+  }, [wait]);
 
   function handleSetQuantity(quantity: number) {
     if (quantity > count) setQuantity(count);
@@ -92,7 +105,8 @@ export default function AddToCart({
                 setCount(count - quantity);
                 handleAddToCart(productId, quantity);
               }}
-              className="hidden sm:block bg-[#022953] h-10 w-40 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300"
+              disabled={wait}
+              className={`hidden sm:block bg-[#022953] h-10 w-40 text-white items-center justify-center rounded-lg ${!wait && "hover:scale-110"} transition-all duration-300 ${wait && "cursor-wait"}`}
             >
               Añadir al carrito
             </button>
@@ -102,7 +116,7 @@ export default function AddToCart({
               setCount(count - quantity);
               handleAddToCart(productId, quantity);
             }}
-            className="sm:hidden bg-[#022953] h-10 w-40 text-white items-center rounded-lg hover:scale-110 transition-all duration-300"
+            className={`sm:hidden bg-[#022953] h-10 w-40 text-white items-center justify-center rounded-lg ${!wait && "hover:scale-110"} transition-all duration-300 ${wait && "cursor-wait"}`}
           >
             Añadir al carrito
           </button>

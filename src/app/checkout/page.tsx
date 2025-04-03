@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import FinalCartItem from "@/components/FinalCartItem";
 import { UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -359,7 +358,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="flex h-full w-full min-h-[calc(100vh-88px)] justify-center p-4 bg-white">
-      <div className="flex flex-col bg-[#f4f4f4] w-120 sm:w-2/3 rounded-lg shadow-lg sm:p-10 p-4 gap-4 sm:gap-6">
+      <div className="flex flex-col bg-[#f4f4f4] w-120 md:w-1/2 sm:w-2/3 rounded-lg shadow-lg sm:p-10 p-4 gap-4 sm:gap-6">
         <h1 className="flex font-bold text-xl sm:text-3xl text-[#022953] w-full sm:justify-start justify-center">
           Resumen del carrito
         </h1>
@@ -452,7 +451,7 @@ export default function CheckoutPage() {
         </div>
 
         {delivery === 1 && (
-          <>
+          <div className="flex flex-col gap-2 w-full">
             <span className="flex text-[#9a9a9a]">Dirección</span>
             <textarea
               value={formData.address}
@@ -462,7 +461,7 @@ export default function CheckoutPage() {
               placeholder="Escriba su direccion aqui"
               className="flex w-full min-h-20 bg-white p-2 placeholder:text-left text-left align-top rounded-md"
             />
-          </>
+          </div>
         )}
         <div className="flex w-full justify-center">
           <button

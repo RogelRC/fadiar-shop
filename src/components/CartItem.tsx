@@ -39,7 +39,7 @@ export default function CartItem({
                 location={location}
                 currencies={currencies}
               />
-              <div className="flex w-full bg-red-200 p-2 rounded-lg text-red-600 gap-2">
+              <div className="flex w-full text-red-600">
                 <CartTimer item={item} />
               </div>
             </div>

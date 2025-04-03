@@ -3,6 +3,7 @@
 import { Minus, Plus } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
+import { useCart } from "@/store/Cart";
 
 export default function FinalCartItem({
   item,
@@ -19,6 +20,8 @@ export default function FinalCartItem({
   const [visible, setVisible] = useState(true);
   const [prevQuantity, setPrevQuantity] = useState(item.en_carrito);
   const [buttonDisable, setButtonDisabled] = useState(false);
+  const setAmount = useCart((state) => state.setAmount);
+  const { amount } = useCart();
 
   const price = useMemo(() => {
     let calculatedPrice = 0;
@@ -71,7 +74,7 @@ export default function FinalCartItem({
           throw new Error("Error al actualizar el carrito");
         }
 
-        console.log("OK");
+        console.log(await response.json());
 
         setPrevQuantity(quantity);
       } catch (error) {
@@ -110,9 +113,15 @@ export default function FinalCartItem({
     quantity > 0 ? updateCart() : deleteItem();
   }, [quantity]);
 
-  function handleSetQuantity(quantity: number) {
-    setQuantity(quantity);
-    if (quantity <= 0) setVisible(false);
+  function handleSetQuantity(q: number) {
+    if (q == quantity - 1) {
+      setAmount(amount - 1);
+    } else if (q == quantity + 1) {
+      setAmount(amount + 1);
+    }
+
+    setQuantity(q);
+    if (q <= 0) setVisible(false);
     setButtonDisabled(true);
     setTimeout(() => {
       setButtonDisabled(false);

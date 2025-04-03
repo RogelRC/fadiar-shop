@@ -3,9 +3,56 @@
 import Link from "next/link";
 import UserButton from "@/components/UserButton";
 import { useEffect, useState } from "react";
+import { useCart } from "@/store/Cart";
 
 export default function Navbar() {
   const [userData, setUserData] = useState<string | null>(null);
+  const setAmount = useCart((state) => state.setAmount);
+  const { amount } = useCart();
+
+  const fetchCartItems = async () => {
+    const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+
+    if (!userData) {
+      console.log("No tengo datos");
+      return {};
+    }
+
+    try {
+      const body = JSON.stringify({
+        id_user_action: userData.userId,
+        id_user: userData.userId,
+        comisiones: false,
+      });
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/obtener_productos_carrito`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: body,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al cargar el carrito");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      console.log("aaaaaaaaaaaaaaaa");
+      setAmount(
+        data.carrito.reduce((sum: any, item: any) => sum + item.en_carrito, 0),
+      );
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCartItems();
+  }, []);
 
   useEffect(() => {
     // Función para actualizar los datos
@@ -45,9 +92,14 @@ export default function Navbar() {
         <>
           <Link
             href="/checkout"
-            className="hidden sm:block hover:text-blue-500 hover:underline transition-colors"
+            className="hidden sm:block relative hover:text-blue-500 hover:underline transition-colors"
           >
             Carrito
+            {amount > 0 && (
+              <div className="absolute -right-2 -top-4 px-1 bg-red-300 text-red-700 rounded-md">
+                {amount}
+              </div>
+            )}
           </Link>
           <Link
             href={`/record?id=${JSON.parse(localStorage.getItem("userData") || "{}").userId || null}`}

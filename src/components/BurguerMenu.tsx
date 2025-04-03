@@ -2,6 +2,7 @@
 
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useCart } from "@/store/Cart";
 import Link from "next/link";
 import {
   LogOut,
@@ -23,8 +24,53 @@ const handleLogout = () => {
 
 export default function BurgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
-
+  const setAmount = useCart((state) => state.setAmount);
+  const { amount } = useCart();
   const [userData, setUserData] = useState<string | null>(null);
+
+  const fetchCartItems = async () => {
+    const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+
+    if (!userData) {
+      console.log("No tengo datos");
+      return {};
+    }
+
+    try {
+      const body = JSON.stringify({
+        id_user_action: userData.userId,
+        id_user: userData.userId,
+        comisiones: false,
+      });
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/obtener_productos_carrito`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: body,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al cargar el carrito");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      console.log("aaaaaaaaaaaaaaaa");
+      setAmount(
+        data.carrito.reduce((sum: any, item: any) => sum + item.en_carrito, 0),
+      );
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCartItems();
+  }, []);
 
   useEffect(() => {
     // Función para actualizar los datos
@@ -63,9 +109,14 @@ export default function BurgerMenu() {
       {userData && (
         <Link
           href="/checkout"
-          className="w-6 h-6 sm:hidden hover:scale-125 duration-300"
+          className="relative w-6 h-6 sm:hidden hover:scale-125 duration-300"
         >
           <ShoppingCart />
+          {amount > 0 && (
+            <div className="absolute -right-2 -top-4 px-1 bg-red-300 text-red-700 rounded-md">
+              {amount}
+            </div>
+          )}
         </Link>
       )}
       <div className="flex sm:hidden">

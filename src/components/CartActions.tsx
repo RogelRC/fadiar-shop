@@ -106,7 +106,7 @@ export default function CartActions({
         </span>
       </div>
       <div className="flex flex-1/2">
-        <div className="flex ml-auto items-end">
+        <div className="flex ml-auto items-center">
           <button
             onClick={() => handleSetQuantity(quantity - 1)}
             className={`text-[#022953] rounded-sm transition-all duration-300 ${buttonDisable === false ? "hover:text-white hover:bg-[#022953]" : "cursor-wait"}`}

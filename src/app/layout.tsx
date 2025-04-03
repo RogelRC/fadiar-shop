@@ -33,7 +33,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
-        <Cart />
+        {/*<Cart />*/}
       </body>
     </html>
   );
