@@ -4,11 +4,13 @@ import Link from "next/link";
 import UserButton from "@/components/UserButton";
 import { useEffect, useState } from "react";
 import { useCart } from "@/store/Cart";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [userData, setUserData] = useState<string | null>(null);
   const setAmount = useCart((state) => state.setAmount);
   const { amount } = useCart();
+  const pathname = usePathname(); // Obtener la ruta actual
 
   const fetchCartItems = async () => {
     const userData = JSON.parse(localStorage.getItem("userData") || "{}");
@@ -91,8 +93,26 @@ export default function Navbar() {
       {userData ? (
         <>
           <Link
+            href="/"
+            className={`hidden sm:block relative hover:text-blue-500 hover:underline transition-colors ${
+              pathname === "/" ? "font-bold" : ""
+            }`}
+          >
+            Inicio
+          </Link>
+          <Link
+            href="/products"
+            className={`hidden sm:block relative hover:text-blue-500 hover:underline transition-colors ${
+              pathname.startsWith("/products") ? "font-bold" : ""
+            }`}
+          >
+            Productos
+          </Link>
+          <Link
             href="/checkout"
-            className="hidden sm:block relative hover:text-blue-500 hover:underline transition-colors"
+            className={`hidden sm:block relative hover:text-blue-500 hover:underline transition-colors ${
+              pathname === "/checkout" ? "font-bold" : ""
+            }`}
           >
             Carrito
             {amount > 0 && (
@@ -102,8 +122,13 @@ export default function Navbar() {
             )}
           </Link>
           <Link
-            href={`/record?id=${JSON.parse(localStorage.getItem("userData") || "{}").userId || null}`}
-            className="hidden sm:block whitespace-nowrap hover:text-blue-500 hover:underline transition-colors"
+            href={`/record?id=${
+              JSON.parse(localStorage.getItem("userData") || "{}").userId ||
+              null
+            }`}
+            className={`hidden sm:block whitespace-nowrap hover:text-blue-500 hover:underline transition-colors ${
+              pathname.startsWith("/record") ? "font-bold" : ""
+            }`}
           >
             Mis Pedidos
           </Link>
@@ -112,7 +137,9 @@ export default function Navbar() {
       ) : (
         <Link
           href="/login"
-          className="hidden sm:block hover:text-blue-500 hover:underline transition-colors whitespace-nowrap"
+          className={`hidden sm:block hover:text-blue-500 hover:underline transition-colors whitespace-nowrap ${
+            pathname === "/login" ? "font-bold" : ""
+          }`}
         >
           Iniciar sesión
         </Link>

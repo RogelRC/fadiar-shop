@@ -39,19 +39,6 @@ export default function Header() {
       <SearchBar />
 
       <div className="flex z-10 h-full items-center justify-end text-white space-x-4 text-sm">
-        <Link
-          href="/"
-          className="hidden sm:block hover:text-blue-500 hover:underline transition-colors"
-        >
-          Inicio
-        </Link>
-        <Link
-          href="/products"
-          className="hidden sm:block hover:text-blue-500 hover:underline transition-colors"
-        >
-          Productos
-        </Link>
-
         <Navbar />
 
         <BurgerMenu />

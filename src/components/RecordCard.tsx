@@ -23,7 +23,7 @@ export default function RecordCard(item: Record) {
 
   return (
     <Link
-      href={`/record/${item.id}`}
+      href={`/record/${item.id}?userId=${item.id_user}&orderId=${item.id}`}
       key={item.id}
       className="flex flex-col relative bg-white rounded-lg shadow-md p-4 hover:scale-105 hover:shadow-lg transition-transform duration-300 overflow-hidden gap-y-2"
     >
@@ -51,8 +51,6 @@ export default function RecordCard(item: Record) {
           {item.direccionExacta ? `, ${item.direccionExacta}` : ""}
         </span>
       </div>
-
-      <p></p>
     </Link>
   );
 }
