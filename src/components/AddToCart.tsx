@@ -16,6 +16,7 @@ export default function AddToCart({
   const setAmount = useCart((state) => state.setAmount);
   const { amount: cartAmount } = useCart();
   const [wait, setWait] = useState(false);
+  const [message, setMessage] = useState("Añadir al carrito");
 
   const handleAddToCart = async (productId: number, quantity: number) => {
     setWait(true);
@@ -64,8 +65,10 @@ export default function AddToCart({
 
   useEffect(() => {
     if (wait === true) {
+      setMessage("Añadido ✅");
       setTimeout(() => {
         setWait(false);
+        setMessage("Añadir al carrito");
       }, 3000);
     }
   }, [wait]);
@@ -108,7 +111,7 @@ export default function AddToCart({
               disabled={wait}
               className={`hidden sm:block bg-[#022953] h-10 w-40 text-white items-center justify-center rounded-lg ${!wait && "hover:scale-110"} transition-all duration-300 ${wait && "cursor-wait"}`}
             >
-              Añadir al carrito
+              {message}
             </button>
           </div>
           <button
@@ -118,7 +121,7 @@ export default function AddToCart({
             }}
             className={`sm:hidden bg-[#022953] h-10 w-40 text-white items-center justify-center rounded-lg ${!wait && "hover:scale-110"} transition-all duration-300 ${wait && "cursor-wait"}`}
           >
-            Añadir al carrito
+            {message}
           </button>
         </>
       ) : (

@@ -57,8 +57,8 @@ export default function BurgerMenu() {
       }
 
       const data = await response.json();
-      console.log(data);
-      console.log("aaaaaaaaaaaaaaaa");
+      //console.log(data);
+      //console.log("aaaaaaaaaaaaaaaa");
       setAmount(
         data.carrito.reduce((sum: any, item: any) => sum + item.en_carrito, 0),
       );
@@ -173,7 +173,10 @@ export default function BurgerMenu() {
                   <span>Mi cuenta</span>
                 </Link>
                 <Link
-                  href="/record"
+                  href={`/record?id=${
+                    JSON.parse(localStorage.getItem("userData") || "{}")
+                      .userId || null
+                  }`}
                   className="flex w-full space-x-2"
                   onClick={() => setIsOpen(false)}
                 >

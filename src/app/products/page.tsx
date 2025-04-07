@@ -3,7 +3,8 @@
 import ProductCard from "@/components/ProductCard";
 import { useState, useEffect, useMemo } from "react";
 import { useFilters } from "@/store/Filters";
-import { ListFilter, X } from "lucide-react";
+import { Currency, ListFilter, X } from "lucide-react";
+import Loading from "@/components/Loading";
 
 interface Product {
   id: number;
@@ -27,6 +28,7 @@ export default function ProductsPage() {
   const setMinPrice = useFilters((state) => state.setMinPrice);
   const setMaxPrice = useFilters((state) => state.setMaxPrice);
   const setName = useFilters((state) => state.setName);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchAll = async function () {
@@ -47,18 +49,18 @@ export default function ProductsPage() {
         const products = await response.json();
         setProducts(products.products);
         setCurrencies(products.currencys.currencys);
-
-        console.log(products);
       } catch (error) {
         setProducts([]);
         throw new Error("Failed to fetch products");
+      } finally {
+        setLoading(false);
       }
     };
     fetchAll();
   }, []);
 
-  //console.log(currencies);
-  //console.log(location);
+  // console.log(products);
+  // console.log(currencies);
 
   const { name, brand, available, minPrice, maxPrice } = useFilters();
 
@@ -74,9 +76,20 @@ export default function ProductsPage() {
           : available === "out"
             ? product.count <= 0
             : true;
+
+      let price = 0;
+      if (location === "CU" && product.prices[0][2] === "CUP")
+        price = product.prices[0][1];
+      else if (location !== "CU" && product.prices[0][2] === "USD")
+        price = product.prices[0][1];
+      else if (location === "CU" && product.prices[0][2] === "USD")
+        price = product.prices[0][1] * currencies[1].value;
+      else if (location !== "CU" && product.prices[0][2] === "CUP")
+        price =
+          Math.ceil((product.prices[0][1] / currencies[1].value) * 100) / 100;
+
       const priceMatch =
-        (!minPrice || product.prices[0][1] >= minPrice) &&
-        (!maxPrice || product.prices[0][1] <= maxPrice);
+        (!minPrice || price >= minPrice) && (!maxPrice || price <= maxPrice);
 
       return nameMatch && brandMatch && availableMatch && priceMatch;
     });
@@ -89,6 +102,8 @@ export default function ProductsPage() {
     setMinPrice(0);
     setMaxPrice(1000000);
   };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="flex flex-col relative w-full py-6 px-4 sm:px-8 space-y-6">

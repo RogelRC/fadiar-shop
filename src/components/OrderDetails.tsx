@@ -3,6 +3,7 @@
 import { use, useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import Loading from "@/components/Loading";
 
 interface Order {
   acepted_date: string | null;
@@ -138,12 +139,7 @@ export default function OrderDetails() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#022953]"></div>
-      </div>
-    );
+  if (loading) return <Loading />;
 
   if (error)
     return (

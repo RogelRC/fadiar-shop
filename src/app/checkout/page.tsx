@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import FinalCartItem from "@/components/FinalCartItem";
 import { UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/store/Cart";
 
 const provinciasCuba = {
   "Pinar del Río": [
@@ -264,6 +265,7 @@ export default function CheckoutPage() {
   const [tried, setTried] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const setAmount = useCart((state) => state.setAmount);
 
   const handleSubmit = async () => {
     setTried(true);
@@ -312,6 +314,8 @@ export default function CheckoutPage() {
       if (!response.ok) {
         setError(data.message || "Error al comprar");
       }
+
+      setAmount(0);
 
       const orderParams = new URLSearchParams({
         date: data.order.date,

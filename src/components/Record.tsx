@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RecordCard from "@/components/RecordCard";
+import Loading from "@/components/Loading";
 
 interface Record {
   client_cell: number;
@@ -74,7 +75,7 @@ export default function TicketPage() {
         </h3>
 
         {loading ? (
-          <p className="text-center text-gray-600">Cargando pedidos...</p>
+          <Loading />
         ) : records.length === 0 ? (
           <p className="text-center text-gray-500">
             No hay pedidos disponibles.
