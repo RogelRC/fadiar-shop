@@ -41,8 +41,8 @@ export default function Navbar() {
       }
 
       const data = await response.json();
-      console.log(data);
-      console.log("aaaaaaaaaaaaaaaa");
+      //console.log(data);
+      //console.log("aaaaaaaaaaaaaaaa");
       setAmount(
         data.carrito.reduce((sum: any, item: any) => sum + item.en_carrito, 0),
       );
@@ -135,14 +135,32 @@ export default function Navbar() {
           <UserButton />
         </>
       ) : (
-        <Link
-          href="/login"
-          className={`hidden sm:block hover:text-blue-500 hover:underline transition-colors whitespace-nowrap ${
-            pathname === "/login" ? "font-bold" : ""
-          }`}
-        >
-          Iniciar sesión
-        </Link>
+        <>
+          <Link
+            href="/"
+            className={`hidden sm:block relative hover:text-blue-500 hover:underline transition-colors ${
+              pathname === "/" ? "font-bold" : ""
+            }`}
+          >
+            Inicio
+          </Link>
+          <Link
+            href="/products"
+            className={`hidden sm:block relative hover:text-blue-500 hover:underline transition-colors ${
+              pathname.startsWith("/products") ? "font-bold" : ""
+            }`}
+          >
+            Productos
+          </Link>
+          <Link
+            href="/login"
+            className={`hidden sm:block hover:text-blue-500 hover:underline transition-colors whitespace-nowrap ${
+              pathname === "/login" ? "font-bold" : ""
+            }`}
+          >
+            Iniciar sesión
+          </Link>
+        </>
       )}
     </div>
   );

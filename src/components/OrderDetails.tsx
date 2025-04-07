@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 interface Order {
   acepted_date: string | null;
@@ -47,11 +48,10 @@ interface IpApiResponse {
   country: string;
 }
 
-export default function OrderDetails({
-  searchParams,
-}: {
-  searchParams: { userId: string; orderId: string };
-}) {
+export default function OrderDetails() {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId");
+  const userId = searchParams.get("userId");
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,8 +72,6 @@ export default function OrderDetails({
 
     const fetchOrderDetails = async () => {
       try {
-        const { orderId, userId } = searchParams;
-
         console.log(orderId);
         console.log(userId);
 

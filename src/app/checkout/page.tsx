@@ -280,7 +280,10 @@ export default function CheckoutPage() {
     setError("");
 
     try {
-      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      const userData =
+        typeof window !== "undefined"
+          ? JSON.parse(localStorage.getItem("userData") || "{}")
+          : {};
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/add_order`,
@@ -341,7 +344,10 @@ export default function CheckoutPage() {
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const user = await JSON.parse(localStorage.getItem("userData")!);
+        const user =
+          typeof window !== "undefined"
+            ? await JSON.parse(localStorage.getItem("userData")!)
+            : null;
         const cartItems = await fetchCartItems(user);
         const location = await getLocation();
 
@@ -387,9 +393,9 @@ export default function CheckoutPage() {
               <UserRound className="flex w-full h-full" />
             </div>
             <span className="flex text-[#9a9a9a]">
-              {JSON.parse(localStorage.getItem("userData") || "{}").name || ""}{" "}
-              {JSON.parse(localStorage.getItem("userData") || "{}").last1 || ""}{" "}
-              {JSON.parse(localStorage.getItem("userData") || "{}").last2 || ""}
+              {typeof window !== "undefined"
+                ? `${JSON.parse(localStorage.getItem("userData") || "{}").name || ""} ${JSON.parse(localStorage.getItem("userData") || "{}").last1 || ""} ${JSON.parse(localStorage.getItem("userData") || "{}").last2 || ""}`
+                : ""}
             </span>
           </div>
         </div>

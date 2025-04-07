@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
@@ -21,23 +21,18 @@ async function handleSubmit(email: string | null, code: string, router: any) {
       },
     );
 
-    if (!response.ok) {
-      throw new Error("Error al verificar la cuenta");
-    }
-
+    if (!response.ok) throw new Error("Error al verificar la cuenta");
     router.push("/login");
   } catch (error) {
     console.error(error);
   }
 }
 
-export default function VerifyPage() {
+function VerificationForm() {
   const [code, setCode] = useState("");
   const router = useRouter();
-  const searchParams = useSearchParams(); // Obtiene los parámetros de la URL
-  const email = searchParams.get("email"); // Extrae el valor de "email"
-
-  console.log("Email recibido:", email); // Verifica si el email se obtiene correctamente
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
 
   return (
     <div className="flex h-full w-full min-h-[calc(100vh-88px)] items-center justify-center p-4 bg-[#e7e8e9]">
@@ -53,11 +48,19 @@ export default function VerifyPage() {
         <Button
           className="w-full bg-[#022953] hover:bg-[#034078] hover:shadow-lg"
           onClick={() => handleSubmit(email, code, router)}
-          disabled={!email} // Deshabilita el botón si no hay email
+          disabled={!email}
         >
           Verificar
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <VerificationForm />
+    </Suspense>
   );
 }

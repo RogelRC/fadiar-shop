@@ -2,6 +2,26 @@ import Image from "next/image";
 
 import AddToCart from "@/components/AddToCart";
 
+export async function generateStaticParams() {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/inventory`, // GET es el método por defecto
+    );
+
+    if (!response.ok) throw new Error("Error obteniendo inventario");
+
+    const data = await response.json();
+
+    // Mapeamos los productos basado en tu estructura
+    return data.products.map((product: any) => ({
+      id: product.id.toString(), // Convertimos a string
+    }));
+  } catch (error) {
+    console.error("Error generando rutas estáticas:", error);
+    return []; // Prevenimos fallo de build
+  }
+}
+
 async function getLocation() {
   try {
     const res = await fetch("http://ip-api.com/json/");
@@ -39,12 +59,11 @@ async function getProduct(id: string) {
   }
 }
 
-export default async function ProductPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const { id } = await params;
+type Params = Promise<{ id: string }>;
+
+export default async function ProductPage(props: { params: Params }) {
+  const params = await props.params;
+  const { id } = params;
 
   const product = await getProduct(id);
 
