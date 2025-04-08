@@ -32,7 +32,7 @@ export default function ProductCard({
   return (
     <>
       <Link
-        href={`/products/${product.id}`}
+        href={`/products/id?itemId=${product.id}`}
         className="shadow-lg hover:scale-105 transition-all duration-300 rounded-lg overflow-hidden"
       >
         <div

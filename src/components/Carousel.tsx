@@ -57,7 +57,7 @@ export default async function Carousel() {
               {chunk.map((product, idx) => (
                 <Link
                   key={product.id}
-                  href={`/products/${product.id}`}
+                  href={`/products/id?itemId=${product.id}`}
                   className={`${getGridPosition(idx)} relative group bg-white rounded-xl shadow-lg overflow-hidden`}
                 >
                   <img

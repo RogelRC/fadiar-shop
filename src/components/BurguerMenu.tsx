@@ -4,6 +4,8 @@ import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "@/store/Cart";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+
 import {
   LogOut,
   User,
@@ -127,135 +129,143 @@ export default function BurgerMenu() {
           <Menu />
         </button>
 
-        {isOpen && (
-          <div className="flex flex-col absolute top-0 right-0 bg-white rounded-l-lg h-screen w-[80vw] p-4 text-[#022953] space-y-4 text-base z-50">
-            <div className="flex w-full">
-              <h3 className="text-xl font-bold">Menú</h3>
-              <button
-                className="ml-auto w-6 h-6"
-                onClick={() => setIsOpen(false)}
-              >
-                <X />
-              </button>
-            </div>
-            <hr className="border-1 border-gray-200" />
-            <Link
-              href="/"
-              className="flex w-full space-x-2"
-              onClick={() => setIsOpen(false)}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="flex flex-col absolute top-0 right-0 bg-white rounded-l-lg h-screen w-[80vw] p-4 text-[#022953] space-y-4 text-base z-50"
             >
-              <span>
-                <House />
-              </span>
-              <span>Inicio</span>
-            </Link>
-            <hr className="border-1 border-gray-200" />
-            {userData && (
-              <>
-                <Link
-                  href="/"
-                  className="flex w-full space-x-2"
-                  onClick={() => handleLogout()}
-                >
-                  <span>
-                    <LogOut />
-                  </span>
-                  <span>Cerrar sesión</span>
-                </Link>
-                <Link
-                  href="/account"
-                  className="flex w-full space-x-2"
+              <div className="flex w-full">
+                <h3 className="text-xl font-bold">Menú</h3>
+                <button
+                  className="ml-auto w-6 h-6"
                   onClick={() => setIsOpen(false)}
                 >
-                  <span>
-                    <User />
-                  </span>
-                  <span>Mi cuenta</span>
-                </Link>
-                <Link
-                  href={`/record?id=${
-                    JSON.parse(localStorage.getItem("userData") || "{}")
-                      .userId || null
-                  }`}
-                  className="flex w-full space-x-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <span>
-                    <Package />
-                  </span>
-                  <span>Mis pedidos</span>
-                </Link>
-              </>
-            )}
-            {!userData && (
-              <Link
-                href="/login"
-                className="flex w-full space-x-2"
-                onClick={() => setIsOpen(false)}
-              >
-                <span>
-                  <LogIn />
-                </span>
-                <span>Iniciar sesión</span>
-              </Link>
-            )}
-            <hr className="border-1 border-gray-200" />
-            <Link
-              href="/products"
-              className="flex w-full space-x-2"
-              onClick={() => setIsOpen(false)}
-            >
-              <span>
-                <WashingMachine />
-              </span>
-              <span>Productos</span>
-            </Link>
-            {userData && (
-              <Link
-                href="/checkout"
-                className="flex w-full space-x-2"
-                onClick={() => setIsOpen(false)}
-              >
-                <span>
-                  <ShoppingCart />
-                </span>
-                <span>Carrito</span>
-              </Link>
-            )}
-            {/*
+                  <X />
+                </button>
+              </div>
               <hr className="border-1 border-gray-200" />
               <Link
-                href="/about"
+                href="/"
                 className="flex w-full space-x-2"
                 onClick={() => setIsOpen(false)}
               >
                 <span>
-                  <Info />
+                  <House />
                 </span>
-                <span>Sobre nosotros</span>
+                <span>Inicio</span>
               </Link>
+              <hr className="border-1 border-gray-200" />
+              {userData && (
+                <>
+                  <Link
+                    href="/"
+                    className="flex w-full space-x-2"
+                    onClick={() => handleLogout()}
+                  >
+                    <span>
+                      <LogOut />
+                    </span>
+                    <span>Cerrar sesión</span>
+                  </Link>
+                  <Link
+                    href="/account"
+                    className="flex w-full space-x-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span>
+                      <User />
+                    </span>
+                    <span>Mi cuenta</span>
+                  </Link>
+                  <Link
+                    href={`/record?id=${
+                      JSON.parse(localStorage.getItem("userData") || "{}")
+                        .userId || null
+                    }`}
+                    className="flex w-full space-x-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span>
+                      <Package />
+                    </span>
+                    <span>Mis pedidos</span>
+                  </Link>
+                </>
+              )}
+              {!userData && (
+                <Link
+                  href="/login"
+                  className="flex w-full space-x-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span>
+                    <LogIn />
+                  </span>
+                  <span>Iniciar sesión</span>
+                </Link>
+              )}
+              <hr className="border-1 border-gray-200" />
               <Link
-                href="/help"
+                href="/products"
                 className="flex w-full space-x-2"
                 onClick={() => setIsOpen(false)}
               >
                 <span>
-                  <HandHelping />
+                  <WashingMachine />
                 </span>
-                <span>Ayuda</span>
+                <span>Productos</span>
               </Link>
-              <Link
-                href="/contact"
-                className="flex w-full space-x-2"
-                onClick={() => setIsOpen(false)}
-              >
-                <span>
-                  <Phone />
-                </span>
-                <span>Contáctenos</span>
-              </Link> */}
-          </div>
-        )}
+              {userData && (
+                <Link
+                  href="/checkout"
+                  className="flex w-full space-x-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span>
+                    <ShoppingCart />
+                  </span>
+                  <span>Carrito</span>
+                </Link>
+              )}
+              {/*
+                <hr className="border-1 border-gray-200" />
+                <Link
+                  href="/about"
+                  className="flex w-full space-x-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span>
+                    <Info />
+                  </span>
+                  <span>Sobre nosotros</span>
+                </Link>
+                <Link
+                  href="/help"
+                  className="flex w-full space-x-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span>
+                    <HandHelping />
+                  </span>
+                  <span>Ayuda</span>
+                </Link>
+                <Link
+                  href="/contact"
+                  className="flex w-full space-x-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span>
+                    <Phone />
+                  </span>
+                  <span>Contáctenos</span>
+                </Link> */}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </>
   );

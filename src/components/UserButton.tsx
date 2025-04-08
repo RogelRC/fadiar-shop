@@ -3,6 +3,7 @@
 import { User, ShieldUser, LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 const handleLogout = () => {
   localStorage.removeItem("userData");
@@ -46,25 +47,31 @@ export default function UserButton() {
         <User />
       </button>
 
-      {isOpen && (
-        <div
-          ref={popoverRef}
-          className="flex flex-col absolute right-12 top-16 bg-white rounded-md shadow-lg p-4 w-48 text-[#022953] space-y-4"
-        >
-          <div className="flex h-full items-center space-x-2 hover:scale-110 transition-all duration-300">
-            <ShieldUser />
-            <Link href="/account">Mi cuenta</Link>
-          </div>
-          <Link
-            href="/"
-            className="flex items-center space-x-2 hover:scale-110 transition-all duration-300"
-            onClick={handleLogout}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            ref={popoverRef}
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col absolute right-12 top-16 bg-white rounded-md shadow-lg p-4 w-48 text-[#022953] space-y-4"
           >
-            <LogOut />
-            <span>Cerrar sesión</span>
-          </Link>
-        </div>
-      )}
+            <div className="flex h-full items-center space-x-2 hover:scale-110 transition-all duration-300">
+              <ShieldUser />
+              <Link href="/account">Mi cuenta</Link>
+            </div>
+            <Link
+              href="/"
+              className="flex items-center space-x-2 hover:scale-110 transition-all duration-300"
+              onClick={handleLogout}
+            >
+              <LogOut />
+              <span>Cerrar sesión</span>
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

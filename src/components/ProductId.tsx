@@ -1,33 +1,18 @@
+"use client";
+
 import Image from "next/image";
-
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import AddToCart from "@/components/AddToCart";
-
-export async function generateStaticParams() {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/inventory`, // GET es el método por defecto
-    );
-
-    if (!response.ok) throw new Error("Error obteniendo inventario");
-
-    const data = await response.json();
-
-    // Mapeamos los productos basado en tu estructura
-    return data.products.map((product: any) => ({
-      id: product.id.toString(), // Convertimos a string
-    }));
-  } catch (error) {
-    console.error("Error generando rutas estáticas:", error);
-    return []; // Prevenimos fallo de build
-  }
-}
+import Loading from "@/components/Loading";
 
 async function getLocation() {
   try {
     const res = await fetch("http://ip-api.com/json/");
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
     const data = await res.json();
-    //console.log(data);
-
     return data.countryCode || "CU";
   } catch (error) {
     console.error("Error obteniendo la ubicación:", error);
@@ -50,27 +35,56 @@ async function getProduct(id: string) {
         }),
       },
     );
-    const product = await response.json();
-
-    return product;
+    return await response.json();
   } catch (error) {
     console.error(error);
     throw new Error("Failed to fetch product");
   }
 }
 
-type Params = Promise<{ id: string }>;
+export default function ProductPage() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("itemId");
 
-export default async function ProductPage(props: { params: Params }) {
-  const params = await props.params;
-  const { id } = params;
+  const [product, setProduct] = useState<any | null>(null);
+  const [location, setLocation] = useState("CU");
 
-  const product = await getProduct(id);
+  useEffect(() => {
+    if (!id) return;
 
-  const location = await getLocation();
-  const currencies = await product.currencys.currencys;
+    async function fetchData() {
+      const [productData, locationData] = await Promise.all([
+        getProduct(id || ""),
+        getLocation(),
+      ]);
+      setProduct(productData);
+      setLocation(locationData);
+    }
 
-  //console.log(product);
+    fetchData();
+  }, [id]);
+
+  if (!id) {
+    return <div>Producto no encontrado.</div>;
+  }
+
+  if (!product) {
+    return <Loading />;
+  }
+
+  const currencies = product.currencys.currencys;
+  const price = product.product.prices[0];
+  const value = price[1];
+  const currency = price[2];
+
+  function renderPrice() {
+    if (location === "CU" && currency === "CUP") return `${value} CUP`;
+    if (location !== "CU" && currency === "USD") return `${value} USD`;
+    if (location === "CU" && currency === "USD")
+      return `${value * currencies[1].value} CUP`;
+    if (location !== "CU" && currency === "CUP")
+      return `${Math.ceil((value / currencies[1].value) * 100) / 100} USD`;
+  }
 
   return (
     <div className="flex flex-col gap-y-4 sm:gap-y-8 sm:p-8 p-4 w-full">
@@ -87,26 +101,11 @@ export default async function ProductPage(props: { params: Params }) {
             Marca {product.product.brand}
           </span>
         </div>
+
         <div className="block sm:hidden">
           <div className="flex flex-col w-full bg-[#eff6ff] text-[#022953] p-4 sm:p-10 gap-y-4 sm:gap-y-8 items-center sm:items-start">
             <span className="flex font-bold text-4xl justify-center sm:justify-start">
-              {location === "CU" && product.product.prices[0][2] === "CUP" && (
-                <>{product.product.prices[0][1]} CUP</>
-              )}
-              {location !== "CU" && product.product.prices[0][2] === "USD" && (
-                <>{product.product.prices[0][1]} USD</>
-              )}
-              {location === "CU" && product.product.prices[0][2] === "USD" && (
-                <>{product.product.prices[0][1] * currencies[1].value} CUP</>
-              )}
-              {location !== "CU" && product.product.prices[0][2] === "CUP" && (
-                <>
-                  {Math.ceil(
-                    (product.product.prices[0][1] / currencies[1].value) * 100,
-                  ) / 100}{" "}
-                  USD
-                </>
-              )}
+              {renderPrice()}
             </span>
             <AddToCart
               productId={product.product.id}
@@ -114,6 +113,7 @@ export default async function ProductPage(props: { params: Params }) {
             />
           </div>
         </div>
+
         <div className="flex flex-col w-full self-start bg-[#022953] rounded-xl p-4 sm:p-10 text-white gap-y-2">
           <h1 className="text-3xl font-bold">{product.product.name}</h1>
           <h3 className="text-lg font-semibold">Propiedades:</h3>
@@ -122,26 +122,11 @@ export default async function ProductPage(props: { params: Params }) {
           </span>
         </div>
       </div>
+
       <div className="hidden sm:block">
         <div className="flex flex-col w-full bg-[#eff6ff] text-[#022953] p-4 sm:p-10 gap-y-4 sm:gap-y-8 items-center sm:items-start">
           <span className="flex font-bold text-4xl justify-center sm:justify-start">
-            {location === "CU" && product.product.prices[0][2] === "CUP" && (
-              <>{product.product.prices[0][1]} CUP</>
-            )}
-            {location !== "CU" && product.product.prices[0][2] === "USD" && (
-              <>{product.product.prices[0][1]} USD</>
-            )}
-            {location === "CU" && product.product.prices[0][2] === "USD" && (
-              <>{product.product.prices[0][1] * currencies[1].value} CUP</>
-            )}
-            {location !== "CU" && product.product.prices[0][2] === "CUP" && (
-              <>
-                {Math.ceil(
-                  (product.product.prices[0][1] / currencies[1].value) * 100,
-                ) / 100}{" "}
-                USD
-              </>
-            )}
+            {renderPrice()}
           </span>
           <AddToCart
             productId={product.product.id}
