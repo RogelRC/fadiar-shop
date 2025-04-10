@@ -62,9 +62,9 @@ export default function OrderDetails() {
   useEffect(() => {
     const detectCountry = async () => {
       try {
-        const response = await fetch("https://ipapi.co/json/");
+        const response = await fetch("https://app.fadiar.com/api/get_location");
         const data: IpApiResponse = await response.json();
-        setCurrency(data.country === "CU" ? "CUP" : "USD");
+        setCurrency(data.country === "Cuba" ? "CUP" : "USD");
       } catch (error) {
         console.error("Error detecting country:", error);
         setCurrency("CUP");
