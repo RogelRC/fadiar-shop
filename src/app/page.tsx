@@ -1,11 +1,11 @@
 import Info from "@/components/Info";
-import Presentation from "@/components/Presentation";
+import HeroSlider from "@/components/HeroSlider";
 import Carousel from "@/components/Carousel";
 
 export default function Home() {
   return (
     <div>
-      <Presentation />
+      <HeroSlider />
       <Info />
       <Carousel />
     </div>
