@@ -130,17 +130,21 @@ export default function ProductsPage() {
     <>
       <div className="w-full overflow-hidden bg-[#022953] py-2 relative">
         <div className="flex whitespace-nowrap text-white font-semibold text-sm sm:text-base animate-scroll">
-          {products
-            .map((product) => product.categoria?.name)
-            .filter((cat, index, arr) => cat && arr.indexOf(cat) === index)
-            .flatMap((cat, index) => [
-              <span key={`first-${index}`} className="inline-block mx-6">
-                {cat}
-              </span>,
-              <span key={`second-${index}`} className="inline-block mx-6">
-                {cat}
-              </span>,
-            ])}
+          {/* Contenido duplicado para scroll infinito */}
+          {[...Array(2)].map((_, i) =>
+            products
+              .map((product) => product.categoria?.name)
+              .filter((cat, index, arr) => cat && arr.indexOf(cat) === index)
+              .map((cat, index) => (
+                <span
+                  key={`${i}-${index}`}
+                  className="inline-block mx-6 cursor-pointer hover:text-yellow-300 transition-colors"
+                  onClick={() => setCategory(cat!)}
+                >
+                  {cat}
+                </span>
+              )),
+          )}
         </div>
 
         <style jsx>{`
@@ -154,7 +158,11 @@ export default function ProductsPage() {
           }
 
           .animate-scroll {
-            animation: scroll 40s linear infinite;
+            animation: scroll 20s linear infinite;
+          }
+
+          .animate-scroll:hover {
+            animation-play-state: paused;
           }
         `}</style>
       </div>
