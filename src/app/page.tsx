@@ -1,13 +1,12 @@
-import Info from "@/components/Info";
 import HeroSlider from "@/components/HeroSlider";
-import Carousel from "@/components/Carousel";
+import CatPre from "@/components/CatPre";
 
 export default function Home() {
   return (
     <div>
       <HeroSlider />
-      <Info />
-      <Carousel />
+      <CatPre />
+      {/*<Carousel />*/}
     </div>
   );
 }

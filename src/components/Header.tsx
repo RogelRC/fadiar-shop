@@ -19,7 +19,7 @@ export default function Header() {
         }}
       />
       {/* Contenido no desenfocado */}
-      <Link href="/" className="flex-none z-10 h-full items-center">
+      <Link href="/" className="flex-none z-10 h-full items-center md:p-0 py-2">
         <Image
           src="/logo.svg"
           alt="logo"
@@ -30,7 +30,7 @@ export default function Header() {
         <Image
           src="/favicon.png"
           alt="logo"
-          width={65}
+          width={60}
           height={80}
           className="md:hidden"
         />

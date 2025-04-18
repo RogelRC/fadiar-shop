@@ -82,7 +82,7 @@ export default function ProductCard({
   };
 
   return (
-    <div className="flex flex-col relative z-0 shadow-lg hover:scale-105 transition-all duration-300 rounded-b-lg overflow-hidden">
+    <div className="flex flex-col relative z-0 shadow-xl hover:scale-105 transition-all duration-300 rounded-b-lg overflow-hidden">
       {/* Enlace clickable */}
       <Link href={`/products/id?itemId=${product.id}`}>
         <div className="flex flex-col z-0">

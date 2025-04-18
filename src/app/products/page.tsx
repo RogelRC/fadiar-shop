@@ -275,7 +275,7 @@ export default function ProductsPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {filteredProducts
             .sort(
               (a: Product, b: Product) =>
