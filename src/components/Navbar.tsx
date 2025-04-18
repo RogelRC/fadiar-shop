@@ -5,12 +5,14 @@ import UserButton from "@/components/UserButton";
 import { useEffect, useState } from "react";
 import { useCart } from "@/store/Cart";
 import { usePathname } from "next/navigation";
+import { useFilters } from "@/store/Filters";
 
 export default function Navbar() {
   const [userData, setUserData] = useState<string | null>(null);
   const setAmount = useCart((state) => state.setAmount);
   const { amount } = useCart();
   const pathname = usePathname(); // Obtener la ruta actual
+  const setCategory = useFilters((state) => state.setCategory);
 
   const fetchCartItems = async () => {
     const userData = JSON.parse(localStorage.getItem("userData") || "{}");
@@ -102,6 +104,7 @@ export default function Navbar() {
           </Link>
           <Link
             href="/products"
+            onClick={() => setCategory("")}
             className={`hidden sm:block relative hover:text-blue-500 hover:underline transition-colors ${
               pathname.startsWith("/products") ? "font-bold" : ""
             }`}

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useFilters } from "@/store/Filters";
+import Link from "next/link";
 
 interface Product {
   id: number;
@@ -20,10 +22,11 @@ interface CategoryGroup {
 
 export default function CatPre() {
   const [groupedData, setGroupedData] = useState<CategoryGroup[]>([]);
+  const setCategory = useFilters((state) => state.setCategory);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await fetch("https://app.fadiar.com/api/inventory");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventory`);
       const data = await res.json();
 
       const products: Product[] = data.products;
@@ -31,7 +34,7 @@ export default function CatPre() {
       const grouped: Record<string, Product[]> = {};
 
       products.forEach((product) => {
-        const catName = product.categoria?.name ?? "Sin categoría";
+        const catName = product.categoria?.name ?? "Variados";
         if (!grouped[catName]) grouped[catName] = [];
         if (grouped[catName].length < 4) {
           grouped[catName].push({
@@ -59,7 +62,12 @@ export default function CatPre() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:p-10 p-4">
       {groupedData.map(({ category, products }) => (
-        <div key={category} className="border shadow-md p-4 bg-white">
+        <Link
+          href={"/products"}
+          onClick={() => setCategory(category)}
+          key={category}
+          className="border shadow-md p-4 bg-white"
+        >
           <h2 className="text-2xl font-semibold mb-3 text-[#022953]">
             {category}
           </h2>
@@ -83,7 +91,7 @@ export default function CatPre() {
               </div>
             ))}
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   );

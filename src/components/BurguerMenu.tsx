@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useCart } from "@/store/Cart";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useFilters } from "@/store/Filters";
 
 import {
   LogOut,
@@ -29,6 +30,7 @@ export default function BurgerMenu() {
   const setAmount = useCart((state) => state.setAmount);
   const { amount } = useCart();
   const [userData, setUserData] = useState<string | null>(null);
+  const setCategory = useFilters((state) => state.setCategory);
 
   const fetchCartItems = async () => {
     const userData = JSON.parse(localStorage.getItem("userData") || "{}");
@@ -212,7 +214,10 @@ export default function BurgerMenu() {
               <Link
                 href="/products"
                 className="flex w-full space-x-2"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  setCategory("");
+                }}
               >
                 <span>
                   <WashingMachine />
