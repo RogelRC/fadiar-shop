@@ -240,7 +240,13 @@ async function fetchCartItems(userData: any) {
 
 async function getLocation() {
   try {
-    const res = await fetch("https://app.fadiar.com/api/get_location");
+    const res = await fetch("https://app.fadiar.com/api/get_location", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    });
     const data = await res.json();
     //console.log(data.countryCode);
     return !data.country || data.country === "Cuba" ? "CU" : "US";

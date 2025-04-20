@@ -62,7 +62,16 @@ export default function OrderDetails() {
   useEffect(() => {
     const detectCountry = async () => {
       try {
-        const response = await fetch("https://app.fadiar.com/api/get_location");
+        const response = await fetch(
+          "https://app.fadiar.com/api/get_location",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}),
+          },
+        );
         const data: IpApiResponse = await response.json();
         setCurrency(data.country === "Cuba" ? "CUP" : "USD");
       } catch (error) {

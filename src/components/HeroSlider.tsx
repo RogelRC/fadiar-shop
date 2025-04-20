@@ -44,7 +44,7 @@ export default function HeroSlider() {
       </div>
 
       {/* Dots */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
+      {/* <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
         {images.map((_, index) => (
           <button
             key={index}
@@ -54,7 +54,7 @@ export default function HeroSlider() {
             onClick={() => goToSlide(index)}
           />
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

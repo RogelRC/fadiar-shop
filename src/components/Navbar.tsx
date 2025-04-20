@@ -114,7 +114,7 @@ export default function Navbar() {
           <Link
             href="/checkout"
             className={`hidden sm:block relative hover:text-blue-500 hover:underline transition-colors ${
-              pathname === "/checkout" ? "font-bold" : ""
+              pathname === "/checkout/" ? "font-bold" : ""
             }`}
           >
             Carrito

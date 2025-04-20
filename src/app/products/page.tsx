@@ -37,7 +37,13 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchAll = async function () {
       try {
-        const res = await fetch("https://app.fadiar.com/api/get_location");
+        const res = await fetch("https://app.fadiar.com/api/get_location", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        });
         const data = await res.json();
         setLocation(!data.country || data.country === "Cuba" ? "CU" : "US");
       } catch (error) {

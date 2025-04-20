@@ -8,7 +8,13 @@ import Loading from "@/components/Loading";
 
 async function getLocation() {
   try {
-    const res = await fetch("https://app.fadiar.com/api/get_location");
+    const res = await fetch("https://app.fadiar.com/api/get_location", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    });
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }

@@ -65,7 +65,7 @@ export default function AddToCart({
 
   useEffect(() => {
     if (wait === true) {
-      setMessage("Añadido ✅");
+      setMessage("Añadiendo");
       setTimeout(() => {
         setWait(false);
         setMessage("Añadir al carrito");
