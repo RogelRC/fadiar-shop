@@ -31,7 +31,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
-        <Header />
+        <div className="relative w-full top-0 z-50">
+          <Header />
+        </div>
         {children}
         <Footer />
         <Whatsapp />

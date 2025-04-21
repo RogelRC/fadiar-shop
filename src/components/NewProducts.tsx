@@ -67,7 +67,7 @@ export default function NewProducts() {
         className="flex gap-4 md:gap-6 md:flex-nowrap"
         style={{ minWidth: "min-content" }}
       >
-        {products.map((product) => (
+        {[...products].reverse().map((product) => (
           <div
             key={product.id}
             className="min-w-[200px] md:min-w-0 md:w-1/4 p-3 bg-white shadow-lg"

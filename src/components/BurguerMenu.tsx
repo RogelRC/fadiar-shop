@@ -138,7 +138,7 @@ export default function BurgerMenu() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="flex flex-col absolute top-0 right-0 bg-white rounded-l-lg h-screen w-[80vw] p-4 text-[#022953] space-y-4 text-base z-50"
+              className="flex flex-col fixed top-0 right-0 bg-white rounded-l-lg h-screen w-[80vw] p-4 text-[#022953] space-y-4 text-base z-50"
             >
               <div className="flex w-full">
                 <h3 className="text-xl font-bold">Menú</h3>
