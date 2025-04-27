@@ -70,7 +70,7 @@ export default function NewProducts() {
         {[...products].reverse().map((product) => (
           <div
             key={product.id}
-            className="min-w-[200px] md:min-w-0 md:w-1/4 p-3 bg-white shadow-lg"
+            className="grid gird-cols-4 min-w-[200px] md:min-w-0 md:w-1/4 p-3 bg-white shadow-lg"
           >
             <ProductCard
               product={product}

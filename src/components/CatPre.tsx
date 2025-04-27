@@ -29,7 +29,9 @@ export default function CatPre() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventory`);
       const data = await res.json();
 
-      const products: Product[] = data.products;
+      const products: Product[] = data.products.filter(
+        (product: Product) => product.categoria && product.categoria.name,
+      );
 
       const grouped: Record<string, Product[]> = {};
 

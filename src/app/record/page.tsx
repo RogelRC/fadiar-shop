@@ -1,11 +1,11 @@
-import Record from "@/components/Record";
+import OrderRecord from "@/components/OrderRecord";
 import { Suspense } from "react";
 
 export default function Page() {
   return (
     <>
       <Suspense>
-        <Record />
+        <OrderRecord />
       </Suspense>
     </>
   );
