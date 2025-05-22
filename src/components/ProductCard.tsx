@@ -89,8 +89,7 @@ export default function ProductCard({
           <div className="flex relative aspect-square w-full bg-gray-50 z-10">
             {product.count === 0 && (
               <span className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-bl z-10">
-                <span className="sm:hidden">Agotado</span>
-                <span className="hidden sm:block">Agotado temporalmente</span>
+                <span className="">Agotado temporalmente</span>
               </span>
             )}
             <Image
