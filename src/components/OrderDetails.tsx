@@ -73,7 +73,8 @@ export default function OrderDetails() {
           },
         );
         const data: IpApiResponse = await response.json();
-        setCurrency(data.country === "Cuba" ? "CUP" : "USD");
+        //setCurrency(data.country === "Cuba" ? "CUP" : "USD");
+        setCurrency("USD");
       } catch (error) {
         console.error("Error detecting country:", error);
         setCurrency("CUP");

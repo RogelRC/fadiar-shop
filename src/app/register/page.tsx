@@ -12,13 +12,6 @@ import { useRouter } from "next/navigation";
 import { form } from "framer-motion/client";
 
 interface FormData {
-  ci: string;
-  name: string;
-  lastname1: string;
-  lastname2: string;
-  cellphone1: string;
-  cellphon2: string;
-  address: string;
   email: string;
   username: string;
   password: string;
@@ -34,12 +27,6 @@ async function handleSubmit(formData: FormData, router: any) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...formData,
-          ci: parseInt(formData.ci),
-          cellphone1: parseInt(formData.cellphone1),
-          cellphon2: parseInt(formData.cellphon2),
-        }),
       },
     );
 
@@ -79,52 +66,10 @@ export default function Login() {
           Registrarse
         </h3>
         <Input
-          placeholder="Carnet de identidad"
-          value={formData.ci}
-          onChange={(e) => setFormData({ ...formData, ci: e.target.value })}
-        />
-        <div className="flex space-x-4">
-          <Input
-            placeholder="Nombre"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
-          <Input
-            placeholder="Primer apellido"
-            value={formData.lastname1}
-            onChange={(e) =>
-              setFormData({ ...formData, lastname1: e.target.value })
-            }
-          />
-          <Input
-            placeholder="Segundo apellido"
-            value={formData.lastname2}
-            onChange={(e) =>
-              setFormData({ ...formData, lastname2: e.target.value })
-            }
-          />
-        </div>
-        <div className="flex space-x-4">
-          <Input
-            placeholder="Celular 1"
-            value={formData.cellphone1}
-            onChange={(e) =>
-              setFormData({ ...formData, cellphone1: e.target.value })
-            }
-          />
-          <Input
-            placeholder="Celular 2 (opcional)"
-            value={formData.cellphon2}
-            onChange={(e) =>
-              setFormData({ ...formData, cellphon2: e.target.value })
-            }
-          />
-        </div>
-        <Input
-          placeholder="Dirección"
-          value={formData.address}
+          placeholder="Nombre de usuario"
+          value={formData.username}
           onChange={(e) =>
-            setFormData({ ...formData, address: e.target.value })
+            setFormData({ ...formData, username: e.target.value })
           }
         />
         <Input
@@ -132,13 +77,6 @@ export default function Login() {
           value={formData.email}
           type="email"
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        />
-        <Input
-          placeholder="Nombre de usuario"
-          value={formData.username}
-          onChange={(e) =>
-            setFormData({ ...formData, username: e.target.value })
-          }
         />
         <Input
           placeholder="Contraseña"

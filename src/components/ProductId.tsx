@@ -19,7 +19,8 @@ async function getLocation() {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
     const data = await res.json();
-    return !data.country || data.country === "Cuba" ? "CU" : "US";
+    //return !data.country || data.country === "Cuba" ? "CU" : "US";
+    return "US";
   } catch (error) {
     console.error("Error obteniendo la ubicación:", error);
     return "CU";
@@ -69,6 +70,12 @@ export default function ProductPage() {
 
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    if (product) {
+      console.log(product);
+    }
+  }, [product]);
 
   if (!id) {
     return <div>Producto no encontrado.</div>;
@@ -122,10 +129,15 @@ export default function ProductPage() {
 
         <div className="flex flex-col w-full self-start bg-[#022953] rounded-xl p-4 sm:p-10 text-white gap-y-2">
           <h1 className="text-3xl font-bold">{product.product.name}</h1>
+          <h3 className="text-lg font-semibold mt-2">Descripción:</h3>
+          <p className="mb-2">{product.product.description}</p>
           <h3 className="text-lg font-semibold">Propiedades:</h3>
-          <span style={{ whiteSpace: "pre-line" }}>
-            {product.product.description}
-          </span>
+          {product.product.specs.map((spec: any) => (
+            <div key={spec[0]} className="flex justify-between items-center py-1 border-b border-white/20">
+              <span className="font-medium">{spec[1]}:</span>
+              <span className="text-right">{spec[2]}</span>
+            </div>
+          ))}
         </div>
       </div>
 

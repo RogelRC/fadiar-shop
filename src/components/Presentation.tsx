@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -8,12 +8,15 @@ const images = ["/frame1.webp", "/frame2.webp", "/frame3.webp"];
 
 export default function Slideshow() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [, setDirection] = useState<"next" | "prev">("next");
+  const [direction, setDirection] = useState<"next" | "prev">("next");
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [currentX, setCurrentX] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleNext = () => {
     setDirection("next");
     setCurrentIndex((prev) => (prev + 1) % images.length);
-    console.log(currentIndex);
   };
 
   const handlePrev = () => {
@@ -21,13 +24,90 @@ export default function Slideshow() {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  // Autoplay cada 6s (solo si no se está arrastrando)
   useEffect(() => {
+    if (isDragging) return;
+    
     const interval = setInterval(handleNext, 6000);
     return () => clearInterval(interval);
+  }, [isDragging]);
+
+  // Funciones para manejar el swipe
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    setIsDragging(true);
+    setStartX(e.touches[0].clientX);
+    setCurrentX(e.touches[0].clientX);
   }, []);
 
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging) return;
+    setCurrentX(e.touches[0].clientX);
+  }, [isDragging]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging) return;
+    
+    const diff = startX - currentX;
+    const threshold = 50; // Umbral mínimo para considerar un swipe
+    
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        // Swipe hacia la izquierda (siguiente)
+        handleNext();
+      } else {
+        // Swipe hacia la derecha (anterior)
+        handlePrev();
+      }
+    }
+    
+    setIsDragging(false);
+    setStartX(0);
+    setCurrentX(0);
+  }, [isDragging, startX, currentX]);
+
+  // Funciones para manejar el mouse drag
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartX(e.clientX);
+    setCurrentX(e.clientX);
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setCurrentX(e.clientX);
+  }, [isDragging]);
+
+  const handleMouseUp = useCallback(() => {
+    if (!isDragging) return;
+    
+    const diff = startX - currentX;
+    const threshold = 50;
+    
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+    }
+    
+    setIsDragging(false);
+    setStartX(0);
+    setCurrentX(0);
+  }, [isDragging, startX, currentX]);
+
   return (
-    <div className="relative w-full h-[90vh] overflow-hidden bg-black">
+    <div 
+      ref={containerRef}
+      className="relative w-full h-[90vh] overflow-hidden bg-black cursor-grab active:cursor-grabbing"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={currentIndex}
@@ -81,7 +161,7 @@ export default function Slideshow() {
         </div>
       </div>
 
-      <div className="absolute bottom-8 right-8 flex z-10">
+      <div className="hidden md:flex absolute bottom-8 right-8 z-10">
         <NavArrow direction="left" onClick={handlePrev} />
         <NavArrow direction="right" onClick={handleNext} />
       </div>

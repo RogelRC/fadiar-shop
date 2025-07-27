@@ -32,7 +32,8 @@ export default function NewProducts() {
           body: JSON.stringify({}),
         });
         const data = await res.json();
-        setLocation(!data.country || data.country === "Cuba" ? "CU" : "US");
+        //setLocation(!data.country || data.country === "Cuba" ? "CU" : "US");
+        setLocation("US")
       } catch (error) {
         console.error("Error obteniendo la ubicación:", error);
         setLocation("CU");

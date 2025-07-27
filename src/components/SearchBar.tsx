@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFilters } from "@/store/Filters";
+import { normalizeText } from "@/lib/utils";
 
 export default function SearchBar() {
   const [query, setQuery] = useState("");
@@ -11,7 +12,9 @@ export default function SearchBar() {
   const setName = useFilters((state) => state.setName);
 
   const handleSearch = () => {
-    setName(query);
+    // Normalizar la consulta antes de buscar
+    const normalizedQuery = normalizeText(query);
+    setName(normalizedQuery);
     router.push("/products");
   };
 

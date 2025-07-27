@@ -91,7 +91,7 @@ export default function MisPedidos() {
       });
       const data: { country: string } = await response.json();
       console.log(data);
-      if (data.country !== "Cuba") {
+      if (data.country !== "Cuba" || true) {
         setLocation(data.country);
         setCurrency("USD");
       }

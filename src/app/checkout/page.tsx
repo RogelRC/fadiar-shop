@@ -249,7 +249,8 @@ async function getLocation() {
     });
     const data = await res.json();
     //console.log(data.countryCode);
-    return !data.country || data.country === "Cuba" ? "CU" : "US";
+    //return !data.country || data.country === "Cuba" ? "CU" : "US";
+    return "US"
   } catch (error) {
     console.error("Error obteniendo la ubicación:", error);
     return "CU";

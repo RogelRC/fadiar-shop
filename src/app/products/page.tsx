@@ -6,6 +6,8 @@ import { useFilters } from "@/store/Filters";
 import { Currency, ListFilter, X } from "lucide-react";
 import Loading from "@/components/Loading";
 import { motion, AnimatePresence } from "framer-motion";
+import { normalizeText, searchInText } from "@/lib/utils";
+import Marquee from "react-fast-marquee";
 
 interface Product {
   id: number;
@@ -45,7 +47,8 @@ export default function ProductsPage() {
           body: JSON.stringify({}),
         });
         const data = await res.json();
-        setLocation(!data.country || data.country === "Cuba" ? "CU" : "US");
+        //setLocation(!data.country || data.country === "Cuba" ? "CU" : "US");
+        setLocation("US")
       } catch (error) {
         console.error("Error obteniendo la ubicación:", error);
         setLocation("CU");
@@ -76,10 +79,8 @@ export default function ProductsPage() {
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      const nameMatch =
-        !name || product.name.toLowerCase().includes(name.toLowerCase());
-      const brandMatch =
-        !brand || product.brand.toLowerCase().includes(brand.toLowerCase());
+      const nameMatch = !name || searchInText(name, product.name);
+      const brandMatch = !brand || searchInText(brand, product.brand);
       const availableMatch =
         available === "available"
           ? product.count > 0
@@ -87,9 +88,7 @@ export default function ProductsPage() {
             ? product.count <= 0
             : true;
 
-      const categoryMatch =
-        !category ||
-        product.categoria?.name?.toLowerCase() === category.toLowerCase();
+      const categoryMatch = !category || (product.categoria?.name && normalizeText(category) === normalizeText(product.categoria.name));
 
       let price = 0;
       if (location === "CU" && product.prices[0][2] === "CUP")
@@ -135,42 +134,29 @@ export default function ProductsPage() {
   return (
     <>
       <div className="w-full overflow-hidden bg-[#022953] py-2 relative">
-        <div className="flex whitespace-nowrap text-white font-semibold text-sm sm:text-base animate-scroll">
-          {/* Contenido duplicado para scroll infinito */}
-          {[...Array(2)].map((_, i) =>
-            products
+        <Marquee
+          speed={40}
+          pauseOnHover={true}
+          gradient={false}
+          className="text-white font-semibold text-sm sm:text-base"
+        >
+          {/* Obtener categorías únicas */}
+          {(() => {
+            const uniqueCategories = products
               .map((product) => product.categoria?.name)
-              .filter((cat, index, arr) => cat && arr.indexOf(cat) === index)
-              .map((cat, index) => (
-                <span
-                  key={`${i}-${index}`}
-                  className="inline-block mx-6 cursor-pointer hover:text-yellow-300 transition-colors"
-                  onClick={() => setCategory(cat!)}
-                >
-                  {cat}
-                </span>
-              )),
-          )}
-        </div>
-
-        <style jsx>{`
-          @keyframes scroll {
-            0% {
-              transform: translateX(0%);
-            }
-            100% {
-              transform: translateX(-50%);
-            }
-          }
-
-          .animate-scroll {
-            animation: scroll 20s linear infinite;
-          }
-
-          .animate-scroll:hover {
-            animation-play-state: paused;
-          }
-        `}</style>
+              .filter((cat, index, arr) => cat && arr.indexOf(cat) === index);
+            
+            return uniqueCategories.map((cat, index) => (
+              <span
+                key={`${index}-${cat}`}
+                className="inline-block mx-6 cursor-pointer hover:text-yellow-300 transition-colors"
+                onClick={() => setCategory(cat!)}
+              >
+                {cat}
+              </span>
+            ));
+          })()}
+        </Marquee>
       </div>
 
       <div className="flex flex-col relative w-full py-6 px-4 sm:px-8 space-y-6">
