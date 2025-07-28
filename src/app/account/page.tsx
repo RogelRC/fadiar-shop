@@ -4,18 +4,9 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface UserData {
-  name: string;
-  last1: string;
-  last2: string;
-  addres: string;
-  cell1: number;
-  cell2: number | null; // Changed from number to number | null
-  ci: number;
-  image: string | null;
-  nextOrderCode: number;
-  userId: number;
   username: string;
   email: string;
+  type: string;
 }
 
 const containerVariants = {
@@ -63,15 +54,6 @@ const EyeIcon = ({ show }: { show: boolean }) => (
 
 export default function AccountPage() {
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    last1: "",
-    last2: "",
-    addres: "",
-    cell1: "",
-    cell2: "",
-  });
   const [changingPassword, setChangingPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -80,11 +62,7 @@ export default function AccountPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
-  const [userError, setUserError] = useState("");
   const router = useRouter();
-
-  const email =
-    typeof window !== "undefined" ? localStorage.getItem("email") : null;
 
   useEffect(() => {
     const storedUserData = localStorage.getItem("userData");
@@ -96,94 +74,11 @@ export default function AccountPage() {
     try {
       const parsedData = JSON.parse(storedUserData);
       setUserData(parsedData);
-      setFormData({
-        name: parsedData.name,
-        last1: parsedData.last1,
-        last2: parsedData.last2,
-        addres: parsedData.addres,
-        cell1: parsedData.cell1.toString(),
-        cell2: parsedData.cell2?.toString(),
-      });
     } catch (err) {
       console.error("Error parsing user data:", err);
       router.push("/login");
     }
   }, [router]);
-
-  const handleUserUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (!userData) return;
-
-      // Construir cadena de cambios
-      const changes: string[] = [];
-
-      // Comparar cada campo con los datos originales
-      if (formData.name !== userData.name) {
-        changes.push(`UPDATE,persons,${userData.ci},name,${formData.name}`);
-      }
-      if (formData.last1 !== userData.last1) {
-        changes.push(
-          `UPDATE,persons,${userData.ci},lastname1,${formData.last1}`,
-        );
-      }
-      if (formData.last2 !== userData.last2) {
-        changes.push(
-          `UPDATE,persons,${userData.ci},lastname2,${formData.last2}`,
-        );
-      }
-      if (formData.addres !== userData.addres) {
-        changes.push(
-          `UPDATE,persons,${userData.ci},address,${formData.addres}`,
-        );
-      }
-      if (formData.cell1 !== userData.cell1.toString()) {
-        changes.push(
-          `UPDATE,persons,${userData.ci},cellphone1,${formData.cell1}`,
-        );
-      }
-      const currentCell2 = userData.cell2?.toString() || "";
-      if (formData.cell2 !== currentCell2) {
-        const cell2Value =
-          formData.cell2.trim() !== "" ? formData.cell2 : "null";
-        changes.push(`UPDATE,persons,${userData.ci},cellphone2,${cell2Value}`);
-      }
-
-      // Crear FormData y enviar
-      const form = new FormData();
-      form.append("ci", userData.ci.toString());
-      form.append("id_user", userData.userId.toString());
-      form.append("changes", changes.join("|"));
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API}/editUser`, {
-        method: "POST",
-        body: form,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al actualizar");
-      }
-
-      // Actualizar estado local
-      const updatedUserData = {
-        ...userData,
-        name: formData.name,
-        last1: formData.last1,
-        last2: formData.last2,
-        addres: formData.addres,
-        cell1: parseInt(formData.cell1, 10),
-        cell2: formData.cell2 ? parseInt(formData.cell2, 10) : null,
-      };
-
-      localStorage.setItem("userData", JSON.stringify(updatedUserData));
-      setUserData(updatedUserData); // No type error anymore
-      setEditing(false);
-      alert("¡Datos actualizados!");
-    } catch (err) {
-      setUserError(err instanceof Error ? err.message : "Error desconocido");
-    }
-  };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,17 +98,11 @@ export default function AccountPage() {
       if (!userData) return;
 
       const form = new FormData();
-      form.append("ci", userData.ci.toString());
-      form.append("id_user", userData.userId.toString());
+      form.append("username", userData.username);
       form.append("current_password", currentPassword);
-      form.append(
-        "changes",
-        `UPDATE,users,${userData.userId},password,${newPassword}`,
-      );
+      form.append("new_password", newPassword);
 
-      console.log(form);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API}/editUser`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API}/changePassword`, {
         method: "POST",
         body: form,
       });
@@ -249,200 +138,49 @@ export default function AccountPage() {
 
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Sección de Información Personal */}
+            {/* Sección de Información de Usuario */}
             <div>
               <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                Información personal
+                Información de usuario
               </h3>
-              {editing ? (
-                <AnimatePresence mode="wait">
-                  <motion.form
-                    key="editForm"
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    variants={containerVariants}
-                    onSubmit={handleUserUpdate}
-                    className="space-y-4"
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Nombre
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#022953]"
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                      />
-                    </div>
+              <AnimatePresence mode="wait">
+                <motion.dl
+                  key="displayInfo"
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={containerVariants}
+                  className="space-y-4"
+                  transition={{ duration: 0.2 }}
+                >
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">
+                      Nombre de usuario
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {userData.username}
+                    </dd>
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Primer apellido
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#022953]"
-                        value={formData.last1}
-                        onChange={(e) =>
-                          setFormData({ ...formData, last1: e.target.value })
-                        }
-                      />
-                    </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">
+                      Correo electrónico
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {userData.email}
+                    </dd>
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Segundo apellido
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#022953]"
-                        value={formData.last2}
-                        onChange={(e) =>
-                          setFormData({ ...formData, last2: e.target.value })
-                        }
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Dirección
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#022953]"
-                        value={formData.addres}
-                        onChange={(e) =>
-                          setFormData({ ...formData, addres: e.target.value })
-                        }
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Teléfono 1
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#022953]"
-                        value={formData.cell1}
-                        onChange={(e) =>
-                          setFormData({ ...formData, cell1: e.target.value })
-                        }
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Teléfono 2
-                      </label>
-                      {/* Teléfono 2 */}
-                      <input
-                        type="tel"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#022953]"
-                        value={formData.cell2 || ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            cell2: e.target.value.replace(/\D/g, ""),
-                          })
-                        }
-                        placeholder="Opcional"
-                      />
-                    </div>
-
-                    {userError && (
-                      <p className="text-red-500 text-sm">{userError}</p>
-                    )}
-
-                    <div className="flex gap-2">
-                      <button
-                        type="submit"
-                        className="bg-[#022953] text-white py-2 px-4 rounded-md hover:bg-[#011a3a] transition-colors"
-                      >
-                        Guardar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditing(false)}
-                        className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </motion.form>
-                </AnimatePresence>
-              ) : (
-                <AnimatePresence mode="wait">
-                  <motion.dl
-                    key="displayInfo"
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    variants={containerVariants}
-                    className="space-y-4"
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">
-                        Nombre completo
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-900">
-                        {userData.name} {userData.last1} {userData.last2}
-                      </dd>
-                    </div>
-
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">
-                        Carnet de identidad
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-900">
-                        {userData.ci.toString().padStart(11, "0")}
-                      </dd>
-                    </div>
-
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">
-                        Dirección
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-900">
-                        {userData.addres}
-                      </dd>
-                    </div>
-
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">
-                        Teléfono
-                        {userData.cell2 && userData.cell2.toString() !== "null"
-                          ? "s"
-                          : ""}
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-900">
-                        {userData.cell1}
-                        {userData.cell2 &&
-                          userData.cell2.toString() !== "null" &&
-                          ` / ${userData.cell2}`}
-                      </dd>
-                    </div>
-
-                    <button
-                      onClick={() => setEditing(true)}
-                      className="mt-4 bg-[#022953] text-white py-2 px-4 rounded-md hover:bg-[#011a3a] transition-colors"
-                    >
-                      Editar información
-                    </button>
-                  </motion.dl>
-                </AnimatePresence>
-              )}
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">
+                      Tipo de usuario
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {userData.type}
+                    </dd>
+                  </div>
+                </motion.dl>
+              </AnimatePresence>
             </div>
 
             {/* Sección de Seguridad */}

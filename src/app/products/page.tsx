@@ -268,19 +268,52 @@ export default function ProductsPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {filteredProducts
-            .sort(
-              (a: Product, b: Product) =>
-                (b.count > 0 ? 1 : -1) - (a.count > 0 ? 1 : -1),
-            )
-            .map((product: Product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                location={location}
-                currencies={currencies}
-              />
-            ))}
+          {filteredProducts.length > 0 ? (
+            filteredProducts
+              .sort(
+                (a: Product, b: Product) =>
+                  (b.count > 0 ? 1 : -1) - (a.count > 0 ? 1 : -1),
+              )
+              .map((product: Product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  location={location}
+                  currencies={currencies}
+                />
+              ))
+          ) : (
+            <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+              <div className="text-gray-400 mb-4">
+                <svg
+                  className="w-16 h-16 mx-auto"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                No se encontraron productos
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Intenta ajustar los filtros o usar términos de búsqueda diferentes
+              </p>
+              <button
+                onClick={resetFilters}
+                className="px-4 py-2 bg-[#022953] text-white rounded-md hover:bg-[#011a3a] transition-colors"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
