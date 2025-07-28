@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface UserData {
-  username: string;
+  name: string;
+  lastname1: string;
+  lastname2: string;
   email: string;
   type: string;
 }
@@ -98,7 +100,9 @@ export default function AccountPage() {
       if (!userData) return;
 
       const form = new FormData();
-      form.append("username", userData.username);
+      form.append("name", userData.name);
+      form.append("lastname1", userData.lastname1);
+      form.append("lastname2", userData.lastname2);
       form.append("current_password", currentPassword);
       form.append("new_password", newPassword);
 
@@ -155,10 +159,10 @@ export default function AccountPage() {
                 >
                   <div>
                     <dt className="text-sm font-medium text-gray-500">
-                      Nombre de usuario
+                      Nombre completo
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      {userData.username}
+                      {userData.name} {userData.lastname1} {userData.lastname2}
                     </dd>
                   </div>
 
@@ -319,10 +323,10 @@ export default function AccountPage() {
                         <dl className="mt-2 space-y-2">
                           <div>
                             <dt className="text-xs font-medium text-blue-700">
-                              Nombre de usuario
+                              Nombre completo
                             </dt>
                             <dd className="text-sm text-blue-900">
-                              {userData.username}
+                              {userData.name} {userData.lastname1} {userData.lastname2}
                             </dd>
                           </div>
                           {userData.email && (

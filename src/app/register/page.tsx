@@ -12,7 +12,9 @@ import { useRouter } from "next/navigation";
 
 interface FormData {
   email: string;
-  username: string;
+  name: string;
+  lastname1: string;
+  lastname2: string;
   password: string;
   confirmPassword: string;
 }
@@ -31,6 +33,7 @@ async function handleSubmit(formData: FormData, router: any) {
     );
 
     if (!response.ok) {
+      console.log(response)
       throw new Error("Error al registrar");
     }
 
@@ -47,7 +50,9 @@ export default function Login() {
 
   const [formData, setFormData] = useState({
     email: "",
-    username: "",
+    name: "",
+    lastname1: "",
+    lastname2: "",
     password: "",
     confirmPassword: "",
     type: "Cliente",
@@ -59,10 +64,24 @@ export default function Login() {
           Registrarse
         </h3>
         <Input
-          placeholder="Nombre de usuario"
-          value={formData.username}
+          placeholder="Nombre"
+          value={formData.name}
           onChange={(e) =>
-            setFormData({ ...formData, username: e.target.value })
+            setFormData({ ...formData, name: e.target.value })
+          }
+        />
+        <Input
+          placeholder="Primer apellido"
+          value={formData.lastname1}
+          onChange={(e) =>
+            setFormData({ ...formData, lastname1: e.target.value })
+          }
+        />
+        <Input
+          placeholder="Segundo apellido"
+          value={formData.lastname2}
+          onChange={(e) =>
+            setFormData({ ...formData, lastname2: e.target.value })
           }
         />
         <Input

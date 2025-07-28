@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "@/store/Cart";
 import Link from "next/link";
@@ -18,7 +18,15 @@ import {
   House,
   LogIn,
   Package,
+  Grid3X3,
 } from "lucide-react";
+
+interface Category {
+  id: number;
+  id_padre: number | null;
+  name: string;
+  hijos: Category[];
+}
 
 const handleLogout = () => {
   localStorage.removeItem("userData");
@@ -27,10 +35,26 @@ const handleLogout = () => {
 
 export default function BurgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<number[]>([]);
+  const [categoriesSectionExpanded, setCategoriesSectionExpanded] = useState(false);
   const setAmount = useCart((state) => state.setAmount);
   const { amount } = useCart();
   const [userData, setUserData] = useState<string | null>(null);
   const setCategory = useFilters((state) => state.setCategory);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("https://app.fadiar.com/api/get_categories_tree");
+      if (!response.ok) {
+        throw new Error("Error al cargar categorías");
+      }
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   const fetchCartItems = async () => {
     const userData = JSON.parse(localStorage.getItem("userData") || "{}");
@@ -74,6 +98,7 @@ export default function BurgerMenu() {
 
   useEffect(() => {
     fetchCartItems();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -108,6 +133,57 @@ export default function BurgerMenu() {
     };
   }, []);
 
+  const toggleCategory = (categoryId: number) => {
+    setExpandedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const handleCategoryClick = (categoryName: string) => {
+    setCategory(categoryName);
+    setIsOpen(false);
+  };
+
+  const renderCategories = (cats: Category[], level: number = 0) => {
+    return cats.map((category) => (
+      <div key={category.id} className="w-full">
+        <div 
+          className={`flex w-full space-x-2 items-center cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors ${
+            level > 0 ? 'ml-4' : ''
+          }`}
+          onClick={() => {
+            if (category.hijos && category.hijos.length > 0) {
+              toggleCategory(category.id);
+            } else {
+              handleCategoryClick(category.name);
+            }
+          }}
+        >
+          {category.hijos && category.hijos.length > 0 ? (
+            <span className="w-4 h-4">
+              {expandedCategories.includes(category.id) ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </span>
+          ) : (
+            <span className="w-4 h-4"></span>
+          )}
+          <span className="flex-1">{category.name}</span>
+        </div>
+        
+        {category.hijos && category.hijos.length > 0 && expandedCategories.includes(category.id) && (
+          <div className="ml-4 border-l border-gray-200">
+            {renderCategories(category.hijos, level + 1)}
+          </div>
+        )}
+      </div>
+    ));
+  };
+
   return (
     <>
       {userData && (
@@ -138,7 +214,7 @@ export default function BurgerMenu() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="flex flex-col fixed top-0 right-0 bg-white rounded-l-lg h-screen w-[80vw] p-4 text-[#022953] space-y-4 text-base z-50"
+              className="flex flex-col fixed top-0 right-0 bg-white rounded-l-lg h-screen w-[80vw] p-4 text-[#022953] space-y-4 text-base z-50 overflow-y-auto"
             >
               <div className="flex w-full">
                 <h3 className="text-xl font-bold">Menú</h3>
@@ -161,6 +237,7 @@ export default function BurgerMenu() {
                 <span>Inicio</span>
               </Link>
               <hr className="border-1 border-gray-200" />
+              
               {userData && (
                 <>
                   <Link
@@ -224,6 +301,39 @@ export default function BurgerMenu() {
                 </span>
                 <span>Productos</span>
               </Link>
+              
+              {/* Sección de Categorías Expandible */}
+              <div 
+                className="flex w-full space-x-2 items-center font-semibold text-[#022953] cursor-pointer hover:bg-gray-50 rounded-md transition-colors"
+                onClick={() => setCategoriesSectionExpanded(!categoriesSectionExpanded)}
+              >
+                <span>
+                  <Grid3X3 />
+                </span>
+                <span className="flex-1">Categorías</span>
+                <span className="w-4 h-4">
+                  {categoriesSectionExpanded ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </span>
+              </div>
+              
+              <AnimatePresence>
+                {categoriesSectionExpanded && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-1 overflow-hidden"
+                  >
+                    {renderCategories(categories)}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
               {userData && (
                 <Link
                   href="/checkout"
