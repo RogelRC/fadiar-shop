@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddToCart from "@/components/AddToCart";
 import Loading from "@/components/Loading";
+import AuthModal from "@/components/AuthModal";
 
 async function getLocation() {
   try {
@@ -55,6 +56,7 @@ export default function ProductPage() {
 
   const [product, setProduct] = useState<any | null>(null);
   const [location, setLocation] = useState("CU");
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (!id) return;
@@ -123,6 +125,7 @@ export default function ProductPage() {
             <AddToCart
               productId={product.product.id}
               amount={parseInt(product.product.count)}
+              onAuthRequired={() => setShowAuthModal(true)}
             />
           </div>
         </div>
@@ -149,9 +152,16 @@ export default function ProductPage() {
           <AddToCart
             productId={product.product.id}
             amount={parseInt(product.product.count)}
+            onAuthRequired={() => setShowAuthModal(true)}
           />
         </div>
       </div>
+      
+      {/* Modal de autenticación */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
     </div>
   );
 }

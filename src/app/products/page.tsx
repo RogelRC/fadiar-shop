@@ -8,6 +8,7 @@ import Loading from "@/components/Loading";
 import { motion, AnimatePresence } from "framer-motion";
 import { normalizeText, searchInText } from "@/lib/utils";
 import Marquee from "react-fast-marquee";
+import AuthModal from "@/components/AuthModal";
 
 interface Product {
   id: number;
@@ -27,6 +28,7 @@ export default function ProductsPage() {
   const [location, setLocation] = useState<string>("");
   const [currencies, setCurrencies] = useState<any[]>([]);
   const [filterIsOpen, setFilterIsOpen] = useState<boolean>(false);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const setBrand = useFilters((state) => state.setBrand);
   const setAvailable = useFilters((state) => state.setAvailable);
   const setMinPrice = useFilters((state) => state.setMinPrice);
@@ -280,6 +282,7 @@ export default function ProductsPage() {
                   product={product}
                   location={location}
                   currencies={currencies}
+                  onAuthRequired={() => setShowAuthModal(true)}
                 />
               ))
           ) : (
@@ -316,6 +319,12 @@ export default function ProductsPage() {
           )}
         </div>
       </div>
+      
+      {/* Modal de autenticación global */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
     </>
   );
 }

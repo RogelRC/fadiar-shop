@@ -7,9 +7,11 @@ import { useCart } from "@/store/Cart";
 export default function AddToCart({
   productId,
   amount,
+  onAuthRequired,
 }: {
   productId: number;
   amount: number;
+  onAuthRequired?: () => void;
 }) {
   const [quantity, setQuantity] = useState(1);
   const [count, setCount] = useState(amount);
@@ -22,7 +24,9 @@ export default function AddToCart({
     setWait(true);
 
     if (!localStorage.getItem("userData")) {
-      throw new Error("User data not found");
+      onAuthRequired?.();
+      setWait(false);
+      return;
     }
 
     // Implement logic to add item to cart

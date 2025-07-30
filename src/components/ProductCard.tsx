@@ -1,9 +1,10 @@
 import Image from "next/image";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Loader2, Check } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { useCart } from "@/store/Cart";
 import { useEffect, useState } from "react";
+import AuthModal from "./AuthModal";
 
 interface Product {
   id: number;
@@ -27,20 +28,27 @@ export default function ProductCard({
   product,
   location,
   currencies,
+  onAuthRequired,
 }: {
   product: Product;
   location: string;
   currencies: Currency[];
+  onAuthRequired?: () => void;
 }) {
   const setAmount = useCart((state) => state.setAmount);
   const { amount: cartAmount } = useCart();
   const [wait, setWait] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (wait === true) {
       setTimeout(() => {
         setWait(false);
-      }, 3000);
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+        }, 1500);
+      }, 2000);
     }
   }, [wait]);
 
@@ -48,7 +56,9 @@ export default function ProductCard({
     setWait(true);
 
     if (!localStorage.getItem("userData")) {
-      throw new Error("User data not found");
+      onAuthRequired?.();
+      setWait(false);
+      return;
     }
 
     // Implement logic to add item to cart
@@ -79,6 +89,11 @@ export default function ProductCard({
     }
 
     setAmount(cartAmount + 1);
+    setWait(false);
+    setSuccess(true);
+    setTimeout(() => {
+      setSuccess(false);
+    }, 1500);
   };
 
   return (
@@ -133,13 +148,18 @@ export default function ProductCard({
       {/* Botón fuera del Link */}
       <Button
         onClick={() => {
-          setAmount(cartAmount + 1);
           handleAddToCart(product.id, 1);
         }}
-        className="absolute bottom-2 right-2 items-center justify-center rounded-full bg-white text-[#022953] z-20 hover:bg-gray-300"
-        disabled={product.count <= 0 || wait}
+        className="absolute bottom-2 right-2 items-center justify-center rounded-full bg-white text-[#022953] z-20 hover:bg-gray-300 transition-all duration-300"
+        disabled={product.count <= 0 || wait || success}
       >
-        <ShoppingCart className="w-8 h-8" />
+        {wait ? (
+          <Loader2 className="w-8 h-8 animate-spin" />
+        ) : success ? (
+          <Check className="w-8 h-8 text-green-600" />
+        ) : (
+          <ShoppingCart className="w-8 h-8" />
+        )}
       </Button>
     </div>
   );

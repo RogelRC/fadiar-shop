@@ -6,6 +6,7 @@ import { useCart } from "@/store/Cart";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFilters } from "@/store/Filters";
+import { useRouter } from "next/navigation";
 
 import {
   LogOut,
@@ -42,6 +43,7 @@ export default function BurgerMenu() {
   const { amount } = useCart();
   const [userData, setUserData] = useState<string | null>(null);
   const setCategory = useFilters((state) => state.setCategory);
+  const router = useRouter();
 
   const fetchCategories = async () => {
     try {
@@ -144,6 +146,7 @@ export default function BurgerMenu() {
   const handleCategoryClick = (categoryName: string) => {
     setCategory(categoryName);
     setIsOpen(false);
+    router.push('/products');
   };
 
   const renderCategories = (cats: Category[], level: number = 0) => {
@@ -327,7 +330,7 @@ export default function BurgerMenu() {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="space-y-1 overflow-hidden"
+                    className="space-y-1 overflow-hidden h-full overflow-y-auto categories-scroll"
                   >
                     {renderCategories(categories)}
                   </motion.div>

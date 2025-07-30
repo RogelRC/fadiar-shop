@@ -2,6 +2,7 @@
 
 import ProductCard from "@/components/ProductCard";
 import { useState, useEffect } from "react";
+import AuthModal from "@/components/AuthModal";
 
 interface Product {
   id: number;
@@ -20,6 +21,7 @@ export default function NewProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [location, setLocation] = useState<string>("");
   const [currencies, setCurrencies] = useState<any[]>([]);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchAll = async function () {
@@ -77,10 +79,17 @@ export default function NewProducts() {
               product={product}
               location={location}
               currencies={currencies}
+              onAuthRequired={() => setShowAuthModal(true)}
             />
           </div>
         ))}
       </div>
+      
+      {/* Modal de autenticación */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
     </div>
   );
 }
