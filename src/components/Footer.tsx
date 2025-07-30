@@ -11,7 +11,7 @@ export default function Footer() {
             <div className="flex justify-center md:justify-start">
               <Link href="/" className="block">
                 <Image
-                  src={"/logo.svg"}
+                  src={"/logo.png"}
                   alt="Fadiar Logo"
                   width={180}
                   height={180}

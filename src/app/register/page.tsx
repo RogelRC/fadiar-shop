@@ -13,14 +13,41 @@ import { useRouter } from "next/navigation";
 interface FormData {
   email: string;
   name: string;
-  lastname1: string;
-  lastname2: string;
+  last1: string;
+  last2: string;
   password: string;
   confirmPassword: string;
 }
 
-async function handleSubmit(formData: FormData, router: any) {
+async function handleSubmit(formData: any, router: any) {
   try {
+    // Separar el nombre completo en nombre y apellidos
+    const fullName = formData.fullName.trim();
+    const nameParts = fullName.split(' ').filter((part: string) => part.length > 0);
+    
+    let name = '';
+    let last1 = '';
+    let last2 = '';
+    
+    if (nameParts.length >= 1) {
+      name = nameParts[0];
+    }
+    if (nameParts.length >= 2) {
+      last1 = nameParts[1];
+    }
+    if (nameParts.length >= 3) {
+      last2 = nameParts[2];
+    }
+    
+    const dataToSend = {
+      email: formData.email,
+      name: name,
+      lastname1: last1,
+      lastname2: last2,
+      password: formData.password,
+      type: formData.type
+    };
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/register`,
       {
@@ -28,7 +55,7 @@ async function handleSubmit(formData: FormData, router: any) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       },
     );
 
@@ -50,9 +77,7 @@ export default function Login() {
 
   const [formData, setFormData] = useState({
     email: "",
-    name: "",
-    lastname1: "",
-    lastname2: "",
+    fullName: "",
     password: "",
     confirmPassword: "",
     type: "Cliente",
@@ -64,24 +89,10 @@ export default function Login() {
           Registrarse
         </h3>
         <Input
-          placeholder="Nombre"
-          value={formData.name}
+          placeholder="Nombre y apellidos"
+          value={formData.fullName}
           onChange={(e) =>
-            setFormData({ ...formData, name: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Primer apellido"
-          value={formData.lastname1}
-          onChange={(e) =>
-            setFormData({ ...formData, lastname1: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Segundo apellido"
-          value={formData.lastname2}
-          onChange={(e) =>
-            setFormData({ ...formData, lastname2: e.target.value })
+            setFormData({ ...formData, fullName: e.target.value })
           }
         />
         <Input

@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface UserData {
   name: string;
-  lastname1: string;
-  lastname2: string;
+  last1: string;
+  last2: string;
   email: string;
   type: string;
 }
@@ -101,8 +101,8 @@ export default function AccountPage() {
 
       const form = new FormData();
       form.append("name", userData.name);
-      form.append("lastname1", userData.lastname1);
-      form.append("lastname2", userData.lastname2);
+      form.append("lastname1", userData.last1);
+      form.append("lastname2", userData.last2);
       form.append("current_password", currentPassword);
       form.append("new_password", newPassword);
 
@@ -162,7 +162,7 @@ export default function AccountPage() {
                       Nombre completo
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      {userData.name} {userData.lastname1} {userData.lastname2}
+                      {userData.name} {userData.last1} {userData.last2}
                     </dd>
                   </div>
 
@@ -326,7 +326,7 @@ export default function AccountPage() {
                               Nombre completo
                             </dt>
                             <dd className="text-sm text-blue-900">
-                              {userData.name} {userData.lastname1} {userData.lastname2}
+                              {userData.name} {userData.last1} {userData.last2}
                             </dd>
                           </div>
                           {userData.email && (
