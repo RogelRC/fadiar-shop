@@ -22,6 +22,8 @@ async function handleSubmit(email: string | null, code: string, router: any) {
     );
 
     console.log(response);
+    console.log(response.json());
+    console.log(response.body);
 
     if (!response.ok) throw new Error("Error al verificar la cuenta");
     router.push("/login");
@@ -39,15 +41,26 @@ function VerificationForm() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleCodeChange = (index: number, value: string) => {
-    if (value.length > 1) return; // Solo permitir un dígito por campo
+    if (value.length > 1) return; // Solo permitir un carácter por campo
+    
+    // Solo permitir caracteres alfanuméricos
+    if (!/^[a-zA-Z0-9]$/.test(value) && value !== "") return;
     
     const newCode = [...code];
-    newCode[index] = value;
+    newCode[index] = value.toUpperCase(); // Convertir a mayúsculas para consistencia
     setCode(newCode);
 
-    // Mover al siguiente campo si se ingresó un dígito
+    // Mover al siguiente campo si se ingresó un carácter
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
+    }
+
+    // Verificar si el código está completo y enviar automáticamente
+    const updatedCode = [...newCode];
+    if (updatedCode.every(char => char !== "") && updatedCode.join("").length === 6) {
+      setTimeout(() => {
+        handleSubmitClick();
+      }, 100); // Pequeño delay para asegurar que el estado se actualice
     }
   };
 
@@ -60,14 +73,23 @@ function VerificationForm() {
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").slice(0, 6);
-    if (/^\d{6}$/.test(pastedData)) {
+    const pastedData = e.clipboardData.getData("text");
+    
+    // Extraer solo los primeros 6 caracteres alfanuméricos del texto pegado
+    const alphanumeric = pastedData.replace(/[^a-zA-Z0-9]/g, "").slice(0, 6);
+    
+    if (alphanumeric.length === 6) {
       const newCode = [...code];
       for (let i = 0; i < 6; i++) {
-        newCode[i] = pastedData[i] || "";
+        newCode[i] = alphanumeric[i] || "";
       }
       setCode(newCode);
       inputRefs.current[5]?.focus();
+      
+      // Enviar automáticamente después de pegar el código completo
+      setTimeout(() => {
+        handleSubmitClick();
+      }, 100);
     }
   };
 
@@ -110,7 +132,7 @@ function VerificationForm() {
                   inputRefs.current[index] = el;
                 }}
                 type="text"
-                inputMode="numeric"
+                inputMode="text"
                 maxLength={1}
                 value={digit}
                 onChange={(e) => handleCodeChange(index, e.target.value)}
