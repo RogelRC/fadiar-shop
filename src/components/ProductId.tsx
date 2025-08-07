@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import AddToCart from "@/components/AddToCart";
 import Loading from "@/components/Loading";
 import AuthModal from "@/components/AuthModal";
+import { X } from "lucide-react";
 
 async function getLocation() {
   try {
@@ -57,6 +58,8 @@ export default function ProductPage() {
   const [product, setProduct] = useState<any | null>(null);
   const [location, setLocation] = useState("CU");
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [isImageZoomed, setIsImageZoomed] = useState(false);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -104,14 +107,49 @@ export default function ProductPage() {
   return (
     <div className="flex flex-col gap-y-4 sm:gap-y-8 sm:p-8 p-4 w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 sm:gap-8 gap-4">
-        <div>
-          <Image
-            src={`${process.env.NEXT_PUBLIC_API_URL}/${product.product.image}`}
-            alt={product.product.name}
-            width={800}
-            height={800}
-            className="rounded-lg shadow-lg"
-          />
+        <div className="relative">
+          <div 
+            className="cursor-zoom-in"
+            onClick={() => setIsImageZoomed(true)}
+          >
+            <Image
+              ref={imageRef}
+              src={`${process.env.NEXT_PUBLIC_API_URL}/${product.product.image}`}
+              alt={product.product.name}
+              width={800}
+              height={800}
+              className="rounded-lg shadow-lg w-full h-auto"
+              priority
+            />
+          </div>
+          
+          {/* Zoomed Image Overlay */}
+          {isImageZoomed && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4 cursor-zoom-out"
+              onClick={() => setIsImageZoomed(false)}
+            >
+              <button 
+                className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsImageZoomed(false);
+                }}
+              >
+                <X size={32} />
+              </button>
+              <div className="max-w-4xl w-full max-h-[90vh] flex items-center justify-center">
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${product.product.image}`}
+                  alt={product.product.name}
+                  width={1200}
+                  height={1200}
+                  className="max-w-full max-h-[90vh] object-contain"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+          )}
           <span className="flex relative w-1/2 bg-[#022953] p-2 sm:px-6 text-nowrap text-white font-semibold justify-center sm:justify-end -mt-4">
             Marca {product.product.brand}
           </span>

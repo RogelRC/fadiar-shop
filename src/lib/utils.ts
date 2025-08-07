@@ -15,6 +15,12 @@ export function normalizeText(text: string): string {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '') // Remover diacríticos (tildes)
+    .replace(/[ñ]/g, 'n') // Convertir ñ a n
+    .replace(/[ü]/g, 'u') // Convertir ü a u
+    .replace(/[ç]/g, 'c') // Convertir ç a c
+    .replace(/[ß]/g, 'ss') // Convertir ß a ss
+    .replace(/[æ]/g, 'ae') // Convertir æ a ae
+    .replace(/[œ]/g, 'oe') // Convertir œ a oe
     .replace(/[^a-z0-9\s]/g, '') // Remover caracteres especiales excepto espacios
     .replace(/\s+/g, ' ') // Normalizar espacios múltiples
     .trim();

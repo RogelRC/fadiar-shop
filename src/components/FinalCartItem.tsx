@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Trash2 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useCart } from "@/store/Cart";
@@ -128,6 +128,56 @@ export default function FinalCartItem({
     }, 3000); // Habilitar nuevamente después de 3 segundos
   }
 
+  // Función para eliminar directamente el producto del carrito
+  const handleDeleteItem = async () => {
+    try {
+      setButtonDisabled(true);
+      
+      const body = JSON.stringify({
+        id_user_action:
+          JSON.parse(localStorage.getItem("userData") || "{}").userId || null,
+        id_user:
+          JSON.parse(localStorage.getItem("userData") || "{}").userId || null,
+        id_product: item.id,
+      });
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/eliminar_producto_carrito`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar el producto del carrito");
+      }
+
+      // Actualizar el total a pagar
+      if (onTotalChange) {
+        onTotalChange(0); // El producto se eliminó, su contribución al total es 0
+      }
+
+      // Actualizar la cantidad en el store
+      setAmount(amount - quantity);
+
+      // Ocultar el componente
+      setVisible(false);
+
+      // Disparar evento para actualizar el carrito
+      window.dispatchEvent(new Event("cartDataChanged"));
+
+      console.log("Producto eliminado exitosamente");
+    } catch (error) {
+      console.error("Error eliminando el producto del carrito:", error);
+    } finally {
+      setButtonDisabled(false);
+    }
+  };
+
   return (
     <>
       {visible && (
@@ -166,26 +216,36 @@ export default function FinalCartItem({
               </span>
 
               <div className="flex ml-auto items-end">
+                <div className="flex items-center gap-1 mr-2">
+                  <button
+                    onClick={() => handleSetQuantity(quantity - 1)}
+                    className={`text-[#022953] rounded-sm transition-all duration-300 ${buttonDisable === false ? "hover:text-white hover:bg-[#022953]" : "cursor-wait"}`}
+                    disabled={buttonDisable}
+                  >
+                    <Minus />
+                  </button>
+                  <input
+                    type="number"
+                    className="flex w-16 border-gray-300 border-2 rounded-sm text-[#022953] text-center"
+                    value={quantity}
+                    onChange={() => handleSetQuantity(quantity)}
+                    disabled={true}
+                  />
+                  <button
+                    onClick={() => handleSetQuantity(quantity + 1)}
+                    className={`text-[#022953] rounded-sm transition-all duration-300 ${buttonDisable === false ? "hover:text-white hover:bg-[#022953]" : "cursor-wait"}`}
+                    disabled={buttonDisable}
+                  >
+                    <Plus />
+                  </button>
+                </div>
                 <button
-                  onClick={() => handleSetQuantity(quantity - 1)}
-                  className={`text-[#022953] rounded-sm transition-all duration-300 ${buttonDisable === false ? "hover:text-white hover:bg-[#022953]" : "cursor-wait"}`}
+                  onClick={handleDeleteItem}
+                  className={`text-red-500 hover:text-red-600 rounded-sm transition-all duration-300 p-1 ${buttonDisable === false ? "hover:bg-red-50" : "cursor-wait"}`}
                   disabled={buttonDisable}
+                  title="Eliminar producto"
                 >
-                  <Minus />
-                </button>
-                <input
-                  type="number"
-                  className="flex w-16 border-gray-300 border-2 rounded-sm text-[#022953] text-center"
-                  value={quantity}
-                  onChange={() => handleSetQuantity(quantity)}
-                  disabled={true}
-                />
-                <button
-                  onClick={() => handleSetQuantity(quantity + 1)}
-                  className={`text-[#022953] rounded-sm transition-all duration-300 ${buttonDisable === false ? "hover:text-white hover:bg-[#022953]" : "cursor-wait"}`}
-                  disabled={buttonDisable}
-                >
-                  <Plus />
+                  <Trash2 size={14} />
                 </button>
               </div>
             </div>

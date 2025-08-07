@@ -9,6 +9,7 @@ interface UserData {
   last2: string;
   email: string;
   type: string;
+  phone?: string;
 }
 
 const containerVariants = {
@@ -177,10 +178,12 @@ export default function AccountPage() {
 
                   <div>
                     <dt className="text-sm font-medium text-gray-500">
-                      Tipo de usuario
+                      Teléfono
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      {userData.type}
+                      {userData.phone && parseInt(userData.phone) >= 0 
+                        ? userData.phone 
+                        : "No asignado"}
                     </dd>
                   </div>
                 </motion.dl>

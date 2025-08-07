@@ -5,9 +5,10 @@ import { useState, Suspense, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-async function handleSubmit(email: string | null, code: string, router: any) {
+async function handleSubmit(email: string | null, code: string, router: any, setVerificationMessage: (message: string) => void) {
   if (!email) {
     console.error("Email no encontrado en la URL");
+    setVerificationMessage("❌ Error: Email no encontrado en la URL");
     return;
   }
 
@@ -21,20 +22,75 @@ async function handleSubmit(email: string | null, code: string, router: any) {
       },
     );
 
-    console.log(response);
-    console.log(response.json());
-    console.log(response.body);
+    const data = await response.json();
 
-    if (!response.ok) throw new Error("Error al verificar la cuenta");
-    router.push("/login");
+    if (!response.ok) {
+      const errorMessage = data?.message || "Error al verificar la cuenta";
+      setVerificationMessage(`❌ ${errorMessage}`);
+      return;
+    }
+
+    // Si la verificación es exitosa, autenticar automáticamente
+    if (data.login_info) {
+      setVerificationMessage("✅ Cuenta verificada exitosamente. Redirigiendo...");
+      
+      // Guardar los datos del usuario en localStorage
+      localStorage.setItem("userData", JSON.stringify(data.login_info));
+      
+      // Disparar evento para actualizar el estado global
+      window.dispatchEvent(new Event("userDataChanged"));
+      
+      // Pequeño delay para mostrar el mensaje de éxito
+      setTimeout(() => {
+        router.push("/products");
+      }, 1500);
+    } else {
+      // Si no hay datos de login, redirigir al login
+      setVerificationMessage("⚠️ Verificación exitosa pero sin datos de login. Redirigiendo al login...");
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
+    }
   } catch (error) {
     console.error(error);
+    setVerificationMessage("❌ Error de conexión. Verifica tu conexión a internet.");
+  }
+}
+
+async function handleResendCode(email: string | null, setResendMessage: (message: string) => void) {
+  if (!email) {
+    console.error("Email no encontrado en la URL");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/resend_verification_email`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al reenviar el código");
+    }
+
+    setResendMessage("✅ Código reenviado exitosamente. Revisa tu correo electrónico.");
+  } catch (error) {
+    console.error(error);
+    setResendMessage("❌ Error al reenviar el código. Intenta nuevamente.");
   }
 }
 
 function VerificationForm() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+  const [verificationMessage, setVerificationMessage] = useState("");
+  const [resendCountdown, setResendCountdown] = useState(0);
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
@@ -97,9 +153,34 @@ function VerificationForm() {
     const fullCode = code.join("");
     if (fullCode.length === 6) {
       setIsLoading(true);
-      await handleSubmit(email, fullCode, router);
+      setVerificationMessage(""); // Limpiar mensajes anteriores
+      await handleSubmit(email, fullCode, router, setVerificationMessage);
       setIsLoading(false);
     }
+  };
+
+  // Efecto para manejar el countdown
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(resendCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
+
+  const formatCountdown = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleResendClick = async () => {
+    setIsResending(true);
+    setResendMessage("");
+    await handleResendCode(email, setResendMessage);
+    setIsResending(false);
+    setResendCountdown(300); // 5 minutos = 300 segundos
   };
 
   return (
@@ -153,11 +234,42 @@ function VerificationForm() {
           {isLoading ? "Verificando..." : "Verificar cuenta"}
         </Button>
 
-        <div className="text-center">
+        <div className="text-center space-y-2">
+          {verificationMessage && (
+            <div className={`text-sm p-3 rounded-md ${
+              verificationMessage.includes("✅") 
+                ? "bg-green-50 text-green-700 border border-green-200" 
+                : verificationMessage.includes("⚠️")
+                ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                : "bg-red-50 text-red-700 border border-red-200"
+            }`}>
+              {verificationMessage}
+            </div>
+          )}
+          
+          {resendMessage && (
+            <div className={`text-sm p-3 rounded-md ${
+              resendMessage.includes("✅") 
+                ? "bg-green-50 text-green-700 border border-green-200" 
+                : "bg-red-50 text-red-700 border border-red-200"
+            }`}>
+              {resendMessage}
+            </div>
+          )}
+          
           <p className="text-xs text-gray-500">
             ¿No recibiste el código?{" "}
-            <button className="text-[#022953] hover:underline font-medium">
-              Reenviar código
+            <button 
+              className="text-[#022953] hover:underline font-medium disabled:opacity-50"
+              onClick={handleResendClick}
+              disabled={isResending || resendCountdown > 0}
+            >
+              {isResending 
+                ? "Reenviando..." 
+                : resendCountdown > 0 
+                  ? `Reenviar en ${formatCountdown(resendCountdown)}`
+                  : "Reenviar código"
+              }
             </button>
           </p>
         </div>

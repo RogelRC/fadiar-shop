@@ -264,7 +264,7 @@ export default function CheckoutPage() {
     address: "",
   });
 
-  const [cartItems, setCartItems] = useState<any[]>([]); // Estado para almacenar los artículos del carrito
+  const [cartItems, setCartItems] = useState<any[] | null>(null); // null means loading, [] means loaded but empty
   const [currencies, setCurrencies] = useState<any[]>([]); // Estado para almacenar la moneda actual
   const [location, setLocation] = useState<string>("");
   const [itemTotals, setItemTotals] = useState<{ [key: string]: number }>({});
@@ -372,6 +372,34 @@ export default function CheckoutPage() {
 
     fetchCart();
   }, []);
+
+  if (cartItems === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-gray-600 font-medium">Cargando tu carrito...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-88px)] p-4 bg-white">
+        <div className="text-center max-w-md p-8 bg-[#f4f4f4] rounded-lg shadow-lg">
+          <h1 className="text-2xl font-bold text-[#022953] mb-4">Tu carrito está vacío</h1>
+          <p className="text-gray-600 mb-6">Aún no has agregado productos a tu carrito. Comienza a explorar nuestros productos y encuentra lo que necesitas.</p>
+          <button
+            onClick={() => router.push('/products')}
+            className="w-full bg-[#022953] text-white font-bold py-3 px-6 rounded hover:bg-opacity-90 transition-colors"
+          >
+            Ver productos
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full w-full min-h-[calc(100vh-88px)] justify-center p-4 bg-white">

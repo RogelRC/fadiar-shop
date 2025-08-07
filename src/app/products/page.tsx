@@ -7,6 +7,75 @@ import { Currency, ListFilter, X } from "lucide-react";
 import Loading from "@/components/Loading";
 import { motion, AnimatePresence } from "framer-motion";
 import { normalizeText, searchInText } from "@/lib/utils";
+
+// Función para calcular la distancia de Levenshtein usando programación dinámica
+function levenshteinDistance(str1: string, str2: string): number {
+  const m = str1.length;
+  const n = str2.length;
+  
+  // Crear matriz DP
+  const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+  
+  // Inicializar primera fila y columna
+  for (let i = 0; i <= m; i++) {
+    dp[i][0] = i;
+  }
+  for (let j = 0; j <= n; j++) {
+    dp[0][j] = j;
+  }
+  
+  // Llenar la matriz DP
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = Math.min(
+          dp[i - 1][j] + 1,     // Eliminación
+          dp[i][j - 1] + 1,     // Inserción
+          dp[i - 1][j - 1] + 1  // Sustitución
+        );
+      }
+    }
+  }
+  
+  return dp[m][n];
+}
+
+// Función para calcular similitud basada en distancia de Levenshtein
+function calculateSimilarity(str1: string, str2: string): number {
+  const normalizedStr1 = normalizeText(str1);
+  const normalizedStr2 = normalizeText(str2);
+  const distance = levenshteinDistance(normalizedStr1, normalizedStr2);
+  const maxLength = Math.max(normalizedStr1.length, normalizedStr2.length);
+  return maxLength === 0 ? 1 : (maxLength - distance) / maxLength;
+}
+
+// Función para calcular similitud de nombres de productos
+function calculateProductNameSimilarity(query: string, productName: string): number {
+  const normalizedQuery = normalizeText(query);
+  const normalizedName = normalizeText(productName);
+  
+  // Si son idénticos, máxima similitud
+  if (normalizedQuery === normalizedName) {
+    return 1;
+  }
+  
+  // Si el nombre contiene la consulta, alta similitud
+  if (normalizedName.includes(normalizedQuery)) {
+    return 0.9;
+  }
+  
+  // Si la consulta contiene el nombre, similitud moderada
+  if (normalizedQuery.includes(normalizedName)) {
+    return 0.7;
+  }
+  
+  // Calcular similitud de Levenshtein
+  const levenshteinSim = calculateSimilarity(normalizedQuery, normalizedName);
+  
+  return levenshteinSim;
+}
 import Marquee from "react-fast-marquee";
 import AuthModal from "@/components/AuthModal";
 
@@ -130,6 +199,71 @@ export default function ProductsPage() {
     setMaxPrice(1000000);
     setCategory(""); // <-- nuevo
   };
+
+  // Función para verificar si hay filtros activos
+  const hasActiveFilters = () => {
+    return name !== "" || brand !== "" || available !== "" || category !== "" || minPrice > 0 || maxPrice < 1000000;
+  };
+
+  // Función para obtener productos recomendados
+  const getRecommendedProducts = useMemo(() => {
+    if (!name || name.length < 2) return [];
+    
+    const normalizedQuery = normalizeText(name);
+    
+    // Calcular puntuación para cada producto que NO está en los resultados filtrados
+    const scoredProducts = products
+      .filter(product => {
+        // Excluir productos que ya están en los resultados filtrados
+        const isInFilteredResults = filteredProducts.some(fp => fp.id === product.id);
+        return !isInFilteredResults;
+      })
+      .map(product => {
+        const searchableText = normalizeText(
+          `${product.name} ${product.brand} ${product.model} ${product.description}`
+        );
+        
+        // Incluir categoría en el texto de búsqueda
+        const categoryText = product.categoria?.name ? normalizeText(product.categoria.name) : '';
+        const fullSearchableText = `${searchableText} ${categoryText}`;
+        
+        // Calcular diferentes tipos de similitud
+        const exactMatch = fullSearchableText.includes(normalizedQuery) ? 1 : 0;
+        const nameSimilarity = calculateProductNameSimilarity(normalizedQuery, product.name);
+        const brandSimilarity = calculateSimilarity(normalizedQuery, normalizeText(product.brand));
+        const categorySimilarity = product.categoria?.name ? 
+          calculateSimilarity(normalizedQuery, normalizeText(product.categoria.name)) : 0;
+        
+        // Puntuación ponderada
+        let score = 0;
+        
+        // Priorizar coincidencias exactas
+        if (exactMatch > 0) {
+          score += 50;
+        }
+        
+        // Bonus por coincidencia en nombre del producto (ALTA PRIORIDAD)
+        score += nameSimilarity * 40;
+        
+        // Bonus por coincidencia en marca
+        score += brandSimilarity * 20;
+        
+        // Bonus por coincidencia en categoría
+        score += categorySimilarity * 15;
+        
+        return {
+          product,
+          score
+        };
+      });
+
+    // Filtrar y ordenar por puntuación
+    return scoredProducts
+      .filter(item => item.score > 0.1) // Solo productos con puntuación mínima
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6) // Máximo 6 recomendaciones
+      .map(item => item.product);
+  }, [name, products, filteredProducts]);
 
   if (loading) return <Loading />;
 
@@ -258,15 +392,40 @@ export default function ProductsPage() {
           <h1 className="flex font-bold sm:text-3xl text-xl text-[#022953]">
             Catálogo de productos
           </h1>
-          <button
-            onClick={() => setFilterIsOpen(!filterIsOpen)}
-            className="flex items-center justify-center px-2 py-1 rounded-md ml-auto bg-[#022953] text-white gap-2 hover:scale-110 transition-all duration-300"
-          >
-            <span>
-              <ListFilter />
-            </span>
-            <span>Filtros</span>
-          </button>
+          <div className="flex gap-2 ml-auto">
+            <AnimatePresence mode="wait">
+              {hasActiveFilters() && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8, x: -20 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, x: -20 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    ease: "easeInOut",
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 25
+                  }}
+                  onClick={resetFilters}
+                  className="flex items-center justify-center px-2 py-1 rounded-md bg-gray-500 text-white gap-2 hover:scale-110 transition-all duration-300"
+                >
+                  <span>
+                    <X />
+                  </span>
+                  <span className="hidden sm:inline">Limpiar</span>
+                </motion.button>
+              )}
+            </AnimatePresence>
+            <button
+              onClick={() => setFilterIsOpen(!filterIsOpen)}
+              className="flex items-center justify-center px-2 py-1 rounded-md bg-[#022953] text-white gap-2 hover:scale-110 transition-all duration-300"
+            >
+              <span>
+                <ListFilter />
+              </span>
+              <span>Filtros</span>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
@@ -318,6 +477,36 @@ export default function ProductsPage() {
             </div>
           )}
         </div>
+
+        {/* Sección de productos recomendados */}
+        {name && name.length >= 2 && getRecommendedProducts.length > 0 && (
+          <div className="mt-8">
+            <div className="flex items-center mb-4">
+              <h2 className="text-xl font-bold text-[#022953]">
+                Productos recomendados para "{name}"
+              </h2>
+              <div className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                {getRecommendedProducts.length} sugerencias
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              {getRecommendedProducts
+                .sort(
+                  (a: Product, b: Product) =>
+                    (b.count > 0 ? 1 : -1) - (a.count > 0 ? 1 : -1),
+                )
+                .map((product: Product) => (
+                  <ProductCard
+                    key={`recommended-${product.id}`}
+                    product={product}
+                    location={location}
+                    currencies={currencies}
+                    onAuthRequired={() => setShowAuthModal(true)}
+                  />
+                ))}
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Modal de autenticación global */}
