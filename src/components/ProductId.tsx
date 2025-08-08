@@ -6,7 +6,17 @@ import { useEffect, useState, useRef } from "react";
 import AddToCart from "@/components/AddToCart";
 import Loading from "@/components/Loading";
 import AuthModal from "@/components/AuthModal";
-import { X } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
+import Link from "next/link";
+
+interface Product {
+  id: number;
+  name: string;
+  image: string;
+  prices: [number, number, string][];
+  brand: string;
+  categoria: any;
+}
 
 async function getLocation() {
   try {
@@ -59,6 +69,9 @@ export default function ProductPage() {
   const [location, setLocation] = useState("CU");
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [isLoadingRelated, setIsLoadingRelated] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -76,11 +89,54 @@ export default function ProductPage() {
     fetchData();
   }, [id]);
 
+  // Fetch all products when component mounts
   useEffect(() => {
-    if (product) {
-      console.log(product);
+    const fetchAllProducts = async () => {
+      setIsLoadingRelated(true);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/inventory`
+        );
+        const data = await response.json();
+        setAllProducts(data.products || []);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        setAllProducts([]);
+      } finally {
+        setIsLoadingRelated(false);
+      }
+    };
+
+    fetchAllProducts();
+  }, []);
+
+  // Update related products when product or allProducts changes
+  useEffect(() => {
+    if (product && allProducts.length > 0) {
+      updateRelatedProducts();
     }
-  }, [product]);
+  }, [product, allProducts]);
+
+  function updateRelatedProducts() {
+    if (!product?.product?.categoria?.name) {
+      setRelatedProducts([]);
+      return;
+    }
+
+    const currentCategory = product.product.categoria.name;
+    const currentProductId = product.product.id;
+
+    // Filter products by the same category, exclude current product, only available products (count > 0), and limit to 4
+    const related = allProducts
+      .filter(p => 
+        p.categoria?.name === currentCategory && 
+        p.id !== currentProductId &&
+        p.count > 0  // Only include available products
+      )
+      .slice(0, 4);
+
+    setRelatedProducts(related);
+  }
 
   if (!id) {
     return <div>Producto no encontrado.</div>;
@@ -102,6 +158,17 @@ export default function ProductPage() {
       return `${value * currencies[1].value} CUP`;
     if (location !== "CU" && currency === "CUP")
       return `${Math.ceil((value / currencies[1].value) * 100) / 100} USD`;
+  }
+
+  function renderRelatedProductPrice(price: [number, number, string]) {
+    const [_, value, curr] = price;
+    if (location === "CU" && curr === "CUP") return `${value} CUP`;
+    if (location !== "CU" && curr === "USD") return `${value} USD`;
+    if (location === "CU" && curr === "USD")
+      return `${value * currencies[1].value} CUP`;
+    if (location !== "CU" && curr === "CUP")
+      return `${Math.ceil((value / currencies[1].value) * 100) / 100} USD`;
+    return "";
   }
 
   return (
@@ -200,6 +267,70 @@ export default function ProductPage() {
         isOpen={showAuthModal} 
         onClose={() => setShowAuthModal(false)} 
       />
+
+      {/* Related Products Section */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-16">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+            <h2 className="text-2xl font-bold text-[#022953]">También te puede interesar</h2>
+            {/* Desktop View - Right Aligned */}
+            {product?.product?.categoria?.id && (
+              <div className="hidden sm:block">
+                <Link 
+                  href={`/products?category=${encodeURIComponent(product.product.categoria.name)}`}
+                  className="flex items-center text-[#022953] hover:text-blue-700 transition-colors"
+                >
+                  Ver más productos <ArrowRight className="ml-1 w-4 h-4" />
+                </Link>
+              </div>
+            )}
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {relatedProducts.map((relatedProduct) => (
+              <Link 
+                key={relatedProduct.id} 
+                href={`/products/id?itemId=${relatedProduct.id}`}
+                className="group block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+              >
+                <div className="relative h-48 bg-gray-100">
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_API_URL}/${relatedProduct.img || relatedProduct.image}`}
+                    alt={relatedProduct.name}
+                    fill
+                    className="object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                    {relatedProduct.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">{relatedProduct.brand}</p>
+                  <p className="mt-2 font-medium text-[#022953]">
+                    {renderRelatedProductPrice(relatedProduct.prices[0])}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+          
+          {/* Mobile View - Full Width Button */}
+          {product?.product?.categoria?.id && (
+            <div className="block sm:hidden w-full mt-6">
+              <Link 
+                href={`/products?category=${encodeURIComponent(product.product.categoria.name)}`}
+                className="flex items-center justify-center w-full text-[#022953] hover:text-blue-700 transition-colors border border-[#022953] rounded-lg py-2.5 px-6 font-medium hover:bg-gray-50"
+              >
+                Ver más productos <ArrowRight className="ml-1 w-4 h-4" />
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

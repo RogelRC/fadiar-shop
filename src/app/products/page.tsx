@@ -121,7 +121,7 @@ export default function ProductsPage() {
         //setLocation(!data.country || data.country === "Cuba" ? "CU" : "US");
         setLocation("US")
       } catch (error) {
-        console.error("Error obteniendo la ubicación:", error);
+        //console.error("Error obteniendo la ubicación:", error);
         setLocation("CU");
       }
 
@@ -130,7 +130,7 @@ export default function ProductsPage() {
           `${process.env.NEXT_PUBLIC_API_URL}/inventory`,
         );
         const products = await response.json();
-        console.log(products.products);
+        //console.log(products.products);
         setProducts(products.products);
         setCurrencies(products.currencys.currencys);
       } catch (error) {
