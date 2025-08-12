@@ -106,6 +106,18 @@ export default function ProductsPage() {
   const setCategory = useFilters((state) => state.setCategory);
 
   const [loading, setLoading] = useState<boolean>(true);
+  
+  // Leer parámetros de URL para aplicar filtros
+  useEffect(() => {
+    // Obtener parámetros de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    
+    // Si hay un parámetro de categoría, aplicarlo al filtro
+    if (categoryParam) {
+      setCategory(decodeURIComponent(categoryParam));
+    }
+  }, [setCategory]);
 
   useEffect(() => {
     const fetchAll = async function () {
