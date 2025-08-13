@@ -235,13 +235,13 @@ export default function ProductPage() {
           </div>
         </div>
 
-        <div className="flex flex-col w-full self-start bg-[#022953] rounded-xl p-4 sm:p-10 text-white gap-y-2">
-          <h1 className="text-3xl font-bold">{product.product.name}</h1>
+        <div className="flex flex-col w-full self-start bg-white sm:rounded-lg sm:p-6 text-gray-800 sm:shadow-sm sm:border sm:border-gray-200 gap-y-3">
+          <h1 className="text-2xl font-bold">{product.product.name}</h1>
           <h3 className="text-lg font-semibold mt-2">Descripción:</h3>
           <p className="mb-2">{product.product.description}</p>
           <h3 className="text-lg font-semibold">Propiedades:</h3>
           {product.product.specs.map((spec: any) => (
-            <div key={spec[0]} className="flex justify-between items-center py-1 border-b border-white/20">
+            <div key={spec[0]} className="flex justify-between items-center py-1 border-b border-black/20">
               <span className="font-medium">{spec[1]}:</span>
               <span className="text-right">{spec[2]}</span>
             </div>

@@ -76,8 +76,8 @@ function calculateProductNameSimilarity(query: string, productName: string): num
   
   return levenshteinSim;
 }
-import Marquee from "react-fast-marquee";
 import AuthModal from "@/components/AuthModal";
+import CategoryMarquee from "@/components/CategoryMarquee";
 
 interface Product {
   id: number;
@@ -279,33 +279,19 @@ export default function ProductsPage() {
 
   if (loading) return <Loading />;
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <>
-      <div className="w-full overflow-hidden bg-[#022953] py-2 relative">
-        <Marquee
-          speed={40}
-          pauseOnHover={true}
-          gradient={false}
-          className="text-white font-semibold text-sm sm:text-base"
-        >
-          {/* Obtener categorías únicas */}
-          {(() => {
-            const uniqueCategories = products
-              .map((product) => product.categoria?.name)
-              .filter((cat, index, arr) => cat && arr.indexOf(cat) === index);
-            
-            return uniqueCategories.map((cat, index) => (
-              <span
-                key={`${index}-${cat}`}
-                className="inline-block mx-6 cursor-pointer hover:text-yellow-300 transition-colors"
-                onClick={() => setCategory(cat!)}
-              >
-                {cat}
-              </span>
-            ));
-          })()}
-        </Marquee>
-      </div>
+      <CategoryMarquee 
+        products={products} 
+        onCategorySelect={setCategory} 
+      />
 
       <div className="flex flex-col relative w-full py-6 px-4 sm:px-8 space-y-6">
         {/* Menu de filtros*/}
@@ -318,7 +304,7 @@ export default function ProductsPage() {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="fixed flex -bottom-6 left-0 w-full z-50 justify-center"
             >
-              <div className="flex flex-col lg:w-1/3 sm:w-2/3 w-full h-full bg-white rounded-t-lg p-4 shadow-2xl border-2 border-gray-400 gap-4">
+              <div className="flex flex-col lg:w-1/3 sm:w-2/3 w-full h-full bg-white rounded-t-lg p-4 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.3)] border-2 gap-4">
                 <div className="flex w-full">
                   <h3 className="text-xl text-[#022953] font-bold">Filtros</h3>
                   <button
@@ -328,50 +314,83 @@ export default function ProductsPage() {
                     <X />
                   </button>
                 </div>
-                <select
-                  className="w-full p-2 border-2 border-gray-300 rounded-md"
-                  onChange={(e) => setAvailable(e.target.value)}
-                  value={available} // Añade esta línea
-                >
-                  <option value="">Disponibles y agotados</option>
-                  <option value="available">Disponibles</option>
-                  <option value="out">Agotados</option>
-                </select>
-                <select
-                  className="w-full p-2 border-2 border-gray-300 rounded-md"
-                  onChange={(e) => setCategory(e.target.value)}
-                  value={category}
-                >
-                  <option value="">Todas las categorías</option>
-                  {products
-                    .map((product) => product.categoria?.name)
-                    .filter(
-                      (cat, index, arr) => cat && arr.indexOf(cat) === index,
-                    )
-                    .map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                </select>
+                <div className="relative">
+                  <select
+                    className="w-full p-2 pr-10 border-2 border-gray-300 rounded-md bg-white"
+                    onChange={(e) => setAvailable(e.target.value)}
+                    value={available}
+                    style={{
+                      backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 0.7rem top 50%',
+                      backgroundSize: '0.65rem auto',
+                      paddingRight: '2.5rem',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none'
+                    }}
+                  >
+                    <option value="">Disponibles y agotados</option>
+                    <option value="available">Disponibles</option>
+                    <option value="out">Agotados</option>
+                  </select>
+                </div>
 
-                <select
-                  className="w-full p-2 border-2 border-gray-300 rounded-md"
-                  onChange={(e) => setBrand(e.target.value)}
-                  value={brand} // Añade esta línea
-                >
-                  <option value="">Todas las marcas</option>
-                  {products
-                    .map((product) => product.brand)
-                    .filter(
-                      (brand, index, array) => array.indexOf(brand) === index,
-                    )
-                    .map((brand) => (
-                      <option key={brand} value={brand}>
-                        {brand}
-                      </option>
-                    ))}
-                </select>
+                <div className="relative">
+                  <select
+                    className="w-full p-2 pr-10 border-2 border-gray-300 rounded-md bg-white"
+                    onChange={(e) => setCategory(e.target.value)}
+                    value={category}
+                    style={{
+                      backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 0.7rem top 50%',
+                      backgroundSize: '0.65rem auto',
+                      paddingRight: '2.5rem',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none'
+                    }}
+                  >
+                    <option value="">Todas las categorías</option>
+                    {products
+                      .map((product) => product.categoria?.name)
+                      .filter((cat, index, arr) => cat && arr.indexOf(cat) === index)
+                      .map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <div className="relative">
+                  <select
+                    className="w-full p-2 pr-10 border-2 border-gray-300 rounded-md bg-white"
+                    onChange={(e) => setBrand(e.target.value)}
+                    value={brand}
+                    style={{
+                      backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 0.7rem top 50%',
+                      backgroundSize: '0.65rem auto',
+                      paddingRight: '2.5rem',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none'
+                    }}
+                  >
+                    <option value="">Todas las marcas</option>
+                    {products
+                      .map((product) => product.brand)
+                      .filter((brand, index, array) => array.indexOf(brand) === index)
+                      .map((brand) => (
+                        <option key={brand} value={brand}>
+                          {brand}
+                        </option>
+                      ))}
+                  </select>
+                </div>
                 <div className="flex p-2 border-2 border-gray-300 rounded-md gap-2 items-center">
                   <span className="flex flex-nowrap w-full">
                     Rango de precios
@@ -519,6 +538,19 @@ export default function ProductsPage() {
             </div>
           </div>
         )}
+      </div>
+      
+      {/* Botón para volver arriba */}
+      <div className="flex justify-center mt-8 mb-12">
+        <button 
+          onClick={scrollToTop}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg shadow-md transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+          Volver arriba
+        </button>
       </div>
       
       {/* Modal de autenticación global */}
