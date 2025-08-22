@@ -1,13 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import AddToCart from "@/components/AddToCart";
-import Loading from "@/components/Loading";
-import AuthModal from "@/components/AuthModal";
-import { X, ArrowRight } from "lucide-react";
+import { useCart } from "@/store/Cart";
+import { Plus, Minus, X, ArrowRight, ShoppingCart, Share2 } from "lucide-react";
 import Link from "next/link";
+import Loading from "@/components/Loading";
+
+interface AuthModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
 interface Product {
   id: number;
@@ -64,7 +68,9 @@ async function getProduct(id: string) {
 export default function ProductPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("itemId");
+  const router = useRouter();
 
+  // Product and UI state
   const [product, setProduct] = useState<any | null>(null);
   const [location, setLocation] = useState("CU");
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
@@ -73,6 +79,76 @@ export default function ProductPage() {
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [isLoadingRelated, setIsLoadingRelated] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
+
+  // Cart state
+  const [quantity, setQuantity] = useState(1);
+  const [count, setCount] = useState(0);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const setAmount = useCart((state) => state.setAmount);
+  const { amount: cartAmount } = useCart();
+
+  // Handle quantity changes
+  const handleQuantityChange = (newQuantity: number) => {
+    const maxQuantity = product?.product?.count || 1;
+    if (newQuantity >= 1 && newQuantity <= maxQuantity) {
+      setQuantity(newQuantity);
+    }
+  };
+
+  // Handle adding to cart
+  const handleAddToCart = async (productId: number, qty: number) => {
+    setIsAddingToCart(true);
+
+    if (!localStorage.getItem("userData")) {
+      setShowAuthModal(true);
+      setIsAddingToCart(false);
+      return;
+    }
+
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData") || '{}') as { userId?: string };
+
+      if (!userData.userId) {
+        setShowAuthModal(true);
+        setIsAddingToCart(false);
+        return;
+      }
+
+      const body = JSON.stringify({
+        id_user_action: parseInt(userData.userId),
+        id_user: parseInt(userData.userId),
+        id_product: productId,
+        count: qty,
+      });
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/agregar_producto_carrito`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to add item to cart");
+      }
+
+      // Update cart count
+      setAmount(cartAmount + qty);
+
+      // Show success message or navigate to cart
+      // router.push('/checkout'); // Uncomment to redirect to cart after adding
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    } finally {
+      setIsAddingToCart(false);
+      handleQuantityChange(1)
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -128,8 +204,8 @@ export default function ProductPage() {
 
     // Filter products by the same category, exclude current product, only available products (count > 0), and limit to 4
     const related = allProducts
-      .filter(p => 
-        p.categoria?.name === currentCategory && 
+      .filter(p =>
+        p.categoria?.name === currentCategory &&
         p.id !== currentProductId &&
         p.count > 0  // Only include available products
       )
@@ -175,10 +251,15 @@ export default function ProductPage() {
     <div className="flex flex-col gap-y-4 sm:gap-y-8 sm:p-8 p-4 w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 sm:gap-8 gap-4">
         <div className="relative">
-          <div 
+          <div
             className="cursor-zoom-in"
             onClick={() => setIsImageZoomed(true)}
           >
+            {product.product.count === 0 && (
+              <span className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-bl z-10">
+                <span className="">Agotado temporalmente</span>
+              </span>
+            )}
             <Image
               ref={imageRef}
               src={`${process.env.NEXT_PUBLIC_API_URL}/${product.product.image}`}
@@ -189,14 +270,14 @@ export default function ProductPage() {
               priority
             />
           </div>
-          
+
           {/* Zoomed Image Overlay */}
           {isImageZoomed && (
-            <div 
+            <div
               className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4 cursor-zoom-out"
               onClick={() => setIsImageZoomed(false)}
             >
-              <button 
+              <button
                 className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -222,17 +303,90 @@ export default function ProductPage() {
           </span>
         </div>
 
-        <div className="block sm:hidden">
-          <div className="flex flex-col w-full bg-[#eff6ff] text-[#022953] p-4 sm:p-10 gap-y-4 sm:gap-y-8 items-center sm:items-start">
-            <span className="flex font-bold text-4xl justify-center sm:justify-start">
+        {/* Mobile Layout */}
+        <div className="block sm:hidden w-full py-2">
+          {/* Price Row */}
+          <div className="flex w-full justify-between items-center mb-4">
+            <span className="font-semibold text-3xl text-[#022953] font-sans" style={{ fontWeight: 1000 }}>
               {renderPrice()}
             </span>
-            <AddToCart
-              productId={product.product.id}
-              amount={parseInt(product.product.count)}
-              onAuthRequired={() => setShowAuthModal(true)}
-            />
+            <button
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(window.location.href);
+                  setIsCopied(true);
+                  setTimeout(() => setIsCopied(false), 2000);
+                } catch (err) {
+                  console.error('Error al copiar el enlace:', err);
+                }
+              }}
+              className="p-2 text-[#022953] hover:bg-gray-100 rounded-full transition-colors relative"
+              aria-label="Compartir producto"
+              title="Copiar enlace"
+            >
+              <Share2 className="w-6 h-6" />
+              {isCopied && (
+                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                  ¡Enlace copiado!
+                </span>
+              )}
+            </button>
           </div>
+
+
+          {/* Quantity and Add to Cart Row */}
+          <div className={`flex items-center justify-between w-full gap-4 ${product?.product?.count === 0 ? "hidden" : ""}`}>
+            {/* Quantity Controls */}
+            <div className="flex items-center border border-gray-300 overflow-hidden">
+              <button
+                onClick={() => handleQuantityChange(quantity - 1)}
+                disabled={quantity <= 1}
+                className="bg-gray-100 h-10 w-10 flex items-center justify-center text-[#022953] disabled:opacity-50 font-extrabold"
+              >
+                <Minus strokeWidth={5} size={16} />
+              </button>
+
+              <input
+                type="number"
+                value={quantity}
+                onChange={(e) => handleQuantityChange(Number(e.target.value) || 1)}
+                min="1"
+                max={product?.product?.count || 1}
+                className="w-12 h-10 text-center border-x border-gray-300 font-extrabold"
+              />
+
+              <button
+                onClick={() => handleQuantityChange(quantity + 1)}
+                disabled={quantity >= (product?.product?.count || 1)}
+                className="bg-gray-100 h-10 w-10 flex items-center justify-center text-[#022953] disabled:opacity-50 font-extrabold"
+              >
+                <Plus strokeWidth={5} size={16} />
+              </button>
+            </div>
+
+            {/* Add to Cart Button */}
+            <button
+              onClick={() => handleAddToCart(product?.product?.id, quantity)}
+              disabled={isAddingToCart || !product?.product?.id}
+              className={`flex-1 h-10 px-4 font-medium text-white ${isAddingToCart ? 'bg-blue-400' : 'bg-[#022953] hover:bg-blue-700'
+                } transition-colors duration-200 flex items-center justify-center rounded-sm`}
+            >
+              {isAddingToCart ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Procesando...
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 text-sm">
+                  Añadir al carrito <ShoppingCart />
+                </span>
+              )}
+            </button>
+          </div>
+
         </div>
 
         <div className="flex flex-col w-full self-start bg-white sm:rounded-lg sm:p-6 text-gray-800 sm:shadow-sm sm:border sm:border-gray-200 gap-y-3">
@@ -249,24 +403,103 @@ export default function ProductPage() {
         </div>
       </div>
 
+      {/* Desktop Layout */}
       <div className="hidden sm:block">
         <div className="flex flex-col w-full bg-[#eff6ff] text-[#022953] p-4 sm:p-10 gap-y-4 sm:gap-y-8 items-center sm:items-start">
-          <span className="flex font-bold text-4xl justify-center sm:justify-start">
-            {renderPrice()}
-          </span>
-          <AddToCart
-            productId={product.product.id}
-            amount={parseInt(product.product.count)}
-            onAuthRequired={() => setShowAuthModal(true)}
-          />
+          <div className="flex w-full justify-between items-center">
+            <span className="flex font-bold text-4xl justify-center sm:justify-start">
+              {renderPrice()}
+            </span>
+            <button
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(window.location.href);
+                  setIsCopied(true);
+                  setTimeout(() => setIsCopied(false), 2000);
+                } catch (err) {
+                  console.error('Error al copiar el enlace:', err);
+                }
+              }}
+              className="p-2 text-[#022953] hover:bg-gray-100 rounded-full transition-colors relative"
+              aria-label="Compartir producto"
+              title="Copiar enlace"
+            >
+              <Share2 className="w-6 h-6" />
+              {isCopied && (
+                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                  ¡Enlace copiado!
+                </span>
+              )}
+            </button>
+          </div>
+          <div className={`flex items-center gap-2 ${product.product.count === 0 ? "hidden" : ""}`}>
+            <button
+              onClick={() => handleQuantityChange(quantity - 1)}
+              disabled={quantity <= 1}
+              className="bg-[#022953] h-10 w-10 text-white flex items-center justify-center rounded-lg disabled:opacity-50"
+            >
+              <Minus size={16} />
+            </button>
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => handleQuantityChange(Number(e.target.value) || 1)}
+              min="1"
+              max={product?.product?.count || 1}
+              className="w-16 h-10 text-center border border-gray-300 rounded-lg"
+            />
+            <button
+              onClick={() => handleQuantityChange(quantity + 1)}
+              disabled={quantity >= (product?.product?.count || 1)}
+              className="bg-[#022953] h-10 w-10 text-white flex items-center justify-center rounded-lg disabled:opacity-50"
+            >
+              <Plus size={16} />
+            </button>
+            <button
+              onClick={() => handleAddToCart(product?.product?.id, quantity)}
+              disabled={isAddingToCart || !product?.product?.id}
+              className="bg-[#022953] h-10 px-4 text-white rounded-lg font-medium ml-2 disabled:opacity-50"
+            >
+              {isAddingToCart ? 'Añadiendo...' : 'Añadir al carrito'}
+            </button>
+          </div>
         </div>
       </div>
-      
-      {/* Modal de autenticación */}
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
-      />
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#022953]">Iniciar sesión</h2>
+              <button
+                onClick={() => setShowAuthModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <p className="mb-4">Por favor inicia sesión para continuar con tu compra.</p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowAuthModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  setShowAuthModal(false);
+                  router.push('/login');
+                }}
+                className="px-4 py-2 bg-[#022953] text-white rounded-md hover:bg-blue-700"
+              >
+                Iniciar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Related Products Section */}
       {relatedProducts.length > 0 && (
@@ -276,7 +509,7 @@ export default function ProductPage() {
             {/* Desktop View - Right Aligned */}
             {product?.product?.categoria?.id && (
               <div className="hidden sm:block">
-                <Link 
+                <Link
                   href={`/products?category=${encodeURIComponent(product.product.categoria.name)}`}
                   className="flex items-center text-[#022953] hover:text-blue-700 transition-colors"
                 >
@@ -285,11 +518,11 @@ export default function ProductPage() {
               </div>
             )}
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {relatedProducts.map((relatedProduct) => (
-              <Link 
-                key={relatedProduct.id} 
+              <Link
+                key={relatedProduct.id}
                 href={`/products/id?itemId=${relatedProduct.id}`}
                 className="group block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
               >
@@ -317,11 +550,11 @@ export default function ProductPage() {
               </Link>
             ))}
           </div>
-          
+
           {/* Mobile View - Full Width Button */}
           {product?.product?.categoria?.id && (
             <div className="block sm:hidden w-full mt-6">
-              <Link 
+              <Link
                 href={`/products?category=${encodeURIComponent(product.product.categoria.name)}`}
                 className="flex items-center justify-center w-full text-[#022953] hover:text-blue-700 transition-colors border border-[#022953] rounded-lg py-2.5 px-6 font-medium hover:bg-gray-50"
               >

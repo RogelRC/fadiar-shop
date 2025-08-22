@@ -33,9 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
         <AuthProvider>
-          <div className="relative w-full top-0 z-50">
-            <Header />
-          </div>
+          <Header />
           {children}
           <Footer />
           <Whatsapp />

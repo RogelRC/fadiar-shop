@@ -544,7 +544,7 @@ export default function ProductsPage() {
       <div className="flex justify-center mt-8 mb-12">
         <button 
           onClick={scrollToTop}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg shadow-md transition-colors"
+          className="flex items-center gap-2 bg-[#022953] hover:bg-blue-900 text-white font-medium py-2 px-6 rounded-lg shadow-md transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />

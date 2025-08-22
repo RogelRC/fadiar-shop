@@ -96,7 +96,7 @@ export default function Login() {
       localStorage.setItem("userData", JSON.stringify(userData));
       window.dispatchEvent(new Event("userDataChanged"));
 
-      router.push("/products");
+      router.push("/");
     } catch (error) {
       console.log(error);
       setError("Error de conexión. Verifica tu conexión a internet e intenta nuevamente.");

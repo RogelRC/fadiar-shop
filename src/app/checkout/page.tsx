@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import FinalCartItem from "@/components/FinalCartItem";
-import { UserRound } from "lucide-react";
+import { UserRound, Check, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/store/Cart";
 
@@ -248,41 +248,92 @@ async function getLocation() {
       body: JSON.stringify({}),
     });
     const data = await res.json();
-    //console.log(data.countryCode);
-    //return !data.country || data.country === "Cuba" ? "CU" : "US";
-    return "US"
+    return !data.country || data.country === "Cuba" ? "CU" : "US";
   } catch (error) {
     console.error("Error obteniendo la ubicación:", error);
-    return "CU";
+    return "US";
   }
 }
 
 export default function CheckoutPage() {
+  const router = useRouter();
+  const setAmount = useCart((state) => state.setAmount);
+
+  // State for cart and UI
+  const [cartItems, setCartItems] = useState<any[] | null>(null); // null means loading, [] means loaded but empty
+  const [currencies, setCurrencies] = useState<any[]>([]); // Estado para almacenar la moneda actual
+  const [location, setLocation] = useState<string>("US");
+  const [itemTotals, setItemTotals] = useState<{ [key: string]: number }>({});
+  const [delivery, setDelivery] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [tried, setTried] = useState(false);
+  const [error, setError] = useState("");
+
+  // Form state
   const [formData, setFormData] = useState({
     provincia: "",
     municipio: "",
     address: "",
+    phone: "",
+    ci_cliente: ""
   });
 
-  const [cartItems, setCartItems] = useState<any[] | null>(null); // null means loading, [] means loaded but empty
-  const [currencies, setCurrencies] = useState<any[]>([]); // Estado para almacenar la moneda actual
-  const [location, setLocation] = useState<string>("");
-  const [itemTotals, setItemTotals] = useState<{ [key: string]: number }>({});
-  const [delivery, setDelivery] = useState(0);
-  const [tried, setTried] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const setAmount = useCart((state) => state.setAmount);
+  // Form validation state
+  const [validation, setValidation] = useState({
+    provincia: false,
+    municipio: false,
+    address: false,
+    phone: false,
+    ci_cliente: false
+  });
+
+  const [progress, setProgress] = useState(0);
+
+  // Calculate grand total using itemTotals
+  const grandTotal = Object.values(itemTotals).reduce(
+    (acc, curr) => acc + curr,
+    0,
+  );
+
+  // Update validation and progress
+  useEffect(() => {
+    // Only include address in validation if delivery is selected
+    const newValidation = {
+      provincia: formData.provincia.trim() !== "",
+      municipio: formData.municipio.trim() !== "",
+      phone: /^\+?[0-9\s-]{8,}$/.test(formData.phone), // At least 8 digits, country code optional
+      ci_cliente: /^\d{11}$/.test(formData.ci_cliente), // Exactly 11 digits
+      ...(delivery === 1 && {
+        address: formData.address.trim() !== ""
+      })
+    };
+
+    setValidation(prev => ({
+      ...prev,
+      ...newValidation
+    }));
+
+    // Calculate progress
+    const requiredFields = delivery === 1 ? 5 : 4; // Total fields that could be required (including idCard)
+    const validFields = Object.values(newValidation).filter(Boolean).length;
+    const calculatedProgress = Math.min(100, (validFields / (delivery === 1 ? 5 : 4)) * 100);
+    setProgress(calculatedProgress);
+  }, [formData, delivery]);
 
   const handleSubmit = async () => {
     setTried(true);
 
-    if (
-      !formData.provincia ||
-      !formData.municipio ||
-      (delivery && !formData.address)
-    ) {
-      setError("Por favor llene todos los campos");
+    // Check all required fields
+    const isFormValid =
+      formData.provincia.trim() !== "" &&
+      formData.municipio.trim() !== "" &&
+      (delivery === 0 || formData.address.trim() !== "") &&
+      formData.phone.trim() !== "" &&
+      /^\d{11}$/.test(formData.ci_cliente);
+
+    if (!isFormValid) {
+      setError("Por favor llene todos los campos obligatorios correctamente");
       return;
     }
 
@@ -294,23 +345,37 @@ export default function CheckoutPage() {
           ? JSON.parse(localStorage.getItem("userData") || "{}")
           : {};
 
+      // Get user details from userData
+      const name = userData.name || "";
+      const apellidos_cliente = `${userData.last1 || ""} ${userData.last2 || ""}`.trim();
+
+      const orderData = {
+        ...formData,
+        name_cliente: name,
+        last_names: apellidos_cliente,
+        cellphone_cliente: formData.phone,
+        id_user_action: userData.userId,
+        id_user: userData.userId,
+        gestor_id: userData.userId,
+        delivery,
+        total: grandTotal,
+        location,
+        items: cartItems?.map((item) => ({
+          id_product: item.id,
+          count: item.count,
+          price: item.prices[0][1],
+          currency: item.prices[0][2],
+        })),
+      };
+
+      console.log(orderData)
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/add_order`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id_user_action: userData.userId,
-            gestor_id: userData.userId,
-            ci_cliente: userData.ci,
-            name_cliente: userData.name,
-            last_names: `${userData.last1} ${userData.last2}`,
-            cellphone_cliente: userData.cell1,
-            order_code: userData.nextOrderCode,
-            provincia: formData.provincia,
-            municipio: formData.municipio,
-            direccionExacta: formData.address,
-          }),
+          body: JSON.stringify(orderData),
         },
       );
 
@@ -345,10 +410,6 @@ export default function CheckoutPage() {
       [itemId]: total,
     }));
   };
-  const grandTotal = Object.values(itemTotals).reduce(
-    (acc, curr) => acc + curr,
-    0,
-  );
 
   //console.log(currencies);
 
@@ -364,7 +425,7 @@ export default function CheckoutPage() {
 
         setCartItems(user ? cartItems.carrito : {});
         setCurrencies(user ? cartItems.monedas[0].currencys : {});
-        setLocation(location);
+        setLocation("US");
       } catch (error) {
         console.error(error);
       }
@@ -404,9 +465,11 @@ export default function CheckoutPage() {
   return (
     <div className="flex h-full w-full min-h-[calc(100vh-88px)] justify-center p-4 bg-white">
       <div className="flex flex-col bg-[#f4f4f4] w-120 md:w-1/2 sm:w-2/3 rounded-lg shadow-lg sm:p-10 p-4 gap-4 sm:gap-6">
-        <h1 className="flex font-bold text-xl sm:text-3xl text-[#022953] w-full sm:justify-start justify-center">
-          Resumen del carrito
-        </h1>
+        <div className="w-full">
+          <h1 className="flex font-bold text-xl sm:text-3xl text-[#022953] w-full sm:justify-start justify-center mb-6">
+            Resumen del carrito
+          </h1>
+        </div>
         <div className="flex flex-col gap-4 sm:gap-6">
           {cartItems.map((item) => (
             <FinalCartItem
@@ -425,20 +488,96 @@ export default function CheckoutPage() {
           </span>
         </div>
         <hr className="flex h-px border-[#9a9a9a] w-full" />
-        <div className="flex flex-col gap-2">
-          <span className="flex text-[#9a9a9a]">Tú</span>
-          <div className="flex items-center gap-4">
-            <div className="flex rounded-full bg-[#9a9a9a] w-12 h-12 items-center justify-center text-white p-1">
-              <UserRound className="flex w-full h-full" />
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <span className="flex text-[#9a9a9a]">Tú</span>
+            <div className="flex items-center gap-4">
+              <div className="flex rounded-full bg-[#9a9a9a] w-12 h-12 items-center justify-center text-white p-1">
+                <UserRound className="flex w-full h-full" />
+              </div>
+              <span className="flex text-[#9a9a9a]">
+                {typeof window !== "undefined"
+                  ? `${JSON.parse(localStorage.getItem("userData") || "{}").name || ""} ${JSON.parse(localStorage.getItem("userData") || "{}").last1 || ""} ${JSON.parse(localStorage.getItem("userData") || "{}").last2 || ""}`
+                  : ""}
+              </span>
             </div>
-            <span className="flex text-[#9a9a9a]">
-              {typeof window !== "undefined"
-                ? `${JSON.parse(localStorage.getItem("userData") || "{}").name || ""} ${JSON.parse(localStorage.getItem("userData") || "{}").last1 || ""} ${JSON.parse(localStorage.getItem("userData") || "{}").last2 || ""}`
-                : ""}
-            </span>
+          </div>
+
+          {/* Phone Number Input */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[#9a9a9a]">
+              Número de teléfono del receptor
+            </label>
+            <div className="relative">
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9+\s-]/g, '');
+                  setFormData({ ...formData, phone: value });
+                }}
+                placeholder="Ej: 55555555 o +53 55555555"
+                className={`w-full p-2 rounded-md border ${
+                  tried && !validation.phone && formData.phone
+                    ? 'border-red-500'
+                    : 'border-gray-300'
+                } ${formData.phone ? (validation.phone ? 'border-green-500' : 'border-red-500') : ''}`}
+                required
+              />
+              {formData.phone && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  {validation.phone ? (
+                    <Check className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <X className="h-5 w-5 text-red-500" />
+                  )}
+                </div>
+              )}
+            </div>
+            {tried && !validation.phone && formData.phone && (
+              <p className="text-red-500 text-sm">
+                Por favor ingrese un número de teléfono válido
+              </p>
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="text-[#9a9a9a]">Carnet de identidad del receptor</label>
+            <div className="relative">
+              <input
+                type="text"
+                value={formData.ci_cliente || ''}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+                  setFormData({ ...formData, ci_cliente: value });
+                }}
+                placeholder="Ej: 12345678901"
+                className={`w-full p-2 rounded-md border ${
+                  tried && !validation.ci_cliente && formData.ci_cliente
+                    ? 'border-red-500'
+                    : 'border-gray-300'
+                } ${
+                  formData.ci_cliente ? (validation.ci_cliente ? 'border-green-500' : 'border-red-500') : ''
+                }`}
+                required
+              />
+              {formData.ci_cliente && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  {validation.ci_cliente ? (
+                    <Check className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <X className="h-5 w-5 text-red-500" />
+                  )}
+                </div>
+              )}
+            </div>
+            {tried && !validation.ci_cliente && formData.ci_cliente && (
+              <p className="text-red-500 text-sm">
+                Por favor ingrese un carnet de identidad válido
+              </p>
+            )}
+          </div>
           <div className="flex flex-col gap-2 text-[#9a9a9a]">
             <label className="text-[#9a9a9a]">Provincia</label>
             <select
@@ -490,28 +629,73 @@ export default function CheckoutPage() {
           <input
             type="checkbox"
             checked={delivery === 1}
-            onChange={(e) => setDelivery(e.target.checked ? 1 : 0)}
-            className="flex ml-auto"
+            onChange={(e) => {
+              const isChecked = e.target.checked;
+              setDelivery(isChecked ? 1 : 0);
+              setIsAnimating(true);
+              if (isChecked) {
+                setIsExpanded(true);
+              }
+            }}
+            className="flex ml-auto h-5 w-5 rounded border-gray-300 text-[#022953] focus:ring-[#022953] cursor-pointer"
           />
         </div>
 
-        {delivery === 1 && (
-          <div className="flex flex-col gap-2 w-full">
-            <span className="flex text-[#9a9a9a]">Dirección</span>
-            <textarea
-              value={formData.address}
-              onChange={(e) =>
-                setFormData({ ...formData, address: e.target.value })
-              }
-              placeholder="Escriba su direccion aqui"
-              className="flex w-full min-h-20 bg-white p-2 placeholder:text-left text-left align-top rounded-md"
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            delivery === 1 
+              ? 'max-h-40 opacity-100' 
+              : 'max-h-0 opacity-0'
+          }`}
+          onTransitionEnd={() => {
+            if (delivery === 0) {
+              setIsExpanded(false);
+            }
+            setIsAnimating(false);
+          }}
+          style={{
+            visibility: isExpanded || isAnimating ? 'visible' : 'hidden'
+          }}
+        >
+          {isExpanded && (
+            <div className="flex flex-col gap-2 w-full pt-2">
+              <span className="flex text-[#9a9a9a]">Dirección</span>
+              <textarea
+                value={formData.address}
+                onChange={(e) =>
+                  setFormData(prev => ({ ...prev, address: e.target.value }))
+                }
+                required={delivery === 1}
+                placeholder="Escriba su dirección aquí"
+                className={`w-full p-2 min-h-20 bg-white placeholder:text-left text-left align-top rounded-md border focus:ring-2 focus:ring-[#022953] focus:border-transparent transition-all duration-200 ${
+                  tried && delivery === 1 && !formData.address
+                    ? 'border-red-500'
+                    : 'border-gray-300'
+                }`}
+              />
+            </div>
+          )}
+        </div>
+
+        {/*
+        <div className="w-full mt-4 mb-6">
+          <div className="flex justify-between text-sm text-gray-600 mb-1">
+            <span>Progreso del formulario</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-[#022953] to-[#034078] h-2.5 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
             />
           </div>
-        )}
+        </div>
+        */}
+
         <div className="flex w-full justify-center">
           <button
             onClick={handleSubmit}
-            className="flex w-full md:w-1/2 h-12 bg-[#022953] font-bold text-white items-center justify-center hover:text-lg transition-all duration-300"
+            className="flex w-full md:w-1/2 h-12 bg-[#022953] font-bold text-white items-center justify-center hover:text-lg transition-all duration-300 rounded-md"
           >
             Confirmar orden
           </button>

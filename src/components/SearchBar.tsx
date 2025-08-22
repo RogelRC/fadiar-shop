@@ -264,9 +264,8 @@ export default function SearchBar() {
         setName(normalizedQuery);
         router.push("/products");
       } else if (query.length === 0) {
-        // Si el campo está vacío, limpiar la búsqueda
+        // Si el campo está vacío, solo limpiar la búsqueda sin redireccionar
         setName("");
-        router.push("/products");
       }
     }, 500); // Esperar 500ms después de que el usuario deje de escribir
 

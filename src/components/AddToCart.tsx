@@ -1,7 +1,7 @@
 "use client";
 
-import { Plus, Minus, Cog } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Plus, Minus } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 import { useCart } from "@/store/Cart";
 
 export default function AddToCart({
@@ -19,6 +19,8 @@ export default function AddToCart({
   const { amount: cartAmount } = useCart();
   const [wait, setWait] = useState(false);
   const [message, setMessage] = useState("Añadir al carrito");
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressing = useRef(false);
 
   const handleAddToCart = async (productId: number, quantity: number) => {
     setWait(true);
@@ -82,14 +84,53 @@ export default function AddToCart({
     else if (quantity > 0) setQuantity(quantity);
   }
 
+  const startLongPress = (increment: boolean) => {
+    isLongPressing.current = true;
+    longPressTimer.current = setTimeout(() => {
+      if (isLongPressing.current) {
+        const interval = setInterval(() => {
+          if (isLongPressing.current) {
+            setQuantity(prevQuantity => {
+              const newQuantity = increment ? prevQuantity + 1 : prevQuantity - 1;
+              return Math.max(1, Math.min(newQuantity, count));
+            });
+          } else {
+            clearInterval(interval);
+          }
+        }, 100);
+      }
+    }, 1000);
+  };
+
+  const stopLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    isLongPressing.current = false;
+  };
+
+  useEffect(() => {
+    return () => {
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+      }
+    };
+  }, []);
+
   return (
-    <>
+    <div className="flex flex-col gap-2 items-center">
       {count > 0 ? (
         <>
           <div className="flex w-full gap-2 justify-center sm:justify-start">
             <button
               onClick={() => handleSetQuantity(quantity + 1)}
-              className="flex bg-[#022953] h-10 w-10 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300"
+              onMouseDown={() => startLongPress(true)}
+              onMouseUp={stopLongPress}
+              onMouseLeave={stopLongPress}
+              onTouchStart={() => startLongPress(true)}
+              onTouchEnd={stopLongPress}
+              className="flex bg-[#022953] h-10 w-10 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300 select-none"
             >
               <Plus />
             </button>
@@ -103,7 +144,12 @@ export default function AddToCart({
             />
             <button
               onClick={() => handleSetQuantity(quantity - 1)}
-              className="flex bg-[#022953] h-10 w-10 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300"
+              onMouseDown={() => startLongPress(false)}
+              onMouseUp={stopLongPress}
+              onMouseLeave={stopLongPress}
+              onTouchStart={() => startLongPress(false)}
+              onTouchEnd={stopLongPress}
+              className="flex bg-[#022953] h-10 w-10 text-white items-center justify-center rounded-lg hover:scale-110 transition-all duration-300 select-none"
             >
               <Minus />
             </button>
@@ -133,6 +179,6 @@ export default function AddToCart({
           Lo sentimos, este producto se encuentra agotado temporalmente
         </div>
       )}
-    </>
+    </div>
   );
 }

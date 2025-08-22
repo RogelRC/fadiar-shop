@@ -24,7 +24,7 @@ export default function Header() {
   }
 
   return (
-    <header className="relative w-full">
+    <header className="w-full sticky top-0 left-0 z-50">
       {/* Fondo degradado */}
       <div
         className="absolute inset-0 w-full h-full z-0"
