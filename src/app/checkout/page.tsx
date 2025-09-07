@@ -274,7 +274,7 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     provincia: "",
     municipio: "",
-    address: "",
+    direccionExacta: "",
     phone: "",
     ci_cliente: ""
   });
@@ -283,7 +283,7 @@ export default function CheckoutPage() {
   const [validation, setValidation] = useState({
     provincia: false,
     municipio: false,
-    address: false,
+    direccionExacta: false,
     phone: false,
     ci_cliente: false
   });
@@ -298,14 +298,14 @@ export default function CheckoutPage() {
 
   // Update validation and progress
   useEffect(() => {
-    // Only include address in validation if delivery is selected
+    // Only include direccionExacta in validation if delivery is selected
     const newValidation = {
       provincia: formData.provincia.trim() !== "",
       municipio: formData.municipio.trim() !== "",
       phone: /^\+?[0-9\s-]{8,}$/.test(formData.phone), // At least 8 digits, country code optional
       ci_cliente: /^\d{11}$/.test(formData.ci_cliente), // Exactly 11 digits
       ...(delivery === 1 && {
-        address: formData.address.trim() !== ""
+        direccionExacta: formData.direccionExacta.trim() !== ""
       })
     };
 
@@ -328,7 +328,7 @@ export default function CheckoutPage() {
     const isFormValid =
       formData.provincia.trim() !== "" &&
       formData.municipio.trim() !== "" &&
-      (delivery === 0 || formData.address.trim() !== "") &&
+      (delivery === 0 || formData.direccionExacta.trim() !== "") &&
       formData.phone.trim() !== "" &&
       /^\d{11}$/.test(formData.ci_cliente);
 
@@ -381,21 +381,28 @@ export default function CheckoutPage() {
 
       const data = await response.json();
 
-      console.log(data);
+      console.log('API Response:', data); // Log the full response
 
       if (!response.ok) {
         setError(data.message || "Error al comprar");
+        return; // Exit early if there's an error
+      }
+
+      if (!data || !data.order || !data.order.date) {
+        console.error('Unexpected API response structure:', data);
+        setError("Formato de respuesta inesperado del servidor");
+        return;
       }
 
       setAmount(0);
 
       const orderParams = new URLSearchParams({
         date: data.order.date,
-        ...(formData.address && {
-          address: `${formData.address}, ${formData.municipio}, ${formData.provincia}`,
+        ...(formData.direccionExacta && {
+          direccionExacta: `${formData.direccionExacta}, ${formData.municipio}, ${formData.provincia}`,
         }),
         price: grandTotal.toFixed(2),
-        currency: location === "CU" ? "CUP" : "USD",
+        currency: "USD",
       }).toString();
 
       router.push(`/checkout/ticket?${orderParams}`);
@@ -614,7 +621,7 @@ export default function CheckoutPage() {
               {formData.provincia &&
                 provinciasCuba[
                   formData.provincia as keyof typeof provinciasCuba
-                ].map((municipio: string) => (
+                  ].map((municipio: string) => (
                   <option key={municipio} value={municipio}>
                     {municipio}
                   </option>
@@ -643,8 +650,8 @@ export default function CheckoutPage() {
 
         <div
           className={`overflow-hidden transition-all duration-300 ease-in-out ${
-            delivery === 1 
-              ? 'max-h-40 opacity-100' 
+            delivery === 1
+              ? 'max-h-40 opacity-100'
               : 'max-h-0 opacity-0'
           }`}
           onTransitionEnd={() => {
@@ -661,14 +668,14 @@ export default function CheckoutPage() {
             <div className="flex flex-col gap-2 w-full pt-2">
               <span className="flex text-[#9a9a9a]">Dirección</span>
               <textarea
-                value={formData.address}
+                value={formData.direccionExacta}
                 onChange={(e) =>
-                  setFormData(prev => ({ ...prev, address: e.target.value }))
+                  setFormData(prev => ({ ...prev, direccionExacta: e.target.value }))
                 }
                 required={delivery === 1}
                 placeholder="Escriba su dirección aquí"
                 className={`w-full p-2 min-h-20 bg-white placeholder:text-left text-left align-top rounded-md border focus:ring-2 focus:ring-[#022953] focus:border-transparent transition-all duration-200 ${
-                  tried && delivery === 1 && !formData.address
+                  tried && delivery === 1 && !formData.direccionExacta
                     ? 'border-red-500'
                     : 'border-gray-300'
                 }`}
@@ -691,6 +698,10 @@ export default function CheckoutPage() {
           </div>
         </div>
         */}
+
+        <div className="hidden w-full h-full bg-blue-500/10 md:p-10 p-4 items-center justify-center text-center md:text-2xl rounded-md text-blue-900">
+          Lo sentimos, no se pueden hacer pedidos temporalmente
+        </div>
 
         <div className="flex w-full justify-center">
           <button

@@ -39,13 +39,13 @@ export default function TicketPage() {
 
   const data = useMemo(() => {
     const date = searchParams.get("date") || "";
-    const address = searchParams.get("address")
-      ? decodeURIComponent(searchParams.get("address")!)
+    const direccionExacta = searchParams.get("direccionExacta")
+      ? decodeURIComponent(searchParams.get("direccionExacta")!)
       : null;
     const price = searchParams.get("price") || "0";
     const currency = searchParams.get("currency") || "CUP";
 
-    return { date, address, price, currency };
+    return { date, direccionExacta, price, currency };
   }, [searchParams]);
 
   const { dateFormatted, timeFormatted } = useMemo(() => {
@@ -74,11 +74,11 @@ export default function TicketPage() {
             <span className="flex ml-auto font-bold">{timeFormatted}</span>
           </div>
           <hr className="flex h-px border-[#9a9a9a] w-full" />
-          {data.address && (
+          {data.direccionExacta && (
             <>
               <div className="flex w-full gap-4">
                 <span className="flex">Dirección</span>
-                <span className="flex ml-auto font-bold">{data.address}</span>
+                <span className="flex ml-auto font-bold">{data.direccionExacta}</span>
               </div>
               <hr className="flex h-px border-[#9a9a9a] w-full" />
             </>

@@ -181,8 +181,8 @@ export default function AccountPage() {
                       Teléfono
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      {userData.phone && parseInt(userData.phone) >= 0 
-                        ? userData.phone 
+                      {userData.phone && parseInt(userData.phone) >= 0
+                        ? userData.phone
                         : "No asignado"}
                     </dd>
                   </div>

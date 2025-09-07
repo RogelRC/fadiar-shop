@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import Whatsapp from "@/components/Whatsapp";
 //import Cart from "@/components/Cart";
 import { AuthProvider } from "@/providers/AuthProvider";
+import Manteinence from "@/components/Maintenance";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,8 +38,9 @@ export default function RootLayout({
           {children}
           <Footer />
           <Whatsapp />
-          {/*<Cart />*/}
+
         </AuthProvider>
+
       </body>
     </html>
   );

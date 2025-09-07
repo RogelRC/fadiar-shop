@@ -9,6 +9,7 @@ interface Product {
   id: number;
   name: string;
   img: string;
+  count: number; // Added count property
   categoria: {
     id: number;
     name: string;
@@ -43,6 +44,7 @@ export default function CatPre() {
             id: product.id,
             name: product.name,
             img: product.img,
+            count: product.count, // Include count in the product data
             categoria: product.categoria,
           });
         }
@@ -77,17 +79,26 @@ export default function CatPre() {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="flex flex-col items-center aspect-square"
+                className="flex flex-col items-center aspect-square relative"
               >
                 <div className="relative w-full h-full">
+                  {/* Stock status indicator */}
+                  {product.count === 0 && (
+                    <span className="absolute top-0 right-0 bg-red-600 text-white text-[0.6rem] md:text-xs font-bold px-2 py-1 rounded-bl z-10">
+                      Agotado temporalmente
+                    </span>
+                  )}
                   <Image
                     src={`${process.env.NEXT_PUBLIC_API_URL}/${product.img}`}
                     alt={product.name}
                     fill
-                    className="object-cover"
+                    className={`object-cover ${product.count === 0 ? '' : ''}`}
                   />
+
                 </div>
-                <p className="text-sm mt-2 text-center truncate w-full text-[#022953] font-semibold">
+                <p className={`text-sm mt-2 text-center truncate w-full font-semibold ${
+                  product.count === 0 ? 'text-gray-500' : 'text-[#022953]'
+                }`}>
                   {product.name}
                 </p>
               </div>

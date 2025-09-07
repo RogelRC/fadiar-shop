@@ -13,17 +13,13 @@ export default function Footer() {
                 <Image
                   src={"/logo.png"}
                   alt="Fadiar Logo"
-                  width={180}
-                  height={180}
+                  width={260}
+                  height={260}
                   className="hover:opacity-90 transition-opacity"
                 />
               </Link>
             </div>
             <div className="space-y-4">
-              <p className="text-gray-300 text-base leading-relaxed text-center md:text-left">
-                Soluciones tecnológicas innovadoras para tu negocio. Expertos en
-                equipamiento y servicios informáticos.
-              </p>
               <p className="text-gray-400 text-sm text-center md:text-left">
                 © 2025 Fadiar. Todos los derechos reservados.
               </p>
