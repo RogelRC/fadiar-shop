@@ -290,11 +290,23 @@ export default function CheckoutPage() {
 
   const [progress, setProgress] = useState(0);
 
-  // Calculate grand total using itemTotals
-  const grandTotal = Object.values(itemTotals).reduce(
+  // Calculate subtotal using itemTotals
+  const subtotal = Object.values(itemTotals).reduce(
     (acc, curr) => acc + curr,
     0,
   );
+
+  // Add delivery fee if delivery is selected
+  const deliveryFee = delivery === 1 ? 5 : 0;
+  const grandTotal = subtotal + deliveryFee;
+
+  // Uncheck delivery if province is changed to something other than Havana
+  useEffect(() => {
+    if (formData.provincia !== 'La Habana' && delivery === 1) {
+      setDelivery(0);
+      setIsExpanded(false);
+    }
+  }, [formData.provincia, delivery]);
 
   // Update validation and progress
   useEffect(() => {
@@ -488,11 +500,30 @@ export default function CheckoutPage() {
             />
           ))}
         </div>
-        <div className="flex w-full items-center mt-6">
-          <span className="flex text-[#9a9a9a]">Total a pagar</span>
-          <span className="flex ml-auto text-[#022953] text-2xl font-bold">
-            {grandTotal.toFixed(2)} {location === "CU" ? "CUP" : "USD"}
-          </span>
+        <div className="flex flex-col w-full gap-2 mt-6">
+          <div className="flex w-full items-center">
+            <span className="flex text-[#9a9a9a]">Subtotal</span>
+            <span className="flex ml-auto text-[#022953] text-lg">
+              {subtotal.toFixed(2)} {location === "CU" ? "CUP" : "USD"}
+            </span>
+          </div>
+          {delivery === 1 && (
+            <div className="flex w-full items-center">
+              <div className="flex flex-col">
+                <span className="text-[#9a9a9a]">Entrega a domicilio</span>
+                <span className="text-xs text-gray-500">*El precio puede variar según la distancia. Nos pondremos en contacto con usted.</span>
+              </div>
+              <span className="flex ml-auto text-[#022953] text-lg">
+                +{deliveryFee.toFixed(2)} {location === "CU" ? "CUP" : "USD"}
+              </span>
+            </div>
+          )}
+          <div className="flex w-full items-center pt-2 border-t border-gray-200 mt-2">
+            <span className="flex text-[#9a9a9a] font-bold">Total a pagar</span>
+            <span className="flex ml-auto text-[#022953] text-2xl font-bold">
+              {grandTotal.toFixed(2)} {location === "CU" ? "CUP" : "USD"}
+            </span>
+          </div>
         </div>
         <hr className="flex h-px border-[#9a9a9a] w-full" />
         <div className="flex flex-col gap-4">
@@ -585,57 +616,76 @@ export default function CheckoutPage() {
               </p>
             )}
           </div>
-          <div className="flex flex-col gap-2 text-[#9a9a9a]">
+          <div className="flex flex-col gap-2">
             <label className="text-[#9a9a9a]">Provincia</label>
-            <select
-              value={formData.provincia}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  provincia: e.target.value,
-                  municipio: "",
-                })
-              }
-              className="w-full p-2 rounded-md border border-gray-300"
-            >
-              <option value="">Seleccione una provincia</option>
-              {Object.keys(provinciasCuba).map((provincia) => (
-                <option key={provincia} value={provincia}>
-                  {provincia}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-2 text-[#9a9a9a]">
-            <label className="text-[#9a9a9a]">Municipio</label>
-            <select
-              value={formData.municipio}
-              onChange={(e) =>
-                setFormData({ ...formData, municipio: e.target.value })
-              }
-              className="w-full p-2 rounded-md border border-gray-300"
-              disabled={!formData.provincia}
-            >
-              <option value="">Seleccione un municipio</option>
-              {formData.provincia &&
-                provinciasCuba[
-                  formData.provincia as keyof typeof provinciasCuba
-                  ].map((municipio: string) => (
-                  <option key={municipio} value={municipio}>
-                    {municipio}
+            <div className="relative">
+              <select
+                value={formData.provincia}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    provincia: e.target.value,
+                    municipio: "",
+                  })
+                }
+                className={`w-full p-2 rounded-md border ${
+                  formData.provincia ? 'border-green-500' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Seleccione una provincia</option>
+                {Object.keys(provinciasCuba).map((provincia) => (
+                  <option key={provincia} value={provincia}>
+                    {provincia}
                   </option>
                 ))}
-            </select>
+              </select>
+              {formData.provincia && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <Check className="h-5 w-5 text-green-500" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[#9a9a9a]">Municipio</label>
+            <div className="relative">
+              <select
+                value={formData.municipio}
+                onChange={(e) =>
+                  setFormData({ ...formData, municipio: e.target.value })
+                }
+                className={`w-full p-2 rounded-md border ${
+                  formData.municipio ? 'border-green-500' : 'border-gray-300'
+                }`}
+                disabled={!formData.provincia}
+              >
+                <option value="">Seleccione un municipio</option>
+                {formData.provincia &&
+                  provinciasCuba[
+                    formData.provincia as keyof typeof provinciasCuba
+                    ].map((municipio: string) => (
+                    <option key={municipio} value={municipio}>
+                      {municipio}
+                    </option>
+                  ))}
+              </select>
+              {formData.municipio && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <Check className="h-5 w-5 text-green-500" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex w-full items-center">
-          <span className="flex text-[#9a9a9a] font-bold">
-            ¿Necesitas entrega a domicilio?
+          <span className={`flex ${formData.provincia === 'La Habana' ? 'text-[#9a9a9a]' : 'text-gray-400'} font-bold`}>
+            ¿Necesitas entrega a domicilio? {formData.provincia !== 'La Habana' && '(Disponible solo en La Habana)'}
           </span>
           <input
             type="checkbox"
             checked={delivery === 1}
+            disabled={formData.provincia !== 'La Habana'}
             onChange={(e) => {
               const isChecked = e.target.checked;
               setDelivery(isChecked ? 1 : 0);
@@ -644,7 +694,9 @@ export default function CheckoutPage() {
                 setIsExpanded(true);
               }
             }}
-            className="flex ml-auto h-5 w-5 rounded border-gray-300 text-[#022953] focus:ring-[#022953] cursor-pointer"
+            className={`flex ml-auto h-5 w-5 rounded border-gray-300 text-[#022953] focus:ring-[#022953] ${
+              formData.provincia === 'La Habana' ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+            }`}
           />
         </div>
 
@@ -667,19 +719,28 @@ export default function CheckoutPage() {
           {isExpanded && (
             <div className="flex flex-col gap-2 w-full pt-2">
               <span className="flex text-[#9a9a9a]">Dirección</span>
-              <textarea
-                value={formData.direccionExacta}
-                onChange={(e) =>
-                  setFormData(prev => ({ ...prev, direccionExacta: e.target.value }))
-                }
-                required={delivery === 1}
-                placeholder="Escriba su dirección aquí"
-                className={`w-full p-2 min-h-20 bg-white placeholder:text-left text-left align-top rounded-md border focus:ring-2 focus:ring-[#022953] focus:border-transparent transition-all duration-200 ${
-                  tried && delivery === 1 && !formData.direccionExacta
-                    ? 'border-red-500'
-                    : 'border-gray-300'
-                }`}
-              />
+              <div className="relative">
+                <textarea
+                  value={formData.direccionExacta}
+                  onChange={(e) =>
+                    setFormData(prev => ({ ...prev, direccionExacta: e.target.value }))
+                  }
+                  required={delivery === 1}
+                  placeholder="Escriba su dirección aquí"
+                  className={`w-full p-2 min-h-20 bg-white placeholder:text-left text-left align-top rounded-md border focus:ring-2 focus:ring-[#022953] focus:border-transparent transition-all duration-200 ${
+                    tried && delivery === 1 && !formData.direccionExacta
+                      ? 'border-red-500'
+                      : formData.direccionExacta
+                        ? 'border-green-500'
+                        : 'border-gray-300'
+                  }`}
+                />
+                {formData.direccionExacta && (
+                  <div className="absolute right-3 top-3">
+                    <Check className="h-5 w-5 text-green-500" />
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

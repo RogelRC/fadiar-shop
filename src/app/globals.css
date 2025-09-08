@@ -149,3 +149,17 @@ input[type="number"]::-webkit-inner-spin-button {
 .categories-scroll::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
 }
+
+/* Remove default dropdown arrow from select elements */
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none;
+    padding-right: 2.5rem; /* Ensure text doesn't go under the custom checkmark */
+}
+
+/* For IE11 */
+select::-ms-expand {
+    display: none;
+}
