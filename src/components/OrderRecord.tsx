@@ -454,7 +454,7 @@ export default function MisPedidos() {
                            <div>
                              <div className="flex items-center gap-2">
                                <span className="font-semibold text-lg">Pedido #{order.id}</span>
-                               <span className={`px-3 py-1 rounded-full text-xs font-medium ${getEstadoStyle(order.state)}`}>
+                               <span className={`flex items-center justify-center text-center px-3 py-1 rounded-full text-xs font-medium ${getEstadoStyle(order.state)}`} style={{ display: 'flex', justifyContent: 'center' }}>
                                  {getEstadoText(order.state)}
                                </span>
                                {order.state === 0 && (
@@ -489,7 +489,7 @@ export default function MisPedidos() {
                              <span className="truncate max-w-xs">{order.direccionExacta}</span>
                            </div>
                          )}
-                         <span className="md:ml-16">Numero de telefono del cliente: {order.client_cell}</span>
+                         <span className="md:ml-16">Teléfono del cliente: {order.client_cell}</span>
                          <span>Carnet de identidad del cliente: {`${order.client_ci}`.padStart(11, '0')}</span>
                        </div>
                      </div>

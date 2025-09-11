@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { useCart } from "@/store/Cart";
 import { useEffect, useRef, useState } from "react";
-import AuthModal from "./AuthModal";
 
 interface Product {
   id: number;
@@ -42,7 +41,6 @@ export default function ProductCard({
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const quantitySelectorRef = useRef<HTMLDivElement>(null);
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const rapidChangeInterval = useRef<NodeJS.Timeout | null>(null);
   const rapidChangeStartTime = useRef<number>(0);
 
@@ -87,7 +85,7 @@ export default function ProductCard({
     { id: 82, oldPrice: 115 },
     { id: 89, oldPrice: 25 },
     { id: 4, oldPrice: 500 },
-    { id: 5, oldPrice: null }, // Sin precio
+    { id: 5, oldPrice: null },
     { id: 27, oldPrice: 260 },
     { id: 66, oldPrice: 260 },
     { id: 93, oldPrice: 260 },
@@ -160,7 +158,6 @@ export default function ProductCard({
       return;
     }
 
-    // Implement logic to add item to cart
     const body = JSON.stringify({
       id_user_action: parseInt(
         JSON.parse(localStorage.getItem("userData")!).userId,
@@ -186,7 +183,6 @@ export default function ProductCard({
         throw new Error("Failed to add item to cart");
       }
 
-      // Update cart count with the actual quantity added
       setAmount(cartAmount + quantityToAdd);
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -199,7 +195,6 @@ export default function ProductCard({
     }
   };
 
-  // Handle clicks outside the quantity selector
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (quantitySelectorRef.current && !quantitySelectorRef.current.contains(event.target as Node)) {
@@ -217,13 +212,10 @@ export default function ProductCard({
     e.preventDefault();
     e.stopPropagation();
 
-    // Initial immediate change
     handleSingleChange(direction);
 
-    // Set start time for rapid change delay
     rapidChangeStartTime.current = Date.now();
 
-    // Start rapid change after 1 second
     rapidChangeInterval.current = setInterval(() => {
       if (Date.now() - rapidChangeStartTime.current >= 1000) {
         handleSingleChange(direction);
@@ -245,7 +237,6 @@ export default function ProductCard({
     });
   };
 
-  // Clean up intervals on unmount
   useEffect(() => {
     return () => {
       if (rapidChangeInterval.current) {
@@ -257,41 +248,17 @@ export default function ProductCard({
   const handleAddToCartWithQuantity = () => {
     handleAddToCart(product.id, quantity);
     setShowQuantitySelector(false);
-    setQuantity(1); // Reset quantity after adding to cart
+    setQuantity(1);
   };
 
   const handleCartButtonClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!showQuantitySelector) {
-      handleAddToCart(product.id, 1);
-    }
-  };
-
-  const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (product.count > 0) {
-      //setShowQuantitySelector(true);
-    }
-  };
-
-  const startLongPress = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    longPressTimer.current = setTimeout(() => {
-      if (product.count > 0) {
-        //setShowQuantitySelector(true);
-      }
-    }, 500); // 500ms for long press
-  };
-
-  const endLongPress = () => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-    }
+    e.stopPropagation();
+    setShowQuantitySelector(true);
   };
 
   return (
     <div className="flex flex-col relative z-0 shadow-xl hover:scale-105 transition-all duration-300 rounded-b-lg overflow-hidden bg-[#022953]">
-      {/* Enlace clickable */}
       <Link href={`/products/id?itemId=${product.id}`}>
         <div className="flex flex-col z-0">
           <div className="flex relative aspect-square w-full bg-gray-50 z-10">
@@ -346,88 +313,62 @@ export default function ProductCard({
         </div>
       </Link>
 
-      {/* Mostrar botón de carrito solo si el producto está disponible */}
       {product.count > 0 && (
         <div className="absolute bottom-2 right-2 z-20 flex flex-col items-end">
-          {/* Selector de cantidad */}
-          {showQuantitySelector && (
+
+          {!showQuantitySelector ? (
+            <Button
+              onClick={handleCartButtonClick}
+              className="items-center justify-center rounded-full bg-white text-[#022953] hover:bg-gray-300 transition-all duration-300"
+              disabled={wait || success}
+              title="Clic para elegir cantidad"
+            >
+              {wait ? (
+                <Loader2 className="w-8 h-8 animate-spin" />
+              ) : success ? (
+                <Check className="w-8 h-8 text-green-600" />
+              ) : (
+                <ShoppingCart className="w-8 h-8" />
+              )}
+            </Button>
+          ) : (
             <div
               ref={quantitySelectorRef}
-              className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-lg p-3 flex flex-col items-center space-y-2 border border-gray-200"
+              className="flex items-center space-x-2 bg-white rounded-full p-1 shadow-lg"
             >
-              <div className="flex items-center justify-between w-full mb-2">
-                <span className="text-sm font-medium text-gray-700">Cantidad:</span>
-                <button
-                  onClick={() => setShowQuantitySelector(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  onMouseDown={(e) => startRapidChange('decrease', e)}
-                  onMouseUp={stopRapidChange}
-                  onMouseLeave={stopRapidChange}
-                  onTouchStart={(e) => startRapidChange('decrease', e as unknown as React.TouchEvent)}
-                  onTouchEnd={stopRapidChange}
-                  disabled={quantity <= 1}
-                  className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 select-none active:bg-gray-300 transition-colors"
-                >
-                  <Minus className="w-4 h-4" />
-                </button>
-                <span className="w-8 text-center font-medium select-none">{quantity}</span>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  onMouseDown={(e) => startRapidChange('increase', e)}
-                  onMouseUp={stopRapidChange}
-                  onMouseLeave={stopRapidChange}
-                  onTouchStart={(e) => startRapidChange('increase', e as unknown as React.TouchEvent)}
-                  onTouchEnd={stopRapidChange}
-                  disabled={quantity >= Math.min(product.count, 100)}
-                  className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 select-none active:bg-gray-300 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-              <Button
-                onClick={handleAddToCartWithQuantity}
-                className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white"
-                size="sm"
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setQuantity(prev => Math.max(1, prev - 1));
+                }}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
               >
-                Añadir al carrito
-              </Button>
+                <Minus className="w-4 h-4" />
+              </button>
+              <span className="w-8 text-center font-medium">{quantity}</span>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setQuantity(prev => Math.min(product.count, prev + 1));
+                }}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAddToCartWithQuantity();
+                }}
+                className="px-3 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700"
+              >
+                <Check className="w-4 h-4" />
+              </button>
             </div>
           )}
-
-          {/* Botón del carrito */}
-          <Button
-            onClick={handleCartButtonClick}
-            onContextMenu={handleContextMenu}
-            onMouseDown={startLongPress}
-            onMouseUp={endLongPress}
-            onMouseLeave={endLongPress}
-            onTouchStart={startLongPress}
-            onTouchEnd={endLongPress}
-            className="items-center justify-center rounded-full bg-white text-[#022953] hover:bg-gray-300 transition-all duration-300"
-            disabled={wait || success}
-            title="Clic para añadir 1, clic derecho o mantén presionado para elegir cantidad"
-          >
-            {wait ? (
-              <Loader2 className="w-8 h-8 animate-spin" />
-            ) : success ? (
-              <Check className="w-8 h-8 text-green-600" />
-            ) : (
-              <ShoppingCart className="w-8 h-8" />
-            )}
-          </Button>
         </div>
       )}
     </div>
