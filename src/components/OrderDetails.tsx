@@ -106,7 +106,11 @@ export default function OrderDetails() {
 
         if (!response.ok) throw new Error("Error al obtener detalles");
 
-        const data: Order = await response.json();
+        const data: any = await response.json();
+
+        console.log("Datos de la orden")
+        console.log(data);
+
         setOrder(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error desconocido");

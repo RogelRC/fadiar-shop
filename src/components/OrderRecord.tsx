@@ -10,19 +10,12 @@ interface Product {
   prices: [number, number, string][];
 }
 
-interface Order {
-  id: number;
-  date: string;
-  state: number;
-  direccionExacta?: string;
-}
-
 interface Currency {
   value: number;
 }
 
 export default function MisPedidos() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<{
     [key: number]: Product[];
   }>({});
@@ -62,8 +55,10 @@ export default function MisPedidos() {
           }),
         },
       );
-      const data: Order[] = await response.json();
+      const data: any[] = await response.json();
       setOrders(data);
+
+      console.log(data)
       
       // Cargar detalles de los primeros pedidos
       const firstOrders = data.slice(0, ordersPerPage);
@@ -494,6 +489,8 @@ export default function MisPedidos() {
                              <span className="truncate max-w-xs">{order.direccionExacta}</span>
                            </div>
                          )}
+                         <span className="md:ml-16">Numero de telefono del cliente: {order.client_cell}</span>
+                         <span>Carnet de identidad del cliente: {`${order.client_ci}`.padStart(11, '0')}</span>
                        </div>
                      </div>
 
