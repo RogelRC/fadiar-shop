@@ -103,7 +103,7 @@ function VerificationForm() {
     if (!/^[a-zA-Z0-9]$/.test(value) && value !== "") return;
     
     const newCode = [...code];
-    newCode[index] = value.toUpperCase(); // Convertir a mayúsculas para consistencia
+    newCode[index] = value; // Mantener el caso original de la entrada
     setCode(newCode);
 
     // Mover al siguiente campo si se ingresó un carácter
