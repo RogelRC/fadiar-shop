@@ -30,6 +30,8 @@ interface ValidationState {
 async function handleSubmit(formData: any, router: any, setIsSubmitting: (loading: boolean) => void) {
   setIsSubmitting(true);
   try {
+
+    localStorage.setItem("email", formData.email);
     // Separar el nombre completo en nombre y apellidos
     const fullName = formData.fullName.trim();
     const nameParts = fullName.split(' ').filter((part: string) => part.length > 0);

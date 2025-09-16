@@ -188,6 +188,11 @@ export default function Login() {
               ¿Olvidaste tu contraseña?
             </Link>
           </span>
+          <span className="text-xs sm:text-sm text-gray-600 text-center block">
+            <Link href="/verify" className="text-[#022953] hover:underline">
+              ¿No has verificado tu cuenta?
+            </Link>
+          </span>
         </div>
       </div>
     </div>

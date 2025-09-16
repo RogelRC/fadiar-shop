@@ -93,7 +93,7 @@ function VerificationForm() {
   const [resendCountdown, setResendCountdown] = useState(0);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const email = searchParams.get("email");
+  const email = searchParams.get("email") || localStorage.getItem("email");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleCodeChange = (index: number, value: string) => {
@@ -151,6 +151,9 @@ function VerificationForm() {
 
   const handleSubmitClick = async () => {
     const fullCode = code.join("");
+
+    console.log(email);
+
     if (fullCode.length === 6) {
       setIsLoading(true);
       setVerificationMessage(""); // Limpiar mensajes anteriores
