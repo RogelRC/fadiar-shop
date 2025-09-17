@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { useCart } from "@/store/Cart";
 import { useEffect, useRef, useState } from "react";
+import { motion } from 'framer-motion';
 
 interface Product {
   id: number;
@@ -332,8 +333,11 @@ export default function ProductCard({
               )}
             </Button>
           ) : (
-            <div
+            <motion.div
               ref={quantitySelectorRef}
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               className="flex items-center space-x-2 bg-white rounded-full p-1 shadow-lg"
             >
               <button
@@ -367,7 +371,7 @@ export default function ProductCard({
               >
                 <Check className="w-4 h-4" />
               </button>
-            </div>
+            </motion.div>
           )}
         </div>
       )}
