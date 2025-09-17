@@ -394,8 +394,9 @@ function AccountPage() {
                 direccion: formData.direccion
             };
             if (editingAddress) {
-                requestBody.id = editingAddress.id;
+                requestBody.id_direccion = editingAddress.id;
             }
+            console.log(requestBody);
             const response = await fetch(`${("TURBOPACK compile-time value", "https://app.fadiar.com/api")}/${endpoint}`, {
                 headers: {
                     'Content-Type': 'application/json'
@@ -443,11 +444,15 @@ function AccountPage() {
                 return;
             }
             const userData = JSON.parse(storedUserData);
-            const form = new FormData();
-            form.append('id', id.toString());
+            console.log(id);
             const response = await fetch(`${("TURBOPACK compile-time value", "https://app.fadiar.com/api")}/eliminar-direccion-domicilio-cliente`, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 method: 'POST',
-                body: form
+                body: JSON.stringify({
+                    id_direccion: id
+                })
             });
             if (!response.ok) {
                 throw new Error('Error al eliminar la dirección');
@@ -502,7 +507,7 @@ function AccountPage() {
             children: "Cargando..."
         }, void 0, false, {
             fileName: "[project]/src/app/account/page.tsx",
-            lineNumber: 509,
+            lineNumber: 516,
             columnNumber: 7
         }, this);
     }
@@ -516,7 +521,7 @@ function AccountPage() {
                     children: "Mi Cuenta - Fadiar"
                 }, void 0, false, {
                     fileName: "[project]/src/app/account/page.tsx",
-                    lineNumber: 518,
+                    lineNumber: 525,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -532,7 +537,7 @@ function AccountPage() {
                                             children: "Información de usuario"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/account/page.tsx",
-                                            lineNumber: 526,
+                                            lineNumber: 533,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AnimatePresence"], {
@@ -554,7 +559,7 @@ function AccountPage() {
                                                                 children: "Nombre completo"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 540,
+                                                                lineNumber: 547,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("dd", {
@@ -568,13 +573,13 @@ function AccountPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 543,
+                                                                lineNumber: 550,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/account/page.tsx",
-                                                        lineNumber: 539,
+                                                        lineNumber: 546,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -584,7 +589,7 @@ function AccountPage() {
                                                                 children: "Correo electrónico"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 549,
+                                                                lineNumber: 556,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("dd", {
@@ -592,13 +597,13 @@ function AccountPage() {
                                                                 children: userData.email
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 552,
+                                                                lineNumber: 559,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/account/page.tsx",
-                                                        lineNumber: 548,
+                                                        lineNumber: 555,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -608,7 +613,7 @@ function AccountPage() {
                                                                 children: "Teléfono"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 558,
+                                                                lineNumber: 565,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("dd", {
@@ -616,30 +621,30 @@ function AccountPage() {
                                                                 children: userData.phone && parseInt(userData.phone) >= 0 ? userData.phone : "No asignado"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 561,
+                                                                lineNumber: 568,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/account/page.tsx",
-                                                        lineNumber: 557,
+                                                        lineNumber: 564,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, "displayInfo", true, {
                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                lineNumber: 530,
+                                                lineNumber: 537,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/account/page.tsx",
-                                            lineNumber: 529,
+                                            lineNumber: 536,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/account/page.tsx",
-                                    lineNumber: 525,
+                                    lineNumber: 532,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -649,7 +654,7 @@ function AccountPage() {
                                             children: "Seguridad"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/account/page.tsx",
-                                            lineNumber: 573,
+                                            lineNumber: 580,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -674,7 +679,7 @@ function AccountPage() {
                                                                     children: "Contraseña actual"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 590,
+                                                                    lineNumber: 597,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -688,7 +693,7 @@ function AccountPage() {
                                                                             onChange: (e)=>setCurrentPassword(e.target.value)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                                            lineNumber: 594,
+                                                                            lineNumber: 601,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -699,24 +704,24 @@ function AccountPage() {
                                                                                 show: showCurrentPassword
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                                lineNumber: 608,
+                                                                                lineNumber: 615,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                                            lineNumber: 601,
+                                                                            lineNumber: 608,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 593,
+                                                                    lineNumber: 600,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                            lineNumber: 589,
+                                                            lineNumber: 596,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -726,7 +731,7 @@ function AccountPage() {
                                                                     children: "Nueva contraseña"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 614,
+                                                                    lineNumber: 621,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -740,7 +745,7 @@ function AccountPage() {
                                                                             onChange: (e)=>setNewPassword(e.target.value)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                                            lineNumber: 618,
+                                                                            lineNumber: 625,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -751,24 +756,24 @@ function AccountPage() {
                                                                                 show: showNewPassword
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                                lineNumber: 630,
+                                                                                lineNumber: 637,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                                            lineNumber: 625,
+                                                                            lineNumber: 632,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 617,
+                                                                    lineNumber: 624,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                            lineNumber: 613,
+                                                            lineNumber: 620,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -778,7 +783,7 @@ function AccountPage() {
                                                                     children: "Confirmar nueva contraseña"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 636,
+                                                                    lineNumber: 643,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -792,7 +797,7 @@ function AccountPage() {
                                                                             onChange: (e)=>setConfirmNewPassword(e.target.value)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                                            lineNumber: 640,
+                                                                            lineNumber: 647,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -803,24 +808,24 @@ function AccountPage() {
                                                                                 show: showConfirmNewPassword
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                                lineNumber: 656,
+                                                                                lineNumber: 663,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                                            lineNumber: 649,
+                                                                            lineNumber: 656,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 639,
+                                                                    lineNumber: 646,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                            lineNumber: 635,
+                                                            lineNumber: 642,
                                                             columnNumber: 23
                                                         }, this),
                                                         passwordError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -828,7 +833,7 @@ function AccountPage() {
                                                             children: passwordError
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                            lineNumber: 662,
+                                                            lineNumber: 669,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -840,7 +845,7 @@ function AccountPage() {
                                                                     children: "Guardar cambios"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 666,
+                                                                    lineNumber: 673,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -850,24 +855,24 @@ function AccountPage() {
                                                                     children: "Cancelar"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 672,
+                                                                    lineNumber: 679,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                            lineNumber: 665,
+                                                            lineNumber: 672,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, "passwordForm", true, {
                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                    lineNumber: 579,
+                                                    lineNumber: 586,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                lineNumber: 578,
+                                                lineNumber: 585,
                                                 columnNumber: 19
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AnimatePresence"], {
                                                 mode: "wait",
@@ -887,7 +892,7 @@ function AccountPage() {
                                                             children: "Cambiar contraseña"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                            lineNumber: 693,
+                                                            lineNumber: 700,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -898,7 +903,7 @@ function AccountPage() {
                                                                     children: "Datos de seguridad"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 701,
+                                                                    lineNumber: 708,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("dl", {
@@ -911,7 +916,7 @@ function AccountPage() {
                                                                                     children: "Nombre completo"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                                    lineNumber: 706,
+                                                                                    lineNumber: 713,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("dd", {
@@ -925,13 +930,13 @@ function AccountPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                                    lineNumber: 709,
+                                                                                    lineNumber: 716,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                                            lineNumber: 705,
+                                                                            lineNumber: 712,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         userData.email && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -941,7 +946,7 @@ function AccountPage() {
                                                                                     children: "Correo"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                                    lineNumber: 715,
+                                                                                    lineNumber: 722,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("dd", {
@@ -949,53 +954,53 @@ function AccountPage() {
                                                                                     children: userData.email
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                                    lineNumber: 718,
+                                                                                    lineNumber: 725,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                                            lineNumber: 714,
+                                                                            lineNumber: 721,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 704,
+                                                                    lineNumber: 711,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                            lineNumber: 700,
+                                                            lineNumber: 707,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, "securityInfo", true, {
                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                    lineNumber: 684,
+                                                    lineNumber: 691,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                lineNumber: 683,
+                                                lineNumber: 690,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/account/page.tsx",
-                                            lineNumber: 576,
+                                            lineNumber: 583,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/account/page.tsx",
-                                    lineNumber: 572,
+                                    lineNumber: 579,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/account/page.tsx",
-                            lineNumber: 523,
+                            lineNumber: 530,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1009,7 +1014,7 @@ function AccountPage() {
                                             children: "Mis Direcciones"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/account/page.tsx",
-                                            lineNumber: 735,
+                                            lineNumber: 742,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1028,13 +1033,13 @@ function AccountPage() {
                                             children: showAddressForm ? 'Cancelar' : 'Agregar Dirección'
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/account/page.tsx",
-                                            lineNumber: 736,
+                                            lineNumber: 743,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/account/page.tsx",
-                                    lineNumber: 734,
+                                    lineNumber: 741,
                                     columnNumber: 13
                                 }, this),
                                 showAddressForm && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -1059,7 +1064,7 @@ function AccountPage() {
                                                 children: editingAddress ? 'Editar Dirección' : 'Nueva Dirección'
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                lineNumber: 758,
+                                                lineNumber: 765,
                                                 columnNumber: 19
                                             }, this),
                                             formError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1067,7 +1072,7 @@ function AccountPage() {
                                                 children: formError
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                lineNumber: 763,
+                                                lineNumber: 770,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -1081,7 +1086,7 @@ function AccountPage() {
                                                                 children: "Provincia *"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 770,
+                                                                lineNumber: 777,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -1096,7 +1101,7 @@ function AccountPage() {
                                                                         children: "Seleccione una provincia"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/app/account/page.tsx",
-                                                                        lineNumber: 780,
+                                                                        lineNumber: 787,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     Object.keys(provinciasCuba).map((provincia)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1104,19 +1109,19 @@ function AccountPage() {
                                                                             children: provincia
                                                                         }, provincia, false, {
                                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                                            lineNumber: 782,
+                                                                            lineNumber: 789,
                                                                             columnNumber: 27
                                                                         }, this))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 773,
+                                                                lineNumber: 780,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/account/page.tsx",
-                                                        lineNumber: 769,
+                                                        lineNumber: 776,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1126,7 +1131,7 @@ function AccountPage() {
                                                                 children: "Municipio *"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 790,
+                                                                lineNumber: 797,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -1142,7 +1147,7 @@ function AccountPage() {
                                                                         children: "Seleccione un municipio"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/app/account/page.tsx",
-                                                                        lineNumber: 801,
+                                                                        lineNumber: 808,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     municipios.map((municipio)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1150,19 +1155,19 @@ function AccountPage() {
                                                                             children: municipio
                                                                         }, municipio, false, {
                                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                                            lineNumber: 803,
+                                                                            lineNumber: 810,
                                                                             columnNumber: 27
                                                                         }, this))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 793,
+                                                                lineNumber: 800,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/account/page.tsx",
-                                                        lineNumber: 789,
+                                                        lineNumber: 796,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1172,7 +1177,7 @@ function AccountPage() {
                                                                 children: "Dirección *"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 811,
+                                                                lineNumber: 818,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1184,13 +1189,13 @@ function AccountPage() {
                                                                 required: true
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 814,
+                                                                lineNumber: 821,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/account/page.tsx",
-                                                        lineNumber: 810,
+                                                        lineNumber: 817,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1211,7 +1216,7 @@ function AccountPage() {
                                                                 children: "Cancelar"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 825,
+                                                                lineNumber: 832,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1223,30 +1228,30 @@ function AccountPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 836,
+                                                                lineNumber: 843,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/account/page.tsx",
-                                                        lineNumber: 824,
+                                                        lineNumber: 831,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                lineNumber: 768,
+                                                lineNumber: 775,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/account/page.tsx",
-                                        lineNumber: 757,
+                                        lineNumber: 764,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/account/page.tsx",
-                                    lineNumber: 751,
+                                    lineNumber: 758,
                                     columnNumber: 15
                                 }, this),
                                 isLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1254,14 +1259,14 @@ function AccountPage() {
                                     children: "Cargando direcciones..."
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/account/page.tsx",
-                                    lineNumber: 849,
+                                    lineNumber: 856,
                                     columnNumber: 15
                                 }, this) : addresses.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "text-center py-8 text-gray-500",
                                     children: "No tienes direcciones guardadas. Agrega una para comenzar."
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/account/page.tsx",
-                                    lineNumber: 851,
+                                    lineNumber: 858,
                                     columnNumber: 15
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "grid grid-cols-1 md:grid-cols-2 gap-4",
@@ -1288,17 +1293,17 @@ function AccountPage() {
                                                                     d: "M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 865,
+                                                                    lineNumber: 872,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 864,
+                                                                lineNumber: 871,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                            lineNumber: 859,
+                                                            lineNumber: 866,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1318,23 +1323,23 @@ function AccountPage() {
                                                                     d: "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                                    lineNumber: 874,
+                                                                    lineNumber: 881,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/account/page.tsx",
-                                                                lineNumber: 873,
+                                                                lineNumber: 880,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/account/page.tsx",
-                                                            lineNumber: 868,
+                                                            lineNumber: 875,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                    lineNumber: 858,
+                                                    lineNumber: 865,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
@@ -1346,7 +1351,7 @@ function AccountPage() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                    lineNumber: 878,
+                                                    lineNumber: 885,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1354,41 +1359,41 @@ function AccountPage() {
                                                     children: String(address.direccion)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/account/page.tsx",
-                                                    lineNumber: 881,
+                                                    lineNumber: 888,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, address.id, true, {
                                             fileName: "[project]/src/app/account/page.tsx",
-                                            lineNumber: 857,
+                                            lineNumber: 864,
                                             columnNumber: 19
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/account/page.tsx",
-                                    lineNumber: 855,
+                                    lineNumber: 862,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/account/page.tsx",
-                            lineNumber: 733,
+                            lineNumber: 740,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/account/page.tsx",
-                    lineNumber: 522,
+                    lineNumber: 529,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/account/page.tsx",
-            lineNumber: 517,
+            lineNumber: 524,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/account/page.tsx",
-        lineNumber: 516,
+        lineNumber: 523,
         columnNumber: 5
     }, this);
 }

@@ -383,8 +383,10 @@ export default function AccountPage() {
       };
       
       if (editingAddress) {
-        requestBody.id = editingAddress.id;
+        requestBody.id_direccion = editingAddress.id;
       }
+
+      console.log(requestBody);
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`, {
         headers: {
@@ -439,12 +441,17 @@ export default function AccountPage() {
       }
       
       const userData = JSON.parse(storedUserData);
-      const form = new FormData();
-      form.append('id', id.toString());
+
+      console.log(id);
       
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/eliminar-direccion-domicilio-cliente`, {
+        headers:{
+          'Content-Type': 'application/json',
+        },
         method: 'POST',
-        body: form,
+        body: JSON.stringify({
+          id_direccion: id
+        })
       });
 
       if (!response.ok) {

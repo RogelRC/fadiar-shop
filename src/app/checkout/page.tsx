@@ -269,6 +269,9 @@ export default function CheckoutPage() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [tried, setTried] = useState(false);
   const [error, setError] = useState("");
+  const [useMyAddress, setUseMyAddress] = useState(true);
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<number | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -285,7 +288,8 @@ export default function CheckoutPage() {
     municipio: false,
     direccionExacta: false,
     phone: false,
-    ci_cliente: false
+    ci_cliente: false,
+    addressSelected: false
   });
 
   const [progress, setProgress] = useState(0);
@@ -308,17 +312,54 @@ export default function CheckoutPage() {
     }
   }, [formData.provincia, delivery]);
 
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        const storedUserData = localStorage.getItem("userData");
+        if (!storedUserData) {
+          router.push("/login");
+          return;
+        }
+        
+        const userData = JSON.parse(storedUserData);
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/obtener-direccion-domicilio-cliente`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify({ id_user: userData.userId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al obtener direcciones');
+        }
+
+        const data = await response.json();
+        console.log(await data.listado)
+        setAddresses(data.listado);
+      } catch (error) {
+        console.error('Error fetching addresses:', error);
+      }
+    };
+    fetchAddresses();
+  }, []);
+
   // Update validation and progress
   useEffect(() => {
-    // Only include direccionExacta in validation if delivery is selected
+    const isUsingSavedAddress = useMyAddress && selectedAddress !== null;
+    
+    // Only validate address fields if not using a saved address
+    const addressValid = isUsingSavedAddress || 
+      (formData.provincia.trim() !== "" && formData.municipio.trim() !== "");
+    
     const newValidation = {
-      provincia: formData.provincia.trim() !== "",
-      municipio: formData.municipio.trim() !== "",
+      provincia: isUsingSavedAddress ? true : formData.provincia.trim() !== "",
+      municipio: isUsingSavedAddress ? true : formData.municipio.trim() !== "",
       phone: /^\+?[0-9\s-]{8,}$/.test(formData.phone), // At least 8 digits, country code optional
       ci_cliente: /^\d{11}$/.test(formData.ci_cliente), // Exactly 11 digits
-      ...(delivery === 1 && {
-        direccionExacta: formData.direccionExacta.trim() !== ""
-      })
+      addressSelected: addressValid,
+      direccionExacta: delivery === 1 ? formData.direccionExacta.trim() !== "" : true
     };
 
     setValidation(prev => ({
@@ -555,11 +596,10 @@ export default function CheckoutPage() {
                   setFormData({ ...formData, phone: value });
                 }}
                 placeholder="Ej: 55555555 o +53 55555555"
-                className={`w-full p-2 rounded-md border ${
-                  tried && !validation.phone && formData.phone
-                    ? 'border-red-500'
-                    : 'border-gray-300'
-                } ${formData.phone ? (validation.phone ? 'border-green-500' : 'border-red-500') : ''}`}
+                className={`w-full p-2 rounded-md border ${tried && !validation.phone && formData.phone
+                  ? 'border-red-500'
+                  : 'border-gray-300'
+                  } ${formData.phone ? (validation.phone ? 'border-green-500' : 'border-red-500') : ''}`}
                 required
               />
               {formData.phone && (
@@ -591,13 +631,11 @@ export default function CheckoutPage() {
                   setFormData({ ...formData, ci_cliente: value });
                 }}
                 placeholder="Ej: 12345678901"
-                className={`w-full p-2 rounded-md border ${
-                  tried && !validation.ci_cliente && formData.ci_cliente
-                    ? 'border-red-500'
-                    : 'border-gray-300'
-                } ${
-                  formData.ci_cliente ? (validation.ci_cliente ? 'border-green-500' : 'border-red-500') : ''
-                }`}
+                className={`w-full p-2 rounded-md border ${tried && !validation.ci_cliente && formData.ci_cliente
+                  ? 'border-red-500'
+                  : 'border-gray-300'
+                  } ${formData.ci_cliente ? (validation.ci_cliente ? 'border-green-500' : 'border-red-500') : ''
+                  }`}
                 required
               />
               {formData.ci_cliente && (
@@ -616,6 +654,58 @@ export default function CheckoutPage() {
               </p>
             )}
           </div>
+        </div>
+        {addresses.length > 0 && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="useSavedAddress"
+                checked={useMyAddress}
+                onChange={() => setUseMyAddress(!useMyAddress)}
+                className="h-4 w-4 rounded border-gray-300 text-[#022953] focus:ring-[#022953]"
+              />
+              <label htmlFor="useSavedAddress" className="text-[#9a9a9a] cursor-pointer">
+                Usar una dirección guardada
+              </label>
+            </div>
+
+            {useMyAddress && (
+              <div className="flex flex-col gap-2">
+                <label className="text-[#9a9a9a]">Selecciona una dirección:</label>
+                <div className="grid gap-2">
+                  {addresses.map((address) => (
+                    <div 
+                      key={address.id} 
+                      className={`p-3 border rounded-md cursor-pointer transition-colors ${
+                        selectedAddress === address.id 
+                          ? 'border-[#022953] bg-blue-50' 
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                      onClick={() => {
+                        setSelectedAddress(address.id);
+                        setFormData(prev => ({
+                          ...prev,
+                          provincia: address.provincia,
+                          municipio: address.municipio,
+                          direccionExacta: address.direccion || ''
+                        }));
+                      }}
+                    >
+                      <p className="font-medium">{address.direccion}</p>
+                      <p className="text-sm">{address.municipio}, {address.provincia}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className={`flex flex-col gap-4 w-full ${useMyAddress && addresses.length > 0 ? 'hidden' : ''}`}>
+          {addresses.length > 0 && (
+            <p className="text-sm text-gray-600">O ingresa una dirección manualmente:</p>
+          )}
           <div className="flex flex-col gap-2">
             <label className="text-[#9a9a9a]">Provincia</label>
             <div className="relative">
@@ -628,9 +718,8 @@ export default function CheckoutPage() {
                     municipio: "",
                   })
                 }
-                className={`w-full p-2 rounded-md border ${
-                  formData.provincia ? 'border-green-500' : 'border-gray-300'
-                }`}
+                className={`w-full p-2 rounded-md border ${formData.provincia ? 'border-green-500' : 'border-gray-300'
+                  }`}
               >
                 <option value="">Seleccione una provincia</option>
                 {Object.keys(provinciasCuba).map((provincia) => (
@@ -655,16 +744,15 @@ export default function CheckoutPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, municipio: e.target.value })
                 }
-                className={`w-full p-2 rounded-md border ${
-                  formData.municipio ? 'border-green-500' : 'border-gray-300'
-                }`}
+                className={`w-full p-2 rounded-md border ${formData.municipio ? 'border-green-500' : 'border-gray-300'
+                  }`}
                 disabled={!formData.provincia}
               >
                 <option value="">Seleccione un municipio</option>
                 {formData.provincia &&
                   provinciasCuba[
                     formData.provincia as keyof typeof provinciasCuba
-                    ].map((municipio: string) => (
+                  ].map((municipio: string) => (
                     <option key={municipio} value={municipio}>
                       {municipio}
                     </option>
@@ -678,71 +766,138 @@ export default function CheckoutPage() {
             </div>
           </div>
         </div>
-        <div className="flex w-full items-center">
-          <span className={`flex ${formData.provincia === 'La Habana' ? 'text-[#9a9a9a]' : 'text-gray-400'} font-bold`}>
-            ¿Necesitas entrega a domicilio? {formData.provincia !== 'La Habana' && '(Disponible solo en La Habana)'}
-          </span>
-          <input
-            type="checkbox"
-            checked={delivery === 1}
-            disabled={formData.provincia !== 'La Habana'}
-            onChange={(e) => {
-              const isChecked = e.target.checked;
-              setDelivery(isChecked ? 1 : 0);
-              setIsAnimating(true);
-              if (isChecked) {
-                setIsExpanded(true);
-              }
-            }}
-            className={`flex ml-auto h-5 w-5 rounded border-gray-300 text-[#022953] focus:ring-[#022953] ${
-              formData.provincia === 'La Habana' ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
-            }`}
-          />
-        </div>
 
-        <div
-          className={`overflow-hidden transition-all duration-300 ease-in-out ${
-            delivery === 1
-              ? 'max-h-40 opacity-100'
-              : 'max-h-0 opacity-0'
-          }`}
-          onTransitionEnd={() => {
-            if (delivery === 0) {
-              setIsExpanded(false);
-            }
-            setIsAnimating(false);
-          }}
-          style={{
-            visibility: isExpanded || isAnimating ? 'visible' : 'hidden'
-          }}
-        >
-          {isExpanded && (
-            <div className="flex flex-col gap-2 w-full pt-2">
-              <span className="flex text-[#9a9a9a]">Dirección</span>
-              <div className="relative">
-                <textarea
-                  value={formData.direccionExacta}
-                  onChange={(e) =>
-                    setFormData(prev => ({ ...prev, direccionExacta: e.target.value }))
+        {/* Delivery Option */}
+        <div className="flex flex-col gap-2 mt-4">
+          <label className={`flex items-center justify-between ${
+            formData.provincia === 'La Habana' ? 'text-[#9a9a9a]' : 'text-gray-400'
+          }`}>
+            <span className="flex items-center">
+              ¿Necesitas entrega a domicilio?
+              {formData.provincia !== 'La Habana' && (
+                <span className="text-xs ml-2">(Disponible solo en La Habana)</span>
+              )}
+            </span>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="deliveryCheckbox"
+                checked={delivery === 1}
+                disabled={formData.provincia !== 'La Habana'}
+                onChange={(e) => {
+                  const isChecked = e.target.checked;
+                  setDelivery(isChecked ? 1 : 0);
+                  setIsAnimating(true);
+                  if (isChecked) {
+                    setIsExpanded(true);
+                  } else {
+                    setFormData(prev => ({ ...prev, direccionExacta: '' }));
                   }
-                  required={delivery === 1}
-                  placeholder="Escriba su dirección aquí"
-                  className={`w-full p-2 min-h-20 bg-white placeholder:text-left text-left align-top rounded-md border focus:ring-2 focus:ring-[#022953] focus:border-transparent transition-all duration-200 ${
-                    tried && delivery === 1 && !formData.direccionExacta
-                      ? 'border-red-500'
-                      : formData.direccionExacta
-                        ? 'border-green-500'
-                        : 'border-gray-300'
-                  }`}
-                />
-                {formData.direccionExacta && (
-                  <div className="absolute right-3 top-3">
-                    <Check className="h-5 w-5 text-green-500" />
-                  </div>
-                )}
-              </div>
+                }}
+                className={`h-5 w-5 rounded border-gray-300 text-[#022953] focus:ring-[#022953] ${
+                  formData.provincia === 'La Habana' 
+                    ? 'cursor-pointer' 
+                    : 'cursor-not-allowed opacity-50'
+                }`}
+              />
+              {delivery === 1 && formData.provincia === 'La Habana' && (
+                <span className="text-sm text-gray-600 whitespace-nowrap">
+                  +${deliveryFee.toFixed(2)} {location === "CU" ? "CUP" : "USD"}
+                </span>
+              )}
+            </div>
+          </label>
+          
+          {delivery === 1 && formData.provincia === 'La Habana' && (
+            <div className="text-xs text-gray-500 mt-1">
+              *El precio puede variar según la ubicación exacta. Nos pondremos en contacto contigo para confirmar el costo final.
             </div>
           )}
+        </div>
+
+        {/* Delivery Address - Only show when using manual address or no address is selected */}
+        {(!useMyAddress || selectedAddress === null) && (
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              delivery === 1 ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+            }`}
+            onTransitionEnd={() => {
+              if (delivery === 0) {
+                setIsExpanded(false);
+              }
+              setIsAnimating(false);
+            }}
+            style={{
+              visibility: isExpanded || isAnimating ? 'visible' : 'hidden'
+            }}
+          >
+            {isExpanded && (
+              <div className="flex flex-col gap-2 w-full pt-2">
+                <label className="text-[#9a9a9a]">Dirección exacta</label>
+                <div className="relative">
+                  <textarea
+                    value={formData.direccionExacta}
+                    onChange={(e) =>
+                      setFormData(prev => ({ ...prev, direccionExacta: e.target.value }))
+                    }
+                    required={delivery === 1}
+                    placeholder="Escriba su dirección completa aquí (calle, número, entre calles, edificio, apartamento, etc.)"
+                    className={`w-full p-2 min-h-20 bg-white placeholder:text-left text-left align-top rounded-md border focus:ring-2 focus:ring-[#022953] focus:border-transparent transition-all duration-200 ${
+                      tried && delivery === 1 && !formData.direccionExacta
+                        ? 'border-red-500'
+                        : formData.direccionExacta
+                          ? 'border-green-500'
+                          : 'border-gray-300'
+                    }`}
+                  />
+                  {formData.direccionExacta && (
+                    <div className="absolute right-3 top-3">
+                      <Check className="h-5 w-5 text-green-500" />
+                    </div>
+                  )}
+                </div>
+                {tried && delivery === 1 && !formData.direccionExacta && (
+                  <p className="text-red-500 text-sm">
+                    Por favor ingrese una dirección de entrega válida
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {formData.provincia && formData.municipio && (
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-800">
+              <strong>Ubicación seleccionada:</strong> {formData.municipio}, {formData.provincia}
+              {delivery === 1 && formData.direccionExacta && (
+                <span className="block mt-1">
+                  <strong>Dirección de entrega:</strong> {formData.direccionExacta}
+                </span>
+              )}
+            </p>
+          </div>
+        )}
+
+        <div className="w-full mt-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Resumen del pedido</h3>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex justify-between mb-2">
+              <span>Subtotal:</span>
+              <span>${subtotal.toFixed(2)} {location === "CU" ? "CUP" : "USD"}</span>
+            </div>
+            {delivery === 1 && (
+              <div className="flex justify-between mb-2">
+                <span>Envío:</span>
+                <span>${deliveryFee.toFixed(2)} {location === "CU" ? "CUP" : "USD"}</span>
+              </div>
+            )}
+            <div className="border-t border-gray-200 my-3"></div>
+            <div className="flex justify-between font-medium">
+              <span>Total:</span>
+              <span>${(subtotal + (delivery === 1 ? deliveryFee : 0)).toFixed(2)} {location === "CU" ? "CUP" : "USD"}</span>
+            </div>
+          </div>
         </div>
 
         {/*

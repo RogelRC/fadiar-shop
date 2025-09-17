@@ -610,28 +610,25 @@ function CheckoutPage() {
     const [isAnimating, setIsAnimating] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [tried, setTried] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
-    // Address state
-    const [savedAddresses, setSavedAddresses] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
-    const [useSavedAddress, setUseSavedAddress] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [selectedAddressId, setSelectedAddressId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
-    const [isLoadingAddresses, setIsLoadingAddresses] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
+    const [useMyAddress, setUseMyAddress] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
+    const [addresses, setAddresses] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [selectedAddress, setSelectedAddress] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     // Form state
     const [formData, setFormData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])({
         provincia: "",
         municipio: "",
         direccionExacta: "",
         phone: "",
-        ci_cliente: "",
-        saveAddress: false
+        ci_cliente: ""
     });
     // Form validation state
     const [validation, setValidation] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])({
-        address: true,
         provincia: false,
         municipio: false,
         direccionExacta: false,
         phone: false,
-        ci_cliente: false
+        ci_cliente: false,
+        addressSelected: false
     });
     const [progress, setProgress] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(0);
     // Calculate subtotal using itemTotals
@@ -649,91 +646,71 @@ function CheckoutPage() {
         formData.provincia,
         delivery
     ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        const fetchAddresses = async ()=>{
+            try {
+                const storedUserData = localStorage.getItem("userData");
+                if (!storedUserData) {
+                    router.push("/login");
+                    return;
+                }
+                const userData = JSON.parse(storedUserData);
+                const response = await fetch(`${("TURBOPACK compile-time value", "https://app.fadiar.com/api")}/obtener-direccion-domicilio-cliente`, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({
+                        id_user: userData.userId
+                    })
+                });
+                if (!response.ok) {
+                    throw new Error('Error al obtener direcciones');
+                }
+                const data = await response.json();
+                console.log(await data.listado);
+                setAddresses(data.listado);
+            } catch (error) {
+                console.error('Error fetching addresses:', error);
+            }
+        };
+        fetchAddresses();
+    }, []);
     // Update validation and progress
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        const addressValid = useSavedAddress ? !!selectedAddressId : formData.provincia.trim() !== "" && formData.municipio.trim() !== "" && (delivery === 0 || formData.direccionExacta.trim() !== "");
+        const isUsingSavedAddress = useMyAddress && selectedAddress !== null;
+        // Only validate address fields if not using a saved address
+        const addressValid = isUsingSavedAddress || formData.provincia.trim() !== "" && formData.municipio.trim() !== "";
         const newValidation = {
-            address: addressValid,
+            provincia: isUsingSavedAddress ? true : formData.provincia.trim() !== "",
+            municipio: isUsingSavedAddress ? true : formData.municipio.trim() !== "",
             phone: /^\+?[0-9\s-]{8,}$/.test(formData.phone),
             ci_cliente: /^\d{11}$/.test(formData.ci_cliente),
-            ...!useSavedAddress && {
-                provincia: formData.provincia.trim() !== "",
-                municipio: formData.municipio.trim() !== "",
-                ...delivery === 1 && {
-                    direccionExacta: formData.direccionExacta.trim() !== ""
-                }
-            }
+            addressSelected: addressValid,
+            direccionExacta: delivery === 1 ? formData.direccionExacta.trim() !== "" : true
         };
         setValidation((prev)=>({
                 ...prev,
                 ...newValidation
             }));
         // Calculate progress
-        const requiredFields = 3 + (delivery === 1 && !useSavedAddress ? 2 : 0); // Base fields + address fields if needed
+        const requiredFields = delivery === 1 ? 5 : 4; // Total fields that could be required (including idCard)
         const validFields = Object.values(newValidation).filter(Boolean).length;
-        const calculatedProgress = Math.min(100, validFields / requiredFields * 100);
+        const calculatedProgress = Math.min(100, validFields / (delivery === 1 ? 5 : 4) * 100);
         setProgress(calculatedProgress);
     }, [
         formData,
-        delivery,
-        useSavedAddress,
-        selectedAddressId
+        delivery
     ]);
-    // Save a new address
-    const saveAddress = async (addressData)=>{
-        try {
-            const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-            if (!userData?.userId) return;
-            const response = await fetch(`${("TURBOPACK compile-time value", "https://app.fadiar.com/api")}/crear-direccion-domicilio-cliente`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    id_user: userData.userId,
-                    ...addressData
-                })
-            });
-            if (response.ok) {
-                const newAddress = await response.json();
-                setSavedAddresses((prev)=>[
-                        ...prev,
-                        newAddress
-                    ]);
-                return newAddress;
-            }
-        } catch (error) {
-            console.error("Error saving address:", error);
-        }
-        return null;
-    };
     const handleSubmit = async ()=>{
         setTried(true);
-        // Check if using saved address or new address
-        let addressValid = true;
-        let addressToUse = null;
-        if (useSavedAddress) {
-            addressValid = !!selectedAddressId;
-            addressToUse = savedAddresses.find((addr)=>addr.id.toString() === selectedAddressId);
-        } else {
-            addressValid = formData.provincia.trim() !== "" && formData.municipio.trim() !== "" && (delivery === 0 || formData.direccionExacta.trim() !== "");
-        }
         // Check all required fields
-        const isFormValid = addressValid && formData.phone.trim() !== "" && /^\d{11}$/.test(formData.ci_cliente);
+        const isFormValid = formData.provincia.trim() !== "" && formData.municipio.trim() !== "" && (delivery === 0 || formData.direccionExacta.trim() !== "") && formData.phone.trim() !== "" && /^\d{11}$/.test(formData.ci_cliente);
         if (!isFormValid) {
             setError("Por favor llene todos los campos obligatorios correctamente");
             return;
         }
         setError("");
-        // Save new address if needed
-        if (!useSavedAddress && formData.saveAddress) {
-            const addressData = {
-                provincia: formData.provincia,
-                municipio: formData.municipio,
-                direccion: formData.direccionExacta
-            };
-            await saveAddress(addressData);
-        }
         try {
             const userData = ("TURBOPACK compile-time falsy", 0) ? ("TURBOPACK unreachable", undefined) : {};
             // Get user details from userData
@@ -796,6 +773,22 @@ function CheckoutPage() {
                 [itemId]: total
             }));
     };
+    //console.log(currencies);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        const fetchCart = async ()=>{
+            try {
+                const user = ("TURBOPACK compile-time falsy", 0) ? ("TURBOPACK unreachable", undefined) : null;
+                const cartItems = await fetchCartItems(user);
+                const location = await getLocation();
+                setCartItems(("TURBOPACK compile-time falsy", 0) ? ("TURBOPACK unreachable", undefined) : {});
+                setCurrencies(("TURBOPACK compile-time falsy", 0) ? ("TURBOPACK unreachable", undefined) : {});
+                setLocation("US");
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchCart();
+    }, []);
     if (cartItems === null) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "min-h-screen flex items-center justify-center bg-white",
@@ -806,7 +799,7 @@ function CheckoutPage() {
                         className: "w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"
                     }, void 0, false, {
                         fileName: "[project]/src/app/checkout/page.tsx",
-                        lineNumber: 528,
+                        lineNumber: 501,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -814,18 +807,18 @@ function CheckoutPage() {
                         children: "Cargando tu carrito..."
                     }, void 0, false, {
                         fileName: "[project]/src/app/checkout/page.tsx",
-                        lineNumber: 529,
+                        lineNumber: 502,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/checkout/page.tsx",
-                lineNumber: 527,
+                lineNumber: 500,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/checkout/page.tsx",
-            lineNumber: 526,
+            lineNumber: 499,
             columnNumber: 7
         }, this);
     }
@@ -840,7 +833,7 @@ function CheckoutPage() {
                         children: "Tu carrito está vacío"
                     }, void 0, false, {
                         fileName: "[project]/src/app/checkout/page.tsx",
-                        lineNumber: 539,
+                        lineNumber: 512,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -848,7 +841,7 @@ function CheckoutPage() {
                         children: "Aún no has agregado productos a tu carrito. Comienza a explorar nuestros productos y encuentra lo que necesitas."
                     }, void 0, false, {
                         fileName: "[project]/src/app/checkout/page.tsx",
-                        lineNumber: 540,
+                        lineNumber: 513,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -857,18 +850,18 @@ function CheckoutPage() {
                         children: "Ver productos"
                     }, void 0, false, {
                         fileName: "[project]/src/app/checkout/page.tsx",
-                        lineNumber: 541,
+                        lineNumber: 514,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/checkout/page.tsx",
-                lineNumber: 538,
+                lineNumber: 511,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/checkout/page.tsx",
-            lineNumber: 537,
+            lineNumber: 510,
             columnNumber: 7
         }, this);
     }
@@ -884,13 +877,13 @@ function CheckoutPage() {
                         children: "Resumen del carrito"
                     }, void 0, false, {
                         fileName: "[project]/src/app/checkout/page.tsx",
-                        lineNumber: 556,
-                        columnNumber: 9
+                        lineNumber: 529,
+                        columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/checkout/page.tsx",
-                    lineNumber: 555,
-                    columnNumber: 7
+                    lineNumber: 528,
+                    columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex flex-col gap-4 sm:gap-6",
@@ -901,13 +894,13 @@ function CheckoutPage() {
                             onTotalChange: (total)=>handleTotalChange(item.id, total)
                         }, item.id, false, {
                             fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 562,
-                            columnNumber: 11
+                            lineNumber: 535,
+                            columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/src/app/checkout/page.tsx",
-                    lineNumber: 560,
-                    columnNumber: 7
+                    lineNumber: 533,
+                    columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex flex-col w-full gap-2 mt-6",
@@ -920,8 +913,8 @@ function CheckoutPage() {
                                     children: "Subtotal"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 573,
-                                    columnNumber: 11
+                                    lineNumber: 546,
+                                    columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     className: "flex ml-auto text-[#022953] text-lg",
@@ -932,14 +925,14 @@ function CheckoutPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 574,
-                                    columnNumber: 11
+                                    lineNumber: 547,
+                                    columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 572,
-                            columnNumber: 9
+                            lineNumber: 545,
+                            columnNumber: 11
                         }, this),
                         delivery === 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex w-full items-center",
@@ -952,22 +945,22 @@ function CheckoutPage() {
                                             children: "Entrega a domicilio"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 581,
-                                            columnNumber: 15
+                                            lineNumber: 554,
+                                            columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             className: "text-xs text-gray-500",
                                             children: "*El precio puede variar según la distancia. Nos pondremos en contacto con usted."
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 582,
-                                            columnNumber: 15
+                                            lineNumber: 555,
+                                            columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 580,
-                                    columnNumber: 13
+                                    lineNumber: 553,
+                                    columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     className: "flex ml-auto text-[#022953] text-lg",
@@ -979,14 +972,14 @@ function CheckoutPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 584,
-                                    columnNumber: 13
+                                    lineNumber: 557,
+                                    columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 579,
-                            columnNumber: 11
+                            lineNumber: 552,
+                            columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex w-full items-center pt-2 border-t border-gray-200 mt-2",
@@ -996,8 +989,8 @@ function CheckoutPage() {
                                     children: "Total a pagar"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 590,
-                                    columnNumber: 11
+                                    lineNumber: 563,
+                                    columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     className: "flex ml-auto text-[#022953] text-2xl font-bold",
@@ -1008,27 +1001,27 @@ function CheckoutPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 591,
-                                    columnNumber: 11
+                                    lineNumber: 564,
+                                    columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 589,
-                            columnNumber: 9
+                            lineNumber: 562,
+                            columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/checkout/page.tsx",
-                    lineNumber: 571,
-                    columnNumber: 7
+                    lineNumber: 544,
+                    columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("hr", {
                     className: "flex h-px border-[#9a9a9a] w-full"
                 }, void 0, false, {
                     fileName: "[project]/src/app/checkout/page.tsx",
-                    lineNumber: 596,
-                    columnNumber: 7
+                    lineNumber: 569,
+                    columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex flex-col gap-4",
@@ -1041,8 +1034,8 @@ function CheckoutPage() {
                                     children: "Tú"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 599,
-                                    columnNumber: 11
+                                    lineNumber: 572,
+                                    columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "flex items-center gap-4",
@@ -1053,765 +1046,821 @@ function CheckoutPage() {
                                                 className: "flex w-full h-full"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/checkout/page.tsx",
-                                                lineNumber: 602,
-                                                columnNumber: 15
+                                                lineNumber: 575,
+                                                columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 601,
-                                            columnNumber: 13
+                                            lineNumber: 574,
+                                            columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             className: "flex text-[#9a9a9a]",
                                             children: ("TURBOPACK compile-time falsy", 0) ? ("TURBOPACK unreachable", undefined) : ""
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 604,
-                                            columnNumber: 13
+                                            lineNumber: 577,
+                                            columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 600,
-                                    columnNumber: 11
+                                    lineNumber: 573,
+                                    columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 598,
-                            columnNumber: 9
+                            lineNumber: 571,
+                            columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "bg-white rounded-lg p-4 shadow",
+                            className: "flex flex-col gap-2",
                             children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                    className: "text-lg font-semibold mb-4",
-                                    children: "Dirección de envío"
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    className: "text-[#9a9a9a]",
+                                    children: "Número de teléfono del receptor"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 614,
-                                    columnNumber: 11
-                                }, this),
-                                savedAddresses.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "mb-4",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "flex items-center mb-2",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                    type: "checkbox",
-                                                    id: "useSavedAddress",
-                                                    checked: useSavedAddress,
-                                                    onChange: (e)=>{
-                                                        setUseSavedAddress(e.target.checked);
-                                                        if (!e.target.checked) {
-                                                            setSelectedAddressId("");
-                                                        }
-                                                    },
-                                                    className: "h-4 w-4 text-[#022953] focus:ring-[#022953] border-gray-300 rounded"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 619,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                    htmlFor: "useSavedAddress",
-                                                    className: "ml-2 block text-gray-700",
-                                                    children: "Usar una dirección guardada"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 631,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 618,
-                                            columnNumber: 15
-                                        }, this),
-                                        useSavedAddress && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                            value: selectedAddressId,
-                                            onChange: (e)=>setSelectedAddressId(e.target.value),
-                                            className: "w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#022953]",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                    value: "",
-                                                    children: "Seleccione una dirección guardada"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 642,
-                                                    columnNumber: 19
-                                                }, this),
-                                                savedAddresses.map((address)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                        value: address.id,
-                                                        children: `${address.direccion}, ${address.municipio}, ${address.provincia}`
-                                                    }, address.id, false, {
-                                                        fileName: "[project]/src/app/checkout/page.tsx",
-                                                        lineNumber: 644,
-                                                        columnNumber: 21
-                                                    }, this))
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 637,
-                                            columnNumber: 17
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 617,
+                                    lineNumber: 587,
                                     columnNumber: 13
                                 }, this),
-                                (!useSavedAddress || savedAddresses.length === 0) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "mb-4",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                    className: "block text-sm font-medium text-gray-700 mb-1",
-                                                    children: "Provincia *"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 656,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                                    name: "provincia",
-                                                    value: formData.provincia,
-                                                    onChange: (e)=>{
-                                                        setFormData((prev)=>({
-                                                                ...prev,
-                                                                provincia: e.target.value,
-                                                                municipio: ""
-                                                            }));
-                                                    },
-                                                    className: "w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#022953]",
-                                                    required: true,
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                            value: "",
-                                                            children: "Seleccione una provincia"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                                            lineNumber: 672,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        Object.keys(provinciasCuba).map((provincia)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                                value: provincia,
-                                                                children: provincia
-                                                            }, provincia, false, {
-                                                                fileName: "[project]/src/app/checkout/page.tsx",
-                                                                lineNumber: 674,
-                                                                columnNumber: 21
-                                                            }, this))
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 659,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 655,
-                                            columnNumber: 15
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "mb-4",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                    className: "block text-sm font-medium text-gray-700 mb-1",
-                                                    children: "Municipio *"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 682,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                                    name: "municipio",
-                                                    value: formData.municipio,
-                                                    onChange: (e)=>{
-                                                        setFormData((prev)=>({
-                                                                ...prev,
-                                                                municipio: e.target.value
-                                                            }));
-                                                    },
-                                                    className: "w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#022953]",
-                                                    disabled: !formData.provincia,
-                                                    required: true,
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                            value: "",
-                                                            children: "Seleccione un municipio"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                                            lineNumber: 698,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        formData.provincia && provinciasCuba[formData.provincia]?.map((municipio)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                                value: municipio,
-                                                                children: municipio
-                                                            }, municipio, false, {
-                                                                fileName: "[project]/src/app/checkout/page.tsx",
-                                                                lineNumber: 701,
-                                                                columnNumber: 23
-                                                            }, this))
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 685,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 681,
-                                            columnNumber: 15
-                                        }, this),
-                                        delivery === 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "mb-4",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                    className: "block text-sm font-medium text-gray-700 mb-1",
-                                                    children: "Dirección exacta *"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 710,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                    type: "text",
-                                                    name: "direccionExacta",
-                                                    value: formData.direccionExacta,
-                                                    onChange: (e)=>{
-                                                        setFormData((prev)=>({
-                                                                ...prev,
-                                                                direccionExacta: e.target.value
-                                                            }));
-                                                    },
-                                                    className: "w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#022953]",
-                                                    placeholder: "Calle, número, entre calles, etc.",
-                                                    required: true
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 713,
-                                                    columnNumber: 19
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 709,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "flex items-center mb-4",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                    type: "checkbox",
-                                                    id: "saveAddress",
-                                                    checked: formData.saveAddress,
-                                                    onChange: (e)=>{
-                                                        setFormData((prev)=>({
-                                                                ...prev,
-                                                                saveAddress: e.target.checked
-                                                            }));
-                                                    },
-                                                    className: "h-4 w-4 text-[#022953] focus:ring-[#022953] border-gray-300 rounded"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 731,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                    htmlFor: "saveAddress",
-                                                    className: "ml-2 block text-sm text-gray-700",
-                                                    children: "Guardar esta dirección para futuras compras"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 743,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 730,
-                                            columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 613,
-                            columnNumber: 9
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "bg-white rounded-lg p-4 shadow",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                    className: "text-lg font-semibold mb-4",
-                                    children: "Información de contacto"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 753,
-                                    columnNumber: 11
-                                }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex flex-col gap-2",
+                                    className: "relative",
                                     children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                            className: "text-[#9a9a9a]",
-                                            children: "Número de teléfono del receptor"
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                            type: "tel",
+                                            value: formData.phone,
+                                            onChange: (e)=>{
+                                                const value = e.target.value.replace(/[^0-9+\s-]/g, '');
+                                                setFormData({
+                                                    ...formData,
+                                                    phone: value
+                                                });
+                                            },
+                                            placeholder: "Ej: 55555555 o +53 55555555",
+                                            className: `w-full p-2 rounded-md border ${tried && !validation.phone && formData.phone ? 'border-red-500' : 'border-gray-300'} ${formData.phone ? validation.phone ? 'border-green-500' : 'border-red-500' : ''}`,
+                                            required: true
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 755,
-                                            columnNumber: 13
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "relative",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                    type: "tel",
-                                                    value: formData.phone,
-                                                    onChange: (e)=>{
-                                                        const value = e.target.value.replace(/[^0-9+\s-]/g, '');
-                                                        setFormData({
-                                                            ...formData,
-                                                            phone: value
-                                                        });
-                                                    },
-                                                    placeholder: "Ej: 55555555 o +53 55555555",
-                                                    className: `w-full p-2 rounded-md border ${tried && !validation.phone && formData.phone ? 'border-red-500' : 'border-gray-300'} ${formData.phone ? validation.phone ? 'border-green-500' : 'border-red-500' : ''}`,
-                                                    required: true
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 759,
-                                                    columnNumber: 15
-                                                }, this),
-                                                formData.phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "absolute right-3 top-1/2 transform -translate-y-1/2",
-                                                    children: validation.phone ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
-                                                        className: "h-5 w-5 text-green-500"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/checkout/page.tsx",
-                                                        lineNumber: 777,
-                                                        columnNumber: 21
-                                                    }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
-                                                        className: "h-5 w-5 text-red-500"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/checkout/page.tsx",
-                                                        lineNumber: 779,
-                                                        columnNumber: 21
-                                                    }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 775,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 758,
-                                            columnNumber: 13
-                                        }, this),
-                                        tried && !validation.phone && formData.phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "text-red-500 text-sm",
-                                            children: "Por favor ingrese un número de teléfono válido"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 785,
+                                            lineNumber: 591,
                                             columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 754,
-                                    columnNumber: 11
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 752,
-                            columnNumber: 9
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex flex-col gap-4",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex flex-col gap-2",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                            className: "text-[#9a9a9a]",
-                                            children: "Carnet de identidad del receptor"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 793,
-                                            columnNumber: 13
                                         }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "relative",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                    type: "text",
-                                                    value: formData.ci_cliente || '',
-                                                    onChange: (e)=>{
-                                                        const value = e.target.value.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
-                                                        setFormData({
-                                                            ...formData,
-                                                            ci_cliente: value
-                                                        });
-                                                    },
-                                                    placeholder: "Ej: 12345678901",
-                                                    className: `w-full p-2 rounded-md border ${tried && !validation.ci_cliente && formData.ci_cliente ? 'border-red-500' : 'border-gray-300'} ${formData.ci_cliente ? validation.ci_cliente ? 'border-green-500' : 'border-red-500' : ''}`,
-                                                    required: true
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 795,
-                                                    columnNumber: 15
-                                                }, this),
-                                                formData.ci_cliente && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "absolute right-3 top-1/2 transform -translate-y-1/2",
-                                                    children: validation.ci_cliente ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
-                                                        className: "h-5 w-5 text-green-500"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/checkout/page.tsx",
-                                                        lineNumber: 815,
-                                                        columnNumber: 21
-                                                    }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
-                                                        className: "h-5 w-5 text-red-500"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/checkout/page.tsx",
-                                                        lineNumber: 817,
-                                                        columnNumber: 21
-                                                    }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 813,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 794,
-                                            columnNumber: 13
-                                        }, this),
-                                        tried && !validation.ci_cliente && formData.ci_cliente && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "text-red-500 text-sm",
-                                            children: "Por favor ingrese un carnet de identidad válido"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 823,
-                                            columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 792,
-                                    columnNumber: 11
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex flex-col gap-2",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                            className: "text-[#9a9a9a]",
-                                            children: "Provincia"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 829,
-                                            columnNumber: 13
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "relative",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                                    value: formData.provincia,
-                                                    onChange: (e)=>setFormData({
-                                                            ...formData,
-                                                            provincia: e.target.value,
-                                                            municipio: ""
-                                                        }),
-                                                    className: `w-full p-2 rounded-md border ${formData.provincia ? 'border-green-500' : 'border-gray-300'}`,
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                            value: "",
-                                                            children: "Seleccione una provincia"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                                            lineNumber: 844,
-                                                            columnNumber: 17
-                                                        }, this),
-                                                        Object.keys(provinciasCuba).map((provincia)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                                value: provincia,
-                                                                children: provincia
-                                                            }, provincia, false, {
-                                                                fileName: "[project]/src/app/checkout/page.tsx",
-                                                                lineNumber: 846,
-                                                                columnNumber: 19
-                                                            }, this))
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 831,
-                                                    columnNumber: 15
-                                                }, this),
-                                                formData.provincia && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "absolute right-3 top-1/2 transform -translate-y-1/2",
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
-                                                        className: "h-5 w-5 text-green-500"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/checkout/page.tsx",
-                                                        lineNumber: 853,
-                                                        columnNumber: 19
-                                                    }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 852,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 830,
-                                            columnNumber: 13
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 828,
-                                    columnNumber: 11
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex flex-col gap-2",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                            className: "text-[#9a9a9a]",
-                                            children: "Municipio"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 860,
-                                            columnNumber: 13
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "relative",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                                    value: formData.municipio,
-                                                    onChange: (e)=>setFormData({
-                                                            ...formData,
-                                                            municipio: e.target.value
-                                                        }),
-                                                    className: `w-full p-2 rounded-md border ${formData.municipio ? 'border-green-500' : 'border-gray-300'}`,
-                                                    disabled: !formData.provincia,
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                            value: "",
-                                                            children: "Seleccione un municipio"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                                            lineNumber: 872,
-                                                            columnNumber: 17
-                                                        }, this),
-                                                        formData.provincia && provinciasCuba[formData.provincia].map((municipio)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                                value: municipio,
-                                                                children: municipio
-                                                            }, municipio, false, {
-                                                                fileName: "[project]/src/app/checkout/page.tsx",
-                                                                lineNumber: 877,
-                                                                columnNumber: 21
-                                                            }, this))
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 862,
-                                                    columnNumber: 15
-                                                }, this),
-                                                formData.municipio && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "absolute right-3 top-1/2 transform -translate-y-1/2",
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
-                                                        className: "h-5 w-5 text-green-500"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/checkout/page.tsx",
-                                                        lineNumber: 884,
-                                                        columnNumber: 19
-                                                    }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 883,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/src/app/checkout/page.tsx",
-                                            lineNumber: 861,
-                                            columnNumber: 13
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 859,
-                                    columnNumber: 11
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 791,
-                            columnNumber: 9
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex w-full items-center",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                    className: `flex ${formData.provincia === 'La Habana' ? 'text-[#9a9a9a]' : 'text-gray-400'} font-bold`,
-                                    children: [
-                                        "¿Necesitas entrega a domicilio? ",
-                                        formData.provincia !== 'La Habana' && '(Disponible solo en La Habana)'
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 891,
-                                    columnNumber: 11
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                    type: "checkbox",
-                                    checked: delivery === 1,
-                                    disabled: formData.provincia !== 'La Habana',
-                                    onChange: (e)=>{
-                                        const isChecked = e.target.checked;
-                                        setDelivery(isChecked ? 1 : 0);
-                                        setIsAnimating(true);
-                                        if (isChecked) {
-                                            setIsExpanded(true);
-                                        }
-                                    },
-                                    className: `flex ml-auto h-5 w-5 rounded border-gray-300 text-[#022953] focus:ring-[#022953] ${formData.provincia === 'La Habana' ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                    lineNumber: 894,
-                                    columnNumber: 11
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 890,
-                            columnNumber: 9
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: `overflow-hidden transition-all duration-300 ease-in-out ${delivery === 1 ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`,
-                            onTransitionEnd: ()=>{
-                                if (delivery === 0) {
-                                    setIsExpanded(false);
-                                }
-                                setIsAnimating(false);
-                            },
-                            style: {
-                                visibility: isExpanded || isAnimating ? 'visible' : 'hidden'
-                            },
-                            children: isExpanded && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "flex flex-col gap-2 w-full pt-2",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "flex text-[#9a9a9a]",
-                                        children: "Dirección"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/checkout/page.tsx",
-                                        lineNumber: 930,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "relative",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
-                                                value: formData.direccionExacta,
-                                                onChange: (e)=>setFormData((prev)=>({
-                                                            ...prev,
-                                                            direccionExacta: e.target.value
-                                                        })),
-                                                required: delivery === 1,
-                                                placeholder: "Escriba su dirección aquí",
-                                                className: `w-full p-2 min-h-20 bg-white placeholder:text-left text-left align-top rounded-md border focus:ring-2 focus:ring-[#022953] focus:border-transparent transition-all duration-200 ${tried && delivery === 1 && !formData.direccionExacta ? 'border-red-500' : formData.direccionExacta ? 'border-green-500' : 'border-gray-300'}`
+                                        formData.phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "absolute right-3 top-1/2 transform -translate-y-1/2",
+                                            children: validation.phone ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                                className: "h-5 w-5 text-green-500"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/checkout/page.tsx",
-                                                lineNumber: 932,
-                                                columnNumber: 17
-                                            }, this),
-                                            formData.direccionExacta && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "absolute right-3 top-3",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
-                                                    className: "h-5 w-5 text-green-500"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/app/checkout/page.tsx",
-                                                    lineNumber: 949,
-                                                    columnNumber: 21
-                                                }, this)
+                                                lineNumber: 608,
+                                                columnNumber: 21
+                                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
+                                                className: "h-5 w-5 text-red-500"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/checkout/page.tsx",
-                                                lineNumber: 948,
-                                                columnNumber: 19
+                                                lineNumber: 610,
+                                                columnNumber: 21
                                             }, this)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/app/checkout/page.tsx",
-                                        lineNumber: 931,
-                                        columnNumber: 15
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/checkout/page.tsx",
-                                lineNumber: 929,
-                                columnNumber: 13
-                            }, this)
-                        }, void 0, false, {
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 606,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 590,
+                                    columnNumber: 13
+                                }, this),
+                                tried && !validation.phone && formData.phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "text-red-500 text-sm",
+                                    children: "Por favor ingrese un número de teléfono válido"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 616,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
                             fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 912,
-                            columnNumber: 9
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "hidden w-full h-full bg-blue-500/10 md:p-10 p-4 items-center justify-center text-center md:text-2xl rounded-md text-blue-900",
-                            children: "Lo sentimos, no se pueden hacer pedidos temporalmente"
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 972,
-                            columnNumber: 9
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex w-full justify-center",
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                onClick: handleSubmit,
-                                className: "flex w-full md:w-1/2 h-12 bg-[#022953] font-bold text-white items-center justify-center hover:text-lg transition-all duration-300 rounded-md",
-                                children: "Confirmar orden"
-                            }, void 0, false, {
-                                fileName: "[project]/src/app/checkout/page.tsx",
-                                lineNumber: 977,
-                                columnNumber: 11
-                            }, this)
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 976,
-                            columnNumber: 9
-                        }, this),
-                        tried && error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                            className: "w-full bg-red-300 font-xs p-2 items-center text-center text-red-700 rounded-md",
-                            children: error
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/checkout/page.tsx",
-                            lineNumber: 985,
+                            lineNumber: 586,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/checkout/page.tsx",
-                    lineNumber: 597,
-                    columnNumber: 7
+                    lineNumber: 570,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex flex-col gap-4",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex flex-col gap-2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                className: "text-[#9a9a9a]",
+                                children: "Carnet de identidad del receptor"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/checkout/page.tsx",
+                                lineNumber: 624,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "relative",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                        type: "text",
+                                        value: formData.ci_cliente || '',
+                                        onChange: (e)=>{
+                                            const value = e.target.value.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+                                            setFormData({
+                                                ...formData,
+                                                ci_cliente: value
+                                            });
+                                        },
+                                        placeholder: "Ej: 12345678901",
+                                        className: `w-full p-2 rounded-md border ${tried && !validation.ci_cliente && formData.ci_cliente ? 'border-red-500' : 'border-gray-300'} ${formData.ci_cliente ? validation.ci_cliente ? 'border-green-500' : 'border-red-500' : ''}`,
+                                        required: true
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/checkout/page.tsx",
+                                        lineNumber: 626,
+                                        columnNumber: 15
+                                    }, this),
+                                    formData.ci_cliente && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "absolute right-3 top-1/2 transform -translate-y-1/2",
+                                        children: validation.ci_cliente ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                            className: "h-5 w-5 text-green-500"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 644,
+                                            columnNumber: 21
+                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
+                                            className: "h-5 w-5 text-red-500"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 646,
+                                            columnNumber: 21
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/checkout/page.tsx",
+                                        lineNumber: 642,
+                                        columnNumber: 17
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/checkout/page.tsx",
+                                lineNumber: 625,
+                                columnNumber: 13
+                            }, this),
+                            tried && !validation.ci_cliente && formData.ci_cliente && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-red-500 text-sm",
+                                children: "Por favor ingrese un carnet de identidad válido"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/checkout/page.tsx",
+                                lineNumber: 652,
+                                columnNumber: 15
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/checkout/page.tsx",
+                        lineNumber: 623,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/src/app/checkout/page.tsx",
+                    lineNumber: 622,
+                    columnNumber: 9
+                }, this),
+                addresses.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex flex-col gap-4",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex items-center gap-2",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                    type: "checkbox",
+                                    id: "useSavedAddress",
+                                    checked: useMyAddress,
+                                    onChange: ()=>setUseMyAddress(!useMyAddress),
+                                    className: "h-4 w-4 rounded border-gray-300 text-[#022953] focus:ring-[#022953]"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 661,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    htmlFor: "useSavedAddress",
+                                    className: "text-[#9a9a9a] cursor-pointer",
+                                    children: "Usar una dirección guardada"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 668,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/checkout/page.tsx",
+                            lineNumber: 660,
+                            columnNumber: 13
+                        }, this),
+                        useMyAddress && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex flex-col gap-2",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    className: "text-[#9a9a9a]",
+                                    children: "Selecciona una dirección:"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 675,
+                                    columnNumber: 17
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "grid gap-2",
+                                    children: addresses.map((address)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: `p-3 border rounded-md cursor-pointer transition-colors ${selectedAddress === address.id ? 'border-[#022953] bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`,
+                                            onClick: ()=>{
+                                                setSelectedAddress(address.id);
+                                                setFormData((prev)=>({
+                                                        ...prev,
+                                                        provincia: address.provincia,
+                                                        municipio: address.municipio,
+                                                        direccionExacta: address.direccion || ''
+                                                    }));
+                                            },
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                    className: "font-medium",
+                                                    children: address.direccion
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                                    lineNumber: 695,
+                                                    columnNumber: 23
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                    className: "text-sm",
+                                                    children: [
+                                                        address.municipio,
+                                                        ", ",
+                                                        address.provincia
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                                    lineNumber: 696,
+                                                    columnNumber: 23
+                                                }, this)
+                                            ]
+                                        }, address.id, true, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 678,
+                                            columnNumber: 21
+                                        }, this))
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 676,
+                                    columnNumber: 17
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/checkout/page.tsx",
+                            lineNumber: 674,
+                            columnNumber: 15
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/checkout/page.tsx",
+                    lineNumber: 659,
+                    columnNumber: 11
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: `flex flex-col gap-4 w-full ${useMyAddress && addresses.length > 0 ? 'hidden' : ''}`,
+                    children: [
+                        addresses.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-sm text-gray-600",
+                            children: "O ingresa una dirección manualmente:"
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/checkout/page.tsx",
+                            lineNumber: 707,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex flex-col gap-2",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    className: "text-[#9a9a9a]",
+                                    children: "Provincia"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 710,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "relative",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                            value: formData.provincia,
+                                            onChange: (e)=>setFormData({
+                                                    ...formData,
+                                                    provincia: e.target.value,
+                                                    municipio: ""
+                                                }),
+                                            className: `w-full p-2 rounded-md border ${formData.provincia ? 'border-green-500' : 'border-gray-300'}`,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                    value: "",
+                                                    children: "Seleccione una provincia"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                                    lineNumber: 724,
+                                                    columnNumber: 17
+                                                }, this),
+                                                Object.keys(provinciasCuba).map((provincia)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                        value: provincia,
+                                                        children: provincia
+                                                    }, provincia, false, {
+                                                        fileName: "[project]/src/app/checkout/page.tsx",
+                                                        lineNumber: 726,
+                                                        columnNumber: 19
+                                                    }, this))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 712,
+                                            columnNumber: 15
+                                        }, this),
+                                        formData.provincia && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "absolute right-3 top-1/2 transform -translate-y-1/2",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                                className: "h-5 w-5 text-green-500"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/checkout/page.tsx",
+                                                lineNumber: 733,
+                                                columnNumber: 19
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 732,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 711,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/checkout/page.tsx",
+                            lineNumber: 709,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex flex-col gap-2",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    className: "text-[#9a9a9a]",
+                                    children: "Municipio"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 740,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "relative",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                            value: formData.municipio,
+                                            onChange: (e)=>setFormData({
+                                                    ...formData,
+                                                    municipio: e.target.value
+                                                }),
+                                            className: `w-full p-2 rounded-md border ${formData.municipio ? 'border-green-500' : 'border-gray-300'}`,
+                                            disabled: !formData.provincia,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                    value: "",
+                                                    children: "Seleccione un municipio"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                                    lineNumber: 751,
+                                                    columnNumber: 17
+                                                }, this),
+                                                formData.provincia && provinciasCuba[formData.provincia].map((municipio)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                        value: municipio,
+                                                        children: municipio
+                                                    }, municipio, false, {
+                                                        fileName: "[project]/src/app/checkout/page.tsx",
+                                                        lineNumber: 756,
+                                                        columnNumber: 21
+                                                    }, this))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 742,
+                                            columnNumber: 15
+                                        }, this),
+                                        formData.municipio && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "absolute right-3 top-1/2 transform -translate-y-1/2",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                                className: "h-5 w-5 text-green-500"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/checkout/page.tsx",
+                                                lineNumber: 763,
+                                                columnNumber: 19
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 762,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 741,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/checkout/page.tsx",
+                            lineNumber: 739,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/checkout/page.tsx",
+                    lineNumber: 705,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex flex-col gap-2 mt-4",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                            className: `flex items-center justify-between ${formData.provincia === 'La Habana' ? 'text-[#9a9a9a]' : 'text-gray-400'}`,
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    className: "flex items-center",
+                                    children: [
+                                        "¿Necesitas entrega a domicilio?",
+                                        formData.provincia !== 'La Habana' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            className: "text-xs ml-2",
+                                            children: "(Disponible solo en La Habana)"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 778,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 775,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex items-center gap-2",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                            type: "checkbox",
+                                            id: "deliveryCheckbox",
+                                            checked: delivery === 1,
+                                            disabled: formData.provincia !== 'La Habana',
+                                            onChange: (e)=>{
+                                                const isChecked = e.target.checked;
+                                                setDelivery(isChecked ? 1 : 0);
+                                                setIsAnimating(true);
+                                                if (isChecked) {
+                                                    setIsExpanded(true);
+                                                } else {
+                                                    setFormData((prev)=>({
+                                                            ...prev,
+                                                            direccionExacta: ''
+                                                        }));
+                                                }
+                                            },
+                                            className: `h-5 w-5 rounded border-gray-300 text-[#022953] focus:ring-[#022953] ${formData.provincia === 'La Habana' ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 782,
+                                            columnNumber: 15
+                                        }, this),
+                                        delivery === 1 && formData.provincia === 'La Habana' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            className: "text-sm text-gray-600 whitespace-nowrap",
+                                            children: [
+                                                "+$",
+                                                deliveryFee.toFixed(2),
+                                                " ",
+                                                location === "CU" ? "CUP" : "USD"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 804,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 781,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/checkout/page.tsx",
+                            lineNumber: 772,
+                            columnNumber: 11
+                        }, this),
+                        delivery === 1 && formData.provincia === 'La Habana' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "text-xs text-gray-500 mt-1",
+                            children: "*El precio puede variar según la ubicación exacta. Nos pondremos en contacto contigo para confirmar el costo final."
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/checkout/page.tsx",
+                            lineNumber: 812,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/checkout/page.tsx",
+                    lineNumber: 771,
+                    columnNumber: 9
+                }, this),
+                (!useMyAddress || selectedAddress === null) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: `overflow-hidden transition-all duration-300 ease-in-out ${delivery === 1 ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`,
+                    onTransitionEnd: ()=>{
+                        if (delivery === 0) {
+                            setIsExpanded(false);
+                        }
+                        setIsAnimating(false);
+                    },
+                    style: {
+                        visibility: isExpanded || isAnimating ? 'visible' : 'hidden'
+                    },
+                    children: isExpanded && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex flex-col gap-2 w-full pt-2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                className: "text-[#9a9a9a]",
+                                children: "Dirección exacta"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/checkout/page.tsx",
+                                lineNumber: 836,
+                                columnNumber: 17
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "relative",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
+                                        value: formData.direccionExacta,
+                                        onChange: (e)=>setFormData((prev)=>({
+                                                    ...prev,
+                                                    direccionExacta: e.target.value
+                                                })),
+                                        required: delivery === 1,
+                                        placeholder: "Escriba su dirección completa aquí (calle, número, entre calles, edificio, apartamento, etc.)",
+                                        className: `w-full p-2 min-h-20 bg-white placeholder:text-left text-left align-top rounded-md border focus:ring-2 focus:ring-[#022953] focus:border-transparent transition-all duration-200 ${tried && delivery === 1 && !formData.direccionExacta ? 'border-red-500' : formData.direccionExacta ? 'border-green-500' : 'border-gray-300'}`
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/checkout/page.tsx",
+                                        lineNumber: 838,
+                                        columnNumber: 19
+                                    }, this),
+                                    formData.direccionExacta && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "absolute right-3 top-3",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                            className: "h-5 w-5 text-green-500"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 855,
+                                            columnNumber: 23
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/checkout/page.tsx",
+                                        lineNumber: 854,
+                                        columnNumber: 21
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/checkout/page.tsx",
+                                lineNumber: 837,
+                                columnNumber: 17
+                            }, this),
+                            tried && delivery === 1 && !formData.direccionExacta && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-red-500 text-sm",
+                                children: "Por favor ingrese una dirección de entrega válida"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/checkout/page.tsx",
+                                lineNumber: 860,
+                                columnNumber: 19
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/checkout/page.tsx",
+                        lineNumber: 835,
+                        columnNumber: 15
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/src/app/checkout/page.tsx",
+                    lineNumber: 820,
+                    columnNumber: 11
+                }, this),
+                formData.provincia && formData.municipio && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-sm text-blue-800",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                children: "Ubicación seleccionada:"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/checkout/page.tsx",
+                                lineNumber: 872,
+                                columnNumber: 15
+                            }, this),
+                            " ",
+                            formData.municipio,
+                            ", ",
+                            formData.provincia,
+                            delivery === 1 && formData.direccionExacta && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "block mt-1",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                        children: "Dirección de entrega:"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/checkout/page.tsx",
+                                        lineNumber: 875,
+                                        columnNumber: 19
+                                    }, this),
+                                    " ",
+                                    formData.direccionExacta
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/checkout/page.tsx",
+                                lineNumber: 874,
+                                columnNumber: 17
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/checkout/page.tsx",
+                        lineNumber: 871,
+                        columnNumber: 13
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/src/app/checkout/page.tsx",
+                    lineNumber: 870,
+                    columnNumber: 11
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "w-full mt-6",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                            className: "text-lg font-medium text-gray-900 mb-4",
+                            children: "Resumen del pedido"
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/checkout/page.tsx",
+                            lineNumber: 883,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "bg-white rounded-lg border border-gray-200 p-4",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex justify-between mb-2",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            children: "Subtotal:"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 886,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            children: [
+                                                "$",
+                                                subtotal.toFixed(2),
+                                                " ",
+                                                location === "CU" ? "CUP" : "USD"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 887,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 885,
+                                    columnNumber: 13
+                                }, this),
+                                delivery === 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex justify-between mb-2",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            children: "Envío:"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 891,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            children: [
+                                                "$",
+                                                deliveryFee.toFixed(2),
+                                                " ",
+                                                location === "CU" ? "CUP" : "USD"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 892,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 890,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "border-t border-gray-200 my-3"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 895,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex justify-between font-medium",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            children: "Total:"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 897,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            children: [
+                                                "$",
+                                                (subtotal + (delivery === 1 ? deliveryFee : 0)).toFixed(2),
+                                                " ",
+                                                location === "CU" ? "CUP" : "USD"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/checkout/page.tsx",
+                                            lineNumber: 898,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/checkout/page.tsx",
+                                    lineNumber: 896,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/checkout/page.tsx",
+                            lineNumber: 884,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/checkout/page.tsx",
+                    lineNumber: 882,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "hidden w-full h-full bg-blue-500/10 md:p-10 p-4 items-center justify-center text-center md:text-2xl rounded-md text-blue-900",
+                    children: "Lo sentimos, no se pueden hacer pedidos temporalmente"
+                }, void 0, false, {
+                    fileName: "[project]/src/app/checkout/page.tsx",
+                    lineNumber: 918,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex w-full justify-center",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        onClick: handleSubmit,
+                        className: "flex w-full md:w-1/2 h-12 bg-[#022953] font-bold text-white items-center justify-center hover:text-lg transition-all duration-300 rounded-md",
+                        children: "Confirmar orden"
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/checkout/page.tsx",
+                        lineNumber: 923,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/src/app/checkout/page.tsx",
+                    lineNumber: 922,
+                    columnNumber: 9
+                }, this),
+                tried && error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                    className: "w-full bg-red-300 font-xs p-2 items-center text-center text-red-700 rounded-md",
+                    children: error
+                }, void 0, false, {
+                    fileName: "[project]/src/app/checkout/page.tsx",
+                    lineNumber: 931,
+                    columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/checkout/page.tsx",
-            lineNumber: 554,
+            lineNumber: 527,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/checkout/page.tsx",
-        lineNumber: 553,
+        lineNumber: 526,
         columnNumber: 5
     }, this);
 }
