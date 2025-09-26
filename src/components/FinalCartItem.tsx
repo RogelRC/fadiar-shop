@@ -26,14 +26,14 @@ export default function FinalCartItem({
   const price = useMemo(() => {
     let calculatedPrice = 0;
     if (location === "CU" && item.prices[0][2] === "CUP") {
-      calculatedPrice = item.prices[0][1];
+      calculatedPrice = item.prices[0][3] || item.prices[0][1];
     } else if (location !== "CU" && item.prices[0][2] === "USD") {
-      calculatedPrice = item.prices[0][1];
+      calculatedPrice = item.prices[0][3] || item.prices[0][1];
     } else if (location === "CU" && item.prices[0][2] === "USD") {
-      calculatedPrice = item.prices[0][1] * currencies[1]?.value || 0;
+      calculatedPrice = (item.prices[0][3] || item.prices[0][1]) * currencies[1]?.value || 0;
     } else if (location !== "CU" && item.prices[0][2] === "CUP") {
       calculatedPrice =
-        Math.ceil((item.prices[0][1] / currencies[1]?.value) * 100) / 100 || 0;
+        Math.ceil(((item.prices[0][3] || item.prices[0][1]) / currencies[1]?.value) * 100) / 100 || 0;
     }
     return calculatedPrice;
   }, [location, currencies, item.prices]);
@@ -197,18 +197,18 @@ export default function FinalCartItem({
             <div className="flex flex-1">
               <span className="flex font-bold mt-auto text-[#022953]">
                 {location === "CU" && item.prices[0][2] === "CUP" && (
-                  <>{item.prices[0][1]} CUP</>
+                  <>{item.prices[0][3] || item.prices[0][1]} CUP</>
                 )}
                 {location !== "CU" && item.prices[0][2] === "USD" && (
-                  <>{item.prices[0][1]} USD</>
+                  <>{item.prices[0][3] || item.prices[0][1]} USD</>
                 )}
                 {location === "CU" && item.prices[0][2] === "USD" && (
-                  <>{item.prices[0][1] * currencies[1].value} CUP</>
+                  <>{(item.prices[0][3] || item.prices[0][1]) * currencies[1].value} CUP</>
                 )}
                 {location !== "CU" && item.prices[0][2] === "CUP" && (
                   <>
                     {Math.ceil(
-                      (item.prices[0][1] / currencies[1].value) * 100,
+                      ((item.prices[0][3] || item.prices[0][1]) / currencies[1].value) * 100,
                     ) / 100}{" "}
                     USD
                   </>

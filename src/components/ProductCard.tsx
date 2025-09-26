@@ -13,7 +13,7 @@ interface Product {
   model: string;
   description: string;
   img: string;
-  prices: [number, number, string][];
+  prices: [number, number, string, number][];
   specs: [number, string, string][];
   count: number;
 }
@@ -28,11 +28,13 @@ export default function ProductCard({
   product,
   location,
   currencies,
+    oldPrice,
   onAuthRequired,
 }: {
   product: Product;
   location: string;
   currencies: Currency[];
+  oldPrice: number;
   onAuthRequired?: () => void;
 }) {
   const setAmount = useCart((state) => state.setAmount);
@@ -45,101 +47,8 @@ export default function ProductCard({
   const rapidChangeInterval = useRef<NodeJS.Timeout | null>(null);
   const rapidChangeStartTime = useRef<number>(0);
 
-  const productPriceData = [
-    { id: 10, oldPrice: 50 },
-    { id: 86, oldPrice: 30 },
-    { id: 53, oldPrice: 8 },
-    { id: 52, oldPrice: 12 },
-    { id: 32, oldPrice: 380 },
-    { id: 30, oldPrice: 220 },
-    { id: 31, oldPrice: 300 },
-    { id: 50, oldPrice: 45 },
-    { id: 90, oldPrice: 300 },
-    { id: 63, oldPrice: 25 },
-    { id: 62, oldPrice: 30 },
-    { id: 61, oldPrice: 50 },
-    { id: 80, oldPrice: 300 },
-    { id: 83, oldPrice: 800 },
-    { id: 85, oldPrice: 320 },
-    { id: 84, oldPrice: 560 },
-    { id: 64, oldPrice: 750 },
-    { id: 48, oldPrice: 600 },
-    { id: 51, oldPrice: 40 },
-    { id: 60, oldPrice: 40 },
-    { id: 54, oldPrice: 6 },
-    { id: 39, oldPrice: 80 },
-    { id: 88, oldPrice: 70 },
-    { id: 87, oldPrice: 75 },
-    { id: 56, oldPrice: 20 },
-    { id: 71, oldPrice: 730 },
-    { id: 34, oldPrice: 500 },
-    { id: 47, oldPrice: 320 },
-    { id: 28, oldPrice: 215 },
-    { id: 9, oldPrice: 60 },
-    { id: 78, oldPrice: 50 },
-    { id: 77, oldPrice: 40 },
-    { id: 58, oldPrice: 1600 },
-    { id: 57, oldPrice: 2100 },
-    { id: 44, oldPrice: 1600 },
-    { id: 45, oldPrice: 1800 },
-    { id: 81, oldPrice: 115 },
-    { id: 82, oldPrice: 115 },
-    { id: 89, oldPrice: 25 },
-    { id: 4, oldPrice: 500 },
-    { id: 5, oldPrice: null },
-    { id: 27, oldPrice: 260 },
-    { id: 66, oldPrice: 260 },
-    { id: 93, oldPrice: 260 },
-    { id: 33, oldPrice: 290 },
-    { id: 36, oldPrice: 320 },
-    { id: 1, oldPrice: 360 },
-    { id: 14, oldPrice: 35 },
-    { id: 37, oldPrice: 35 },
-    { id: 23, oldPrice: 45 },
-    { id: 65, oldPrice: 30 },
-    { id: 68, oldPrice: 30 },
-    { id: 67, oldPrice: 40 },
-    { id: 40, oldPrice: 50 },
-    { id: 8, oldPrice: 60 },
-    { id: 74, oldPrice: 250 },
-    { id: 76, oldPrice: 570 },
-    { id: 49, oldPrice: 12 },
-    { id: 55, oldPrice: 10 },
-    { id: 12, oldPrice: 45 },
-    { id: 11, oldPrice: 30 },
-    { id: 35, oldPrice: 600 },
-    { id: 41, oldPrice: 750 },
-    { id: 38, oldPrice: 550 },
-    { id: 69, oldPrice: 525 },
-    { id: 46, oldPrice: 340 },
-    { id: 91, oldPrice: 300 },
-    { id: 29, oldPrice: 300 },
-    { id: 24, oldPrice: 200 },
-    { id: 25, oldPrice: 300 },
-    { id: 26, oldPrice: 450 },
-    { id: 21, oldPrice: 375 },
-    { id: 13, oldPrice: 350 },
-    { id: 7, oldPrice: 880 },
-    { id: 16, oldPrice: 670 },
-    { id: 43, oldPrice: 1500 },
-    { id: 42, oldPrice: 1000 },
-    { id: 17, oldPrice: 35 },
-    { id: 18, oldPrice: 30 },
-    { id: 6, oldPrice: 50 },
-    { id: 19, oldPrice: 50 },
-    { id: 92, oldPrice: 60 },
-    { id: 70, oldPrice: 45 },
-    { id: 79, oldPrice: 45 },
-    { id: 22, oldPrice: 55 },
-    { id: 73, oldPrice: 30 },
-    { id: 72, oldPrice: 35 },
-    { id: 59, oldPrice: 45 }
-  ];
-
-  const oldPrice = productPriceData.find((data) => data.id === product.id)?.oldPrice;
-
   useEffect(() => {
-    if (wait === true) {
+    if (wait) {
       setTimeout(() => {
         setWait(false);
         setSuccess(true);
@@ -283,27 +192,27 @@ export default function ProductCard({
             <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm">
               Marca {product.brand}
             </span>
-            <span>
+            <span className={`${product.count <= 0 ? "hidden": ""}`}>
               {location !== "CU" && product.prices[0][2] === "USD" && (
                 <div className="flex flex-col">
-                  {(oldPrice || 999999999) > product.prices[0][1] && oldPrice && (
+                  {(oldPrice || 999999999) > (product.prices[0][3] || product.prices[0][1]) && oldPrice && (
                     <div className="flex gap-4">
                       <span className="line-through">
                         {oldPrice} USD
                       </span>
                       <span className="rounded-md bg-red-500 px-1">
-                        -{(100 - (product.prices[0][1] / (oldPrice || 999999999) * 100)).toFixed(0)}%
+                        -{(100 - ((product.prices[0][3] || product.prices[0][1]) / (oldPrice || 999999999) * 100)).toFixed(0)}%
                       </span>
                     </div>
                   )}
-                  <span>{product.prices[0][1]} USD</span>
+                  <span>{(product.prices[0][3] || product.prices[0][1])} USD</span>
                 </div>
               )}
               {location !== "CU" && product.prices[0][2] === "CUP" && (
                 <div>
                   <span>
                     {Math.ceil(
-                      (product.prices[0][1] / currencies[1].value) * 100,
+                      ((product.prices[0][3] || product.prices[0][1]) / currencies[1].value) * 100,
                     ) / 100}{" "}
                     USD
                   </span>

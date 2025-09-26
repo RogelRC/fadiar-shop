@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/checkout/page": "/checkout",
+  "/products/id/page": "/products/id",
+  "/account/page": "/account",
+  "/record/id/page": "/record/id",
+  "/products/page": "/products",
+  "/checkout/ticket/page": "/checkout/ticket",
+  "/login/page": "/login",
+  "/page": "/",
+  "/record/page": "/record",
+  "/recovery/page": "/recovery",
+  "/register/page": "/register",
+  "/verify/page": "/verify"
+}

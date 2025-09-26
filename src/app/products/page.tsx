@@ -86,7 +86,7 @@ interface Product {
   model: string;
   description: string;
   img: string;
-  prices: [number, number, string][];
+  prices: [number, number, string, number][];
   specs: [number, string, string][];
   count: number;
   categoria: any;
@@ -142,7 +142,7 @@ export default function ProductsPage() {
           `${process.env.NEXT_PUBLIC_API_URL}/inventory`,
         );
         const products = await response.json();
-        //console.log(products.products);
+        console.log(products.products);
         setProducts(products.products);
         setCurrencies(products.currencys.currencys);
       } catch (error) {
@@ -175,14 +175,14 @@ export default function ProductsPage() {
 
       let price = 0;
       if (location === "CU" && product.prices[0][2] === "CUP")
-        price = product.prices[0][1];
+        price = product.prices[0][3] || product.prices[0][1];
       else if (location !== "CU" && product.prices[0][2] === "USD")
-        price = product.prices[0][1];
+        price = product.prices[0][3] || product.prices[0][1];
       else if (location === "CU" && product.prices[0][2] === "USD")
-        price = product.prices[0][1] * currencies[1].value;
+        price = (product.prices[0][3] || product.prices[0][1]) * currencies[1].value;
       else if (location !== "CU" && product.prices[0][2] === "CUP")
         price =
-          Math.ceil((product.prices[0][1] / currencies[1].value) * 100) / 100;
+          Math.ceil(((product.prices[0][3] || product.prices[0][1]) / currencies[1].value) * 100) / 100;
 
       const priceMatch =
         (!minPrice || price >= minPrice) && (!maxPrice || price <= maxPrice);
@@ -473,6 +473,7 @@ export default function ProductsPage() {
                   location={location}
                   currencies={currencies}
                   onAuthRequired={() => setShowAuthModal(true)}
+                  oldPrice={product.prices[0][1]}
                 />
               ))
           ) : (
@@ -533,6 +534,7 @@ export default function ProductsPage() {
                     location={location}
                     currencies={currencies}
                     onAuthRequired={() => setShowAuthModal(true)}
+                    oldPrice={product.prices[0][1]}
                   />
                 ))}
             </div>

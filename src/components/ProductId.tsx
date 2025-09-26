@@ -319,7 +319,7 @@ export default function ProductPage() {
 
   const currencies = product.currencys.currencys;
   const price = product.product.prices[0];
-  const value = price[1];
+  const value = price[3] || price[1];
   const currency = price[2];
 
   function renderPrice() {
@@ -407,7 +407,7 @@ export default function ProductPage() {
         <div className="block sm:hidden w-full py-2">
           {/* Price Row */}
           <div className="flex w-full justify-between items-center mb-4">
-            <div className="flex flex-col gap-2">
+            <div className={`${product.product.count > 0 ? "flex flex-col" : "hidden"} gap-2`}>
               {oldPrice !== null && oldPrice !== 0 && oldPrice !== undefined && Number(renderPrice()?.split(' ')[0]) !== oldPrice && (
                 <div className="flex items-center">
                   <span className="font-semibold text-3xl text-[#022953] font-sans line-through" style={{ fontWeight: 1000 }}>
@@ -519,7 +519,7 @@ export default function ProductPage() {
 
       {/* Desktop Layout */}
       <div className="hidden sm:block">
-        <div className="flex flex-col w-full bg-[#eff6ff] text-[#022953] p-4 sm:p-10 gap-y-4 sm:gap-y-8 items-center sm:items-start">
+        <div className={`${product.product.count > 0 ? "flex flex-col ": "hidden "} w-full bg-[#eff6ff] text-[#022953] p-4 sm:p-10 gap-y-4 sm:gap-y-8 items-center sm:items-start`}>
           <div className="flex w-full justify-between items-center">
             <div className="flex flex-col gap-2">
               {oldPrice !== null && oldPrice !== 0 && oldPrice !== undefined && Number(renderPrice()?.split(' ')[0]) !== oldPrice && oldPrice > Number(renderPrice()?.split(' ')[0]) && (

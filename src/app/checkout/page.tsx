@@ -5,6 +5,7 @@ import FinalCartItem from "@/components/FinalCartItem";
 import { UserRound, Check, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/store/Cart";
+import { useObject } from "@/store/Tickect";
 
 const provinciasCuba = {
   "Pinar del Río": [
@@ -231,7 +232,7 @@ async function fetchCartItems(userData: any) {
     }
 
     const data = await response.json();
-    console.log(data);
+    //console.log(data);
     return data;
   } catch (error) {
     console.log(error);
@@ -258,8 +259,7 @@ async function getLocation() {
 export default function CheckoutPage() {
   const router = useRouter();
   const setAmount = useCart((state) => state.setAmount);
-
-  // State for cart and UI
+  const setObject = useObject((state) => state.setObject);
   const [cartItems, setCartItems] = useState<any[] | null>(null); // null means loading, [] means loaded but empty
   const [currencies, setCurrencies] = useState<any[]>([]); // Estado para almacenar la moneda actual
   const [location, setLocation] = useState<string>("US");
@@ -274,7 +274,15 @@ export default function CheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useState<number | null>(null);
 
   // Form state
-  const [formData, setFormData] = useState({
+  interface FormData {
+    provincia: string;
+    municipio: string;
+    direccionExacta: string | null;
+    phone: string;
+    ci_cliente: string;
+  }
+
+  const [formData, setFormData] = useState<FormData>({
     provincia: "",
     municipio: "",
     direccionExacta: "",
@@ -336,7 +344,7 @@ export default function CheckoutPage() {
         }
 
         const data = await response.json();
-        console.log(await data.listado)
+        //console.log(await data.listado)
         setAddresses(data.listado);
       } catch (error) {
         console.error('Error fetching addresses:', error);
@@ -359,7 +367,7 @@ export default function CheckoutPage() {
       phone: /^\+?[0-9\s-]{8,}$/.test(formData.phone), // At least 8 digits, country code optional
       ci_cliente: /^\d{11}$/.test(formData.ci_cliente), // Exactly 11 digits
       addressSelected: addressValid,
-      direccionExacta: delivery === 1 ? formData.direccionExacta.trim() !== "" : true
+      direccionExacta: delivery === 1 ? (formData.direccionExacta || "").trim() !== "" : true
     };
 
     setValidation(prev => ({
@@ -381,7 +389,7 @@ export default function CheckoutPage() {
     const isFormValid =
       formData.provincia.trim() !== "" &&
       formData.municipio.trim() !== "" &&
-      (delivery === 0 || formData.direccionExacta.trim() !== "") &&
+      (delivery === 0 || (formData.direccionExacta || "").trim() !== "") &&
       formData.phone.trim() !== "" &&
       /^\d{11}$/.test(formData.ci_cliente);
 
@@ -402,6 +410,10 @@ export default function CheckoutPage() {
       const name = userData.name || "";
       const apellidos_cliente = `${userData.last1 || ""} ${userData.last2 || ""}`.trim();
 
+      if(delivery === 0){
+          formData.direccionExacta = null;
+      }
+
       const orderData = {
         ...formData,
         name_cliente: name,
@@ -416,11 +428,12 @@ export default function CheckoutPage() {
         items: cartItems?.map((item) => ({
           id_product: item.id,
           count: item.count,
-          price: item.prices[0][1],
+          price: item.prices[0][3] || item.prices[0][1],
           currency: item.prices[0][2],
         })),
       };
 
+      console.log('orderData');
       console.log(orderData)
 
       const response = await fetch(
@@ -434,7 +447,10 @@ export default function CheckoutPage() {
 
       const data = await response.json();
 
-      console.log('API Response:', data); // Log the full response
+      // Save the order response to the global state
+      setObject(data);
+
+      //console.log('API Response:', data); // Log the full response
 
       if (!response.ok) {
         setError(data.message || "Error al comprar");
@@ -836,7 +852,7 @@ export default function CheckoutPage() {
                 <label className="text-[#9a9a9a]">Dirección exacta</label>
                 <div className="relative">
                   <textarea
-                    value={formData.direccionExacta}
+                    value={formData.direccionExacta || ""}
                     onChange={(e) =>
                       setFormData(prev => ({ ...prev, direccionExacta: e.target.value }))
                     }

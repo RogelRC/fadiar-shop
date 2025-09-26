@@ -3,7 +3,9 @@
 import { Check } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import ReadyButton from "@/components/ReadyButton";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
+import { useObject } from "@/store/Tickect";
+import  Link from "next/link";
 
 const formatDate = (dateString: string) => {
   const months = [
@@ -36,62 +38,149 @@ const formatDate = (dateString: string) => {
 
 export default function TicketPage() {
   const searchParams = useSearchParams();
+  const order = useObject((state) => state.object?.order);
+
+  useEffect(() => {
+    console.log('Order data:', order);
+  }, [order]);
 
   const data = useMemo(() => {
-    const date = searchParams.get("date") || "";
-    const direccionExacta = searchParams.get("direccionExacta")
-      ? decodeURIComponent(searchParams.get("direccionExacta")!)
-      : null;
-    const price = searchParams.get("price") || "0";
-    const currency = searchParams.get("currency") || "CUP";
+    if (!order) return null;
 
-    return { date, direccionExacta, price, currency };
-  }, [searchParams]);
+    const { date, client_name, client_last_names, client_ci, client_cell, id, manager_cell1, municipio, provincia, direccionExacta } = order;
 
-  const { dateFormatted, timeFormatted } = useMemo(() => {
-    return formatDate(data.date || "");
-  }, [data.date]);
+    const formattedDate = date ? formatDate(date) : { dateFormatted: '', timeFormatted: '' };
+
+    const hasDelivery = direccionExacta;
+    const pickupAddress = 'Calle 29F entre 114 y 114A, edificio 11413, Ciudad Libertad, Marianao, La Habana, Cuba, Almacén 9A (ENAME)';
+    
+    return {
+      date: formattedDate.dateFormatted,
+      time: formattedDate.timeFormatted,
+      orderId: id,
+      fullName: `${client_name} ${client_last_names}`.trim(),
+      ci: client_ci,
+      phone: client_cell,
+      managerPhone: manager_cell1,
+      hasDelivery,
+      address: hasDelivery 
+        ? `${direccionExacta}, ${municipio}, ${provincia}`
+        : pickupAddress,
+      products: order.products || []
+    };
+  }, [order]);
+
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-gray-600">No hay ningún pedido nuevo. <Link href="/products" className="text-blue-600">Continuar comprando</Link></p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-[calc(100vh-88px)] w-full bg-white p-4 sm:py-12">
-      <div className="flex flex-col w-full sm:w-2/3 min-h-full mx-auto bg-[#f4f4f4] rounded-md px-10 items-center pb-8">
-        <div className="flex flex-col items-center justify-center w-full my-14 gap-4">
-          <div className="flex w-20 h-20 rounded-full bg-[#022953] items-center justify-center p-2">
-            <Check className="text-white h-full w-full" />
-          </div>
-          <span className="flex text-2xl font-bold text-[#022953]">
-            Orden confirmada
-          </span>
+    <div className="flex min-h-[calc(100vh-88px)] w-full bg-white p-4 sm:py-12 justify-center">
+      <div className="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden">
+        {/* Header */}
+        <div className="bg-[#022953] text-white p-6 text-center">
+          <h1 className="text-2xl font-bold">¡Pedido Realizado!</h1>
+          <p className="text-sm opacity-90 mt-1">
+            {data.date} a las {data.time}
+          </p>
+          <p className="text-sm mt-2 font-medium  inline-block px-3 py-1 rounded-full">
+            ID de pedido: #{data.orderId}
+          </p>
         </div>
-        <div className="flex flex-col w-full text-[#9a9a9a] gap-4">
-          <div className="flex w-full gap-4">
-            <span className="flex">Día</span>
-            <span className="flex ml-auto font-bold">{dateFormatted}</span>
+
+        {/* Order Info */}
+        <div className="p-6">
+          <div className="flex items-center justify-center mb-6">
+            <div className="bg-green-100 rounded-full p-3">
+              <Check className="h-8 w-8 text-green-600" />
+            </div>
           </div>
-          <hr className="flex h-px border-[#9a9a9a] w-full" />
-          <div className="flex w-full gap-4">
-            <span className="flex">Hora</span>
-            <span className="flex ml-auto font-bold">{timeFormatted}</span>
-          </div>
-          <hr className="flex h-px border-[#9a9a9a] w-full" />
-          {data.direccionExacta && (
-            <>
-              <div className="flex w-full gap-4">
-                <span className="flex">Dirección</span>
-                <span className="flex ml-auto font-bold">{data.direccionExacta}</span>
+
+          <h2 className="text-xl font-semibold text-center mb-6">
+            Su pedido ha sido recibido
+          </h2>
+
+          {/* Customer Information */}
+          <div className="mb-6 space-y-4">
+            <div className="border-b pb-4">
+              <h3 className="font-medium text-gray-700 mb-2">Datos del Cliente</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                <div>Nombre:</div>
+                <div className="font-medium">{data.fullName}</div>
+
+                <div>CI:</div>
+                <div className="font-medium">{data.ci}</div>
+
+                <div>Teléfono:</div>
+                <div className="font-medium">{data.phone}</div>
               </div>
-              <hr className="flex h-px border-[#9a9a9a] w-full" />
-            </>
+            </div>
+
+            {/* Delivery Information */}
+            <div className="pt-2">
+              <h3 className="font-medium text-gray-700 mb-2">
+                {data.hasDelivery ? 'Dirección de Entrega' : 'Dirección de Recogida'}
+              </h3>
+              <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded whitespace-pre-line">
+                {data.hasDelivery ? (
+                  <div className="flex items-start gap-2">
+                    <span>🚚</span>
+                    <span>{data.address}</span>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <div className="flex items-start gap-2">
+                      <span>🏪</span>
+                      <span className="font-medium">Recoger en el almacén</span>
+                    </div>
+                    <div className="pl-6 text-sm">
+                      {data.address.split('\n').map((line, i) => (
+                        <p key={i}>{line}</p>
+                      ))}
+                    </div>
+
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Products */}
+          {data.products.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-medium text-gray-700 mb-3">Productos</h3>
+              <div className="space-y-3">
+                {data.products.map((product: any, index: number) => (
+                  <div key={index} className="flex justify-between items-center text-sm">
+                    <span className="text-gray-600">
+                      {product.name} x{product.count}
+                    </span>
+                    <span className="font-medium">
+                      {product.prices[0][1]} {product.prices[0][2]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
-          <div className="flex w-full">
-            <span className="flex">Total a pagar</span>
-            <span className="flex ml-auto font-extrabold text-[#022953]">
-              {data.price} {data.currency}
-            </span>
+
+          <div className="text-center text-sm text-gray-500 mt-8">
+
+            <p className="mt-1">Gracias por su compra.</p>
+          </div>
+
+          <div className="flex w-full justify-center mt-6">
+            <ReadyButton />
           </div>
         </div>
-        <ReadyButton />
+        </div>
       </div>
-    </div>
+
   );
 }

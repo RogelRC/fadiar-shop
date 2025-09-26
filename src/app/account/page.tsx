@@ -882,7 +882,7 @@ export default function AccountPage() {
                         </svg>
                       </button>
                     </div>
-                    <h4 className="font-medium text-gray-800">
+                    <h4 className="font-medium text-gray-800 mt-2">
                       {String(address.provincia)}, {String(address.municipio)}
                     </h4>
                     <p className="text-sm text-gray-600 mt-1">{String(address.direccion)}</p>

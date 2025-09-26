@@ -11,7 +11,7 @@ interface Product {
   model: string;
   description: string;
   img: string;
-  prices: [number, number, string][];
+  prices: [number, number, string, number][];
   specs: [number, string, string][];
   count: number;
   categoria: any;
@@ -80,6 +80,7 @@ export default function NewProducts() {
               location={location}
               currencies={currencies}
               onAuthRequired={() => setShowAuthModal(true)}
+              oldPrice={product.prices[0][1]}
             />
           </div>
         ))}
